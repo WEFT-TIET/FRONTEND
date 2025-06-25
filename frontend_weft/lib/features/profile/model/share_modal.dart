@@ -17,15 +17,15 @@ void showShareModal(BuildContext context, Color accent) {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Column(children: [CircleAvatar(backgroundColor: accent.withOpacity(0.1), child: Icon(Icons.qr_code, color: accent, size: 32)), const SizedBox(height: 8), const Text('QR Code')]),
+                Column(children: [CircleAvatar(backgroundColor: accent.withAlpha((0.1 * 255).toInt()), child: Icon(Icons.qr_code, color: accent, size: 32)), const SizedBox(height: 8), const Text('QR Code')]),
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile link copied!')));
                   },
-                  child: Column(children: [CircleAvatar(backgroundColor: accent.withOpacity(0.1), child: Icon(Icons.link, color: accent, size: 32)), const SizedBox(height: 8), const Text('Copy Link')]),
+                  child: Column(children: [CircleAvatar(backgroundColor: accent.withAlpha((0.1 * 255).toInt()), child: Icon(Icons.link, color: accent, size: 32)), const SizedBox(height: 8), const Text('Copy Link')]),
                 ),
-                Column(children: [CircleAvatar(backgroundColor: accent.withOpacity(0.1), child: Icon(Icons.send, color: accent, size: 32)), const SizedBox(height: 8), const Text('Direct')]),
+                Column(children: [CircleAvatar(backgroundColor: accent.withAlpha((0.1 * 255).toInt()), child: Icon(Icons.send, color: accent, size: 32)), const SizedBox(height: 8), const Text('Direct')]),
               ],
             ),
           ],

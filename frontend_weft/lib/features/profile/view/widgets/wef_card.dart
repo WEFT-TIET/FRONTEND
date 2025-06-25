@@ -6,7 +6,7 @@ class WefCard extends StatelessWidget {
   final Color accent;
   final Color cardColor;
 
-  const WefCard({required this.title, required this.subtitle, required this.accent, required this.cardColor});
+  const WefCard({super.key, required this.title, required this.subtitle, required this.accent, required this.cardColor});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +16,8 @@ class WefCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: accent.withOpacity(0.15), blurRadius: 12, offset: const Offset(0, 6))],
-        border: Border.all(color: accent.withOpacity(0.2), width: 1.5),
+        boxShadow: [BoxShadow(color: accent.withAlpha((0.15 * 255).toInt()), blurRadius: 12, offset: const Offset(0, 6))],
+        border: Border.all(color: accent.withAlpha((0.2 * 255).toInt()), width: 1.5),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -32,8 +32,8 @@ class WefCard extends StatelessWidget {
             const Spacer(),
             TextButton(
               onPressed: () {},
-              child: const Text('View'),
               style: TextButton.styleFrom(foregroundColor: accent, textStyle: const TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text('View'),
             ),
           ],
         ),

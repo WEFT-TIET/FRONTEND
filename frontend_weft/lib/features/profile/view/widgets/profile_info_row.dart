@@ -5,7 +5,7 @@ class ProfileInfoRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const ProfileInfoRow({required this.icon, required this.label, required this.value});
+  const ProfileInfoRow({super.key, required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
