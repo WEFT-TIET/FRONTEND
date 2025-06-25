@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_weft/Drawer/attendance.dart';
-import 'package:frontend_weft/Drawer/event.dart';
-import 'package:frontend_weft/Drawer/map.dart';
-import 'package:frontend_weft/Drawer/party.dart';
+import 'package:frontend_weft/features/home/view/Drawer/attendance.dart';
+import 'package:frontend_weft/features/home/view/Drawer/event.dart';
+import 'package:frontend_weft/features/home/view/Drawer/map.dart';
+import 'package:frontend_weft/features/home/view/Drawer/party.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

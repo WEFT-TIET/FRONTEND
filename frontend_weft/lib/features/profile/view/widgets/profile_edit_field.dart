@@ -5,7 +5,7 @@ class ProfileEditField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
 
-  const ProfileEditField({required this.icon, required this.label, required this.controller});
+  const ProfileEditField({super.key, required this.icon, required this.label, required this.controller});
 
   @override
   Widget build(BuildContext context) {

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../widgets/profile_info_row.dart';
 import '../widgets/profile_edit_field.dart';
 import '../widgets/wef_card.dart';
-import '../modals/share_modal.dart';
-import '../modals/badge_modal.dart';
+import '../../model/share_modal.dart';
+import '../../model/badge_modal.dart';
 
 final List<Map<String, dynamic>> badges = [
   {'icon': Icons.emoji_events, 'label': 'Top Contributor', 'description': 'Awarded for being a top contributor in the community.', 'color': Colors.amber},
@@ -55,12 +55,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     color: cardColor,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 16, offset: const Offset(0, 8)),
+                      BoxShadow(color: Colors.black.withAlpha((0.08 * 255).toInt()), blurRadius: 16, offset: const Offset(0, 8)),
                     ],
                   ),
                   child: Column(
                     children: [
-                      Text('@student_username', style: theme.textTheme.bodyMedium?.copyWith(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6), fontStyle: FontStyle.italic)),
+                      Text('@student_username', style: theme.textTheme.bodyMedium?.copyWith(color: theme.textTheme.bodyMedium?.color?.withAlpha((0.6 * 255).toInt()), fontStyle: FontStyle.italic)),
                       const SizedBox(height: 8),
                       Align(
                         alignment: Alignment.centerLeft,
@@ -177,21 +177,21 @@ class _ProfilePageState extends State<ProfilePage> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [accent.withOpacity(0.7), accent.withOpacity(0.2), Colors.transparent],
+                        colors: [accent.withAlpha((0.7 * 255).toInt()), accent.withAlpha((0.2 * 255).toInt()), Colors.transparent],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      boxShadow: [BoxShadow(color: accent.withOpacity(0.25), blurRadius: 18, offset: const Offset(0, 8))],
+                      boxShadow: [BoxShadow(color: accent.withAlpha((0.25 * 255).toInt()), blurRadius: 18, offset: const Offset(0, 8))],
                     ),
                     child: Container(
                       margin: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: theme.scaffoldBackgroundColor,
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.10), blurRadius: 8, offset: const Offset(0, 2))],
+                        boxShadow: [BoxShadow(color: Colors.black.withAlpha((0.1 * 255).toInt()), blurRadius: 8, offset: const Offset(0, 2))],
                       ),
                       child: ClipOval(
-                        child: Image.asset('assets/profile_photo.jpg', fit: BoxFit.cover, width: 92, height: 92),
+                        child: Image.asset('lib/core/assets/profile_photo.jpeg', fit: BoxFit.cover, width: 92, height: 92),
                       ),
                     ),
                   ),
