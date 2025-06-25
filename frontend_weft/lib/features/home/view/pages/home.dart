@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/Drawer/attendance.dart';
 import 'package:frontend_weft/features/home/view/Drawer/event.dart';
 import 'package:frontend_weft/features/home/view/Drawer/map.dart';
 import 'package:frontend_weft/features/home/view/Drawer/party.dart';
+import 'package:frontend_weft/features/home/view/widgets/event_card.dart';
+import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(174, 8, 150, 244),
-        title: const Text('WEFT'),
-        actions: [IconButton(icon: const Icon(Icons.notifications), onPressed: () {
-         
-        })],
+        backgroundColor: AppPallete.primaryLight,
+        title: const Text('Hi, Rudra'),
+        actions: [
+          IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
+        ],
       ),
       drawer: SafeArea(
         child: SizedBox(
@@ -32,10 +36,7 @@ class HomePage extends StatelessWidget {
                     ),
                     child: Text(
                       'For Students',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                      ),
+                      style: TextStyle(color: Colors.white, fontSize: 24),
                     ),
                   ),
                 ),
@@ -44,8 +45,10 @@ class HomePage extends StatelessWidget {
                   title: Text('Society Events'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => EventPage()),
-                     ); // Close the drawer
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EventPage()),
+                    ); // Close the drawer
                     // Do something
                   },
                 ),
@@ -54,8 +57,10 @@ class HomePage extends StatelessWidget {
                   title: Text('Attendance'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => AttendancePage()),
-                     ); // Close the drawer
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AttendancePage()),
+                    ); // Close the drawer
                     // Navigate to settings
                   },
                 ),
@@ -64,8 +69,10 @@ class HomePage extends StatelessWidget {
                   title: Text('Map'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => MapPage()),
-                     ); // Close the drawer
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MapPage()),
+                    ); // Close the drawer
                     // Do something
                   },
                 ),
@@ -74,8 +81,10 @@ class HomePage extends StatelessWidget {
                   title: Text('Party Tickets'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => PartyPage()),
-                     ); // Close the drawer
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PartyPage()),
+                    ); // Close the drawer
                     // Do something
                   },
                 ),
@@ -84,9 +93,62 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
-      body: Center(
-        child: Text(
-          'Home Page',
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              Text(
+                'SOCIETY EVENTS',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 35),
+              SizedBox(
+                height: 200,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 5,
+                  separatorBuilder: (context, index) => const SizedBox(width: 4),
+                  itemBuilder: (context, index) => EventCard(
+                    title: 'CCS',
+                    subtitle: 'CCS Tech Fest',
+                    date: 'Dec 15',
+                    location: 'Main Auditorium',
+                    backgroundColor: AppPallete.eventCardColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+              Text(
+                'STUDENTS\' POSTS',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 5,
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) => PostCard(
+                    name: 'Rudra',
+                    tag: 'CCS',
+                    timeAgo: '2h ago',
+                    content:
+                        'Join us for the CCS Tech Fest! Exciting events and workshops await.',
+                    stars: 10,
+                    comments: 5,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
