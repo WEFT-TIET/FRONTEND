@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/theme.dart';
-import 'package:frontend_weft/navigation.dart';
+import 'package:frontend_weft/features/navbar/navigation.dart';
 
 
 void main() {
