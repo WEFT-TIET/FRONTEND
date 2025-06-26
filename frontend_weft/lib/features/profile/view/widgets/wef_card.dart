@@ -6,7 +6,7 @@ class WefCard extends StatelessWidget {
   final Color accent;
   final Color cardColor;
 
-  const WefCard({super.key, required this.title, required this.subtitle, required this.accent, required this.cardColor});
+  const WefCard({super.key, required this.title, required this.subtitle, required this.accent, required this.cardColor,});
 
   @override
   Widget build(BuildContext context) {

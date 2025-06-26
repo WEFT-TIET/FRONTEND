@@ -18,4 +18,10 @@ class AppPallete {
 
   static const Color textPrimaryDark = Colors.white;
   static const Color textSecondaryDark = Colors.grey;
+
+  static const Color whiteColor = Colors.white70;
+  static const Color red = Colors.redAccent;
+
+  static const Color eventCardColor = Color(0xFF2A3A4D);
+  static const Color postCardColor = Color(0xFF10121A);
 }
