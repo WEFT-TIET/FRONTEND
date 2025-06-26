@@ -11,17 +11,17 @@ class AppPallete {
   static const cardColorDark = Color(0xFF1F1F1F);
 
   static const Color scaffoldBackgroundColorLight = Color(0xFFF8F9FA);
-  static const Color scaffoldBackgroundColorDark = Color(0xFF121212);
+  static const Color scaffoldBackgroundColorDark = Color.fromARGB(255, 0, 0, 0);
 
   static const Color textPrimaryLight = Colors.black;
   static const Color textSecondaryLight = Colors.black87;
 
   static const Color textPrimaryDark = Colors.white;
-  static const Color textSecondaryDark = Colors.grey;
+  static const Color textSecondaryDark = Color.fromARGB(255, 255, 255, 255);
 
   static const Color whiteColor = Colors.white70;
   static const Color red = Colors.redAccent;
 
   static const Color eventCardColor = Color(0xFF2A3A4D);
-  static const Color postCardColor = Color(0xFF10121A);
+  static const Color postCardColor = Color.fromARGB(255, 15, 5, 37);
 }

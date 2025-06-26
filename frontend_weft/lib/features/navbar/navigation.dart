@@ -48,8 +48,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
     decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24), 
           border: Border.all(
-            color: borderColor,
-            width: 1.0,
+            color: const Color.fromARGB(255, 143, 143, 143),
+            width: 0.5,
           ),
         ),
         child: ClipRRect(
@@ -95,7 +95,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   label: 'Search',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.forum_outlined),
+                  icon: Icon(Icons.chat_bubble_outline),
                   activeIcon: GradientIcon(
                     icon: Icons.forum_outlined,
                     gradient: LinearGradient(colors: gradientColors),

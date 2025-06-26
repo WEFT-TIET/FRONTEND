@@ -15,7 +15,7 @@ class HomePage extends StatelessWidget {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppPallete.primaryLight,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         title: const Text('Hi, Rudra'),
         actions: [
           IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
@@ -118,7 +118,7 @@ class HomePage extends StatelessWidget {
                     subtitle: 'CCS Tech Fest',
                     date: 'Dec 15',
                     location: 'Main Auditorium',
-                    backgroundColor: AppPallete.eventCardColor,
+                    backgroundColor: const Color.fromARGB(255, 26, 15, 59),
                   ),
                 ),
               ),
