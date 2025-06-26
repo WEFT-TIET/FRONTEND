@@ -45,8 +45,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20), 
-        decoration: BoxDecoration(
+    decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24), 
           border: Border.all(
             color: borderColor,
