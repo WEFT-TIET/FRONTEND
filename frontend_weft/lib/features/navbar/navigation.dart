@@ -25,7 +25,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   // Color constants
   static const Color backgroundColor = Colors.black;
-  static const Color borderColor = Colors.white; // Changed to white
+  static const Color borderColor = Colors.white; 
   static const Color activeIconColor = Color(0xFF3B82F6);
   static const Color activeTextColor = Color(0xFF60A5FA);
   static const Color inactiveColor = Color(0xFF6B7280);
@@ -45,16 +45,16 @@ class _BottomNavBarState extends State<BottomNavBar> {
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20), // Adds space around
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20), 
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24), // Rounded corners
+          borderRadius: BorderRadius.circular(24), 
           border: Border.all(
             color: borderColor,
             width: 1.0,
           ),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(24), // Match container border radius
+          borderRadius: BorderRadius.circular(24), 
           child: Theme(
              data: Theme.of(context).copyWith(
         splashColor: Colors.transparent, // Remove splash effect
@@ -72,12 +72,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
               showUnselectedLabels: true,
               selectedLabelStyle: const TextStyle(
                 color: activeTextColor,
-                fontSize: 10, // Smaller font size
+                fontSize: 10, 
               ),
               unselectedLabelStyle: const TextStyle(
-                fontSize: 10, // Smaller font size
+                fontSize: 10, 
               ),
-              iconSize: 24, // Smaller icons
+              iconSize: 24, 
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.home_outlined),
