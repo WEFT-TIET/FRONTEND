@@ -6,6 +6,7 @@ import 'package:frontend_weft/features/home/view/Drawer/map.dart';
 import 'package:frontend_weft/features/home/view/Drawer/party.dart';
 import 'package:frontend_weft/features/home/view/widgets/event_card.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -16,7 +17,13 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-        title: const Text('Hi, Rudra'),
+        title: Text(
+          'Hi, Rudra !',
+          style: GoogleFonts.getFont(
+            'Indie Flower',
+            fontSize: 30,
+          ),
+        ),
         actions: [
           IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
         ],
@@ -42,7 +49,8 @@ class HomePage extends StatelessWidget {
                 ),
                 ListTile(
                   leading: Icon(Icons.location_on),
-                  title: Text('Society Events'),
+                  title: Text('Society Events',
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -54,7 +62,8 @@ class HomePage extends StatelessWidget {
                 ),
                 ListTile(
                   leading: Icon(Icons.calendar_month_rounded),
-                  title: Text('Attendance'),
+                  title: Text('Attendance',
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -102,9 +111,9 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 'SOCIETY EVENTS',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+               style: GoogleFonts.getFont('Oswald',
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,)
               ),
               const SizedBox(height: 35),
               SizedBox(
@@ -125,9 +134,9 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 30),
               Text(
                 'STUDENTS\' POSTS',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: GoogleFonts.getFont('Oswald',
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,)
               ),
               const SizedBox(height: 20),
               SizedBox(

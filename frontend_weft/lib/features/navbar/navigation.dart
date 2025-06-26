@@ -25,7 +25,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   // Color constants
   static const Color backgroundColor = Colors.black;
-  static const Color borderColor = Colors.white; 
+  
   static const Color activeIconColor = Color(0xFF3B82F6);
   static const Color activeTextColor = Color(0xFF60A5FA);
   static const Color inactiveColor = Color(0xFF6B7280);
@@ -46,11 +46,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
     decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24), 
-          border: Border.all(
-            color: const Color.fromARGB(255, 143, 143, 143),
-            width: 0.5,
-          ),
+          
+         
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24), 
