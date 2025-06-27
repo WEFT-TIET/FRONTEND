@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/pages/home.dart';
 import 'package:frontend_weft/features/messages/view/pages/message.dart';
 import 'package:frontend_weft/features/profile/view/pages/profile.dart';
@@ -16,7 +17,7 @@ class BottomNavBar extends StatefulWidget {
 class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
 
-  static List<Widget> _pages = <Widget>[
+  static final List<Widget> _pages = <Widget>[
     HomePage(),
     SearchPage(),
     MessagePage(),
@@ -43,6 +44,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppPallete.transperantColor,
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
     decoration: BoxDecoration(

@@ -6,10 +6,10 @@ class SocietyCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const SocietyCard({
-    Key? key,
+    super.key,
     required this.society,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

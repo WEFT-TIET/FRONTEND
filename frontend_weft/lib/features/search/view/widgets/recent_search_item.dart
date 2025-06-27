@@ -5,10 +5,10 @@ class RecentSearchItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const RecentSearchItem({
-    Key? key,
+    super.key,
     required this.searchText,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

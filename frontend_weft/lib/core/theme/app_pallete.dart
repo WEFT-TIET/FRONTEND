@@ -24,4 +24,10 @@ class AppPallete {
 
   static const Color eventCardColor = Color(0xFF2A3A4D);
   static const Color postCardColor = Color.fromARGB(255, 15, 5, 37);
+
+  static const Color transperantColor = Colors.transparent;
+
+  static const Color gradient1 = Color(0xFF1a1a2e);
+  static const Color gradient2 = Color(0xFF16213e);
+  static const Color gradient3 = Color(0xFF0f1419);
 }

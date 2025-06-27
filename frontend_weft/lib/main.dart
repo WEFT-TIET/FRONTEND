@@ -29,9 +29,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'WEFT',
-      theme: LightAppTheme.lightThemeMode,
-      darkTheme: DarkAppTheme.darkThemeMode,
-      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      theme: DarkAppTheme.darkThemeMode,
       home: BottomNavBar(onThemeToggle: _toggleTheme),
     );
   }

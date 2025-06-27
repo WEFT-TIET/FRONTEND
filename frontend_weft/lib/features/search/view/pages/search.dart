@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_weft/core/theme/app_pallete.dart';
 import '../widgets/society_card.dart';
 import '../widgets/recent_search_item.dart';
 import 'wefter_page.dart';
 
 class SearchPage extends StatefulWidget {
+  const SearchPage({super.key});
+
   @override
   _SearchPageState createState() => _SearchPageState();
 }
@@ -12,18 +15,45 @@ class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
 
   final List<Society> popularSocieties = [
-    Society(name: 'CCS', icon: Icons.computer, memberCount: '2.4k members', isHot: true),
-    Society(name: 'FAPS', icon: Icons.flag, memberCount: '1.8k members', isHot: false),
-    Society(name: 'DRAMA', icon: Icons.theater_comedy, memberCount: '1.2k members', isHot: true),
-    Society(name: 'MUSIC', icon: Icons.music_note, memberCount: '3.1k members', isHot: false),
-    Society(name: 'DANCE', icon: Icons.accessibility_new, memberCount: '2.7k members', isHot: false),
-    Society(name: 'DEBATE', icon: Icons.forum, memberCount: '1.5k members', isHot: true),
+    Society(
+      name: 'CCS',
+      icon: Icons.computer,
+      memberCount: '2.4k members',
+      isHot: true,
+    ),
+    Society(
+      name: 'FAPS',
+      icon: Icons.flag,
+      memberCount: '1.8k members',
+      isHot: false,
+    ),
+    Society(
+      name: 'DRAMA',
+      icon: Icons.theater_comedy,
+      memberCount: '1.2k members',
+      isHot: true,
+    ),
+    Society(
+      name: 'MUSIC',
+      icon: Icons.music_note,
+      memberCount: '3.1k members',
+      isHot: false,
+    ),
+    Society(
+      name: 'DANCE',
+      icon: Icons.accessibility_new,
+      memberCount: '2.7k members',
+      isHot: false,
+    ),
+    Society(
+      name: 'DEBATE',
+      icon: Icons.forum,
+      memberCount: '1.5k members',
+      isHot: true,
+    ),
   ];
 
-  final List<String> recentSearches = [
-    'Tech Fest',
-    'Drama Workshop',
-  ];
+  final List<String> recentSearches = ['Tech Fest', 'Drama Workshop'];
 
   void _navigateToWEFTerPage() {
     Navigator.push(
@@ -41,9 +71,9 @@ class _SearchPageState extends State<SearchPage> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF1a1a2e),
-              Color(0xFF16213e),
-              Color(0xFF0f1419),
+              AppPallete.gradient1,
+              AppPallete.gradient2,
+              AppPallete.gradient3,
             ],
           ),
         ),
@@ -69,14 +99,20 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
                             child: Row(
                               children: [
                                 Icon(Icons.search, color: Colors.grey[400]),
                                 SizedBox(width: 12),
                                 Text(
                                   'Search students, societies, events...',
-                                  style: TextStyle(color: Colors.grey[400], fontSize: 16),
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
@@ -107,7 +143,9 @@ class _SearchPageState extends State<SearchPage> {
                           return SocietyCard(
                             society: popularSocieties[index],
                             onTap: () {
-                              print('Tapped on ${popularSocieties[index].name}');
+                              print(
+                                'Tapped on ${popularSocieties[index].name}',
+                              );
                             },
                           );
                         },
@@ -122,12 +160,14 @@ class _SearchPageState extends State<SearchPage> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      ...recentSearches.map((search) => RecentSearchItem(
-                        searchText: search,
-                        onTap: () {
-                          _navigateToWEFTerPage();
-                        },
-                      )).toList(),
+                      ...recentSearches.map(
+                        (search) => RecentSearchItem(
+                          searchText: search,
+                          onTap: () {
+                            _navigateToWEFTerPage();
+                          },
+                        ),
+                      ),
                       SizedBox(height: 100),
                     ],
                   ),
@@ -140,7 +180,6 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
-
 
 class Society {
   final String name;
@@ -159,12 +198,8 @@ class Society {
 class SocietyCard extends StatelessWidget {
   final Society society;
   final VoidCallback onTap;
-  
-  const SocietyCard({
-    Key? key,
-    required this.society,
-    required this.onTap,
-  }) : super(key: key);
+
+  const SocietyCard({super.key, required this.society, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -174,10 +209,7 @@ class SocietyCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Color(0xFF2d2d4a),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: Color(0xFF3d3d5a),
-            width: 1,
-          ),
+          border: Border.all(color: Color(0xFF3d3d5a), width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.3),
@@ -201,10 +233,7 @@ class SocietyCard extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF6366f1),
-                          Color(0xFF8b5cf6),
-                        ],
+                        colors: [Color(0xFF6366f1), Color(0xFF8b5cf6)],
                       ),
                       shape: BoxShape.circle,
                       boxShadow: [
@@ -215,15 +244,11 @@ class SocietyCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Icon(
-                      society.icon,
-                      color: Colors.white,
-                      size: 28,
-                    ),
+                    child: Icon(society.icon, color: Colors.white, size: 28),
                   ),
-                  
+
                   SizedBox(height: 16),
-                  
+
                   // Society Name
                   Text(
                     society.name,
@@ -233,21 +258,18 @@ class SocietyCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  
+
                   SizedBox(height: 8),
-                  
+
                   // Member Count
                   Text(
                     society.memberCount,
-                    style: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey[400], fontSize: 14),
                   ),
                 ],
               ),
             ),
-            
+
             // Hot Badge
             if (society.isHot)
               Positioned(
@@ -257,10 +279,7 @@ class SocietyCard extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [
-                        Color(0xFFf97316),
-                        Color(0xFFea580c),
-                      ],
+                      colors: [Color(0xFFf97316), Color(0xFFea580c)],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -284,12 +303,12 @@ class SocietyCard extends StatelessWidget {
 class RecentSearchItem extends StatelessWidget {
   final String searchText;
   final VoidCallback onTap;
-  
+
   const RecentSearchItem({
-    Key? key,
+    super.key,
     required this.searchText,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -299,18 +318,11 @@ class RecentSearchItem extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 12),
         child: Row(
           children: [
-            Icon(
-              Icons.search,
-              color: Colors.grey[400],
-              size: 20,
-            ),
+            Icon(Icons.search, color: Colors.grey[400], size: 20),
             SizedBox(width: 16),
             Text(
               searchText,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ],
         ),
@@ -322,12 +334,12 @@ class RecentSearchItem extends StatelessWidget {
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
-  
+
   const CustomBottomNavigationBar({
-    Key? key,
+    super.key,
     required this.currentIndex,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -335,9 +347,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
       height: 80,
       decoration: BoxDecoration(
         color: Color(0xFF1a1a2e),
-        border: Border(
-          top: BorderSide(color: Color(0xFF2d2d4a), width: 1),
-        ),
+        border: Border(top: BorderSide(color: Color(0xFF2d2d4a), width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -350,7 +360,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildNavItem(int index, IconData icon, String label) {
     final isActive = currentIndex == index;
     return GestureDetector(
@@ -383,6 +393,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
 // WEFTer Page Class
 class WEFTerPage extends StatefulWidget {
+  const WEFTerPage({super.key});
+
   @override
   _WEFTerPageState createState() => _WEFTerPageState();
 }
@@ -400,11 +412,7 @@ class _WEFTerPageState extends State<WEFTerPage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1a1a2e),
-              Color(0xFF16213e),
-              Color(0xFF0f1419),
-            ],
+            colors: [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f1419)],
           ),
         ),
         child: SafeArea(
@@ -435,7 +443,7 @@ class _WEFTerPageState extends State<WEFTerPage> {
                   ],
                 ),
               ),
-              
+
               Expanded(
                 child: Center(
                   child: SingleChildScrollView(
@@ -445,10 +453,7 @@ class _WEFTerPageState extends State<WEFTerPage> {
                       decoration: BoxDecoration(
                         color: Color(0xFF2d2d4a),
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: Color(0xFF3d3d5a),
-                          width: 1,
-                        ),
+                        border: Border.all(color: Color(0xFF3d3d5a), width: 1),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.3),
@@ -470,9 +475,9 @@ class _WEFTerPageState extends State<WEFTerPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            
+
                             SizedBox(height: 8),
-                            
+
                             Text(
                               'Type a name... or just stalk randomly, we don\'t judge',
                               style: TextStyle(
@@ -481,33 +486,33 @@ class _WEFTerPageState extends State<WEFTerPage> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            
+
                             SizedBox(height: 32),
-                            
+
                             _buildInputField(
                               controller: _nameController,
                               label: 'Name',
                               placeholder: 'Ex: Chad Brobowsky or That One Top',
                             ),
-                            
+
                             SizedBox(height: 20),
-                            
+
                             _buildInputField(
                               controller: _batchController,
                               label: 'Batch',
                               placeholder: 'Grad year? Left for your people!',
                             ),
-                            
+
                             SizedBox(height: 20),
-                            
+
                             _buildInputField(
                               controller: _branchController,
                               label: 'Branch',
                               placeholder: 'Ex: Code Sleep Repeat or Mech, Cho',
                             ),
-                            
+
                             SizedBox(height: 32),
-                            
+
                             Container(
                               width: double.infinity,
                               height: 50,
@@ -584,10 +589,7 @@ class _WEFTerPageState extends State<WEFTerPage> {
           decoration: BoxDecoration(
             color: Color(0xFF3d3d5a),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Color(0xFF4d4d6a),
-              width: 1,
-            ),
+            border: Border.all(color: Color(0xFF4d4d6a), width: 1),
           ),
           child: TextField(
             controller: controller,
@@ -596,7 +598,10 @@ class _WEFTerPageState extends State<WEFTerPage> {
               hintText: placeholder,
               hintStyle: TextStyle(color: Colors.grey[500]),
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
             ),
           ),
         ),
@@ -608,12 +613,12 @@ class _WEFTerPageState extends State<WEFTerPage> {
     String name = _nameController.text;
     String batch = _batchController.text;
     String branch = _branchController.text;
-    
+
     print('Searching for WEFTer:');
     print('Name: $name');
     print('Batch: $batch');
     print('Branch: $branch');
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Searching for WEFTer...'),

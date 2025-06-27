@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_weft/core/theme/app_pallete.dart';
 
 class WEFTerPage extends StatefulWidget {
+  const WEFTerPage({super.key});
+
   @override
   _WEFTerPageState createState() => _WEFTerPageState();
 }
@@ -19,9 +22,7 @@ class _WEFTerPageState extends State<WEFTerPage> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF1a1a2e),
-              Color(0xFF16213e),
-              Color(0xFF0f1419),
+              AppPallete.gradient1, AppPallete.gradient2, AppPallete.gradient3
             ],
           ),
         ),

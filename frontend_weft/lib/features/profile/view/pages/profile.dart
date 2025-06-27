@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_weft/core/theme/app_pallete.dart';
 import '../widgets/profile_info_row.dart';
 import '../widgets/profile_edit_field.dart';
 import '../widgets/wef_card.dart';
@@ -34,6 +35,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final accent = theme.colorScheme.primary;
 
     return Scaffold(
+      backgroundColor: AppPallete.scaffoldBackgroundColorDark,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
