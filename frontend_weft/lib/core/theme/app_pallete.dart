@@ -4,7 +4,7 @@ class AppPallete {
   static const Color primaryLight = Color(0xFF007BFF);
   static const Color secondaryLight = Color(0xFFFF6F61);
 
-  static const Color primaryDark = Color(0xFF00FFB3);
+  static const Color primaryDark = Color(0xFF4A00E0);
   static const Color secondaryDark = Color(0xFFFFA500);
 
   static const cardColorLight = Colors.white;

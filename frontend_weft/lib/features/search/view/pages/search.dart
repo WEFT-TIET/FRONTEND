@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
-import '../widgets/society_card.dart';
-import '../widgets/recent_search_item.dart';
-import 'wefter_page.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
