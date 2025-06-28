@@ -114,7 +114,7 @@ class HomePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: .20),
                 Text(
                   'SOCIETY EVENTS',
                   style: GoogleFonts.getFont(
@@ -123,7 +123,7 @@ class HomePage extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 35),
+                const SizedBox(height: 10),
                 SizedBox(
                   height: 200,
                   child: ListView.separated(
@@ -140,7 +140,7 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 10),
                 Text(
                   'STUDENTS\' POSTS',
                   style: GoogleFonts.getFont(
@@ -149,21 +149,21 @@ class HomePage extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 5),
                 SizedBox(
                   child: ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: 5,
+                    itemCount: 15,
                     separatorBuilder: (context, index) =>
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 1),
                     itemBuilder: (context, index) => PostCard(
                       name: 'Rudra',
                       tag: 'CCS',
                       timeAgo: '2h ago',
                       content:
                           'Join us for the CCS Tech Fest! Exciting events and workshops await.',
-                      stars: 10,
+                      stars: 21,
                       comments: 5,
                     ),
                   ),

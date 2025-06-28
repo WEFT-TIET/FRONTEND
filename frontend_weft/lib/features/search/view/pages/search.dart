@@ -492,7 +492,7 @@ class _WEFTerPageState extends State<WEFTerPage> {
                             _buildInputField(
                               controller: _nameController,
                               label: 'Name',
-                              placeholder: 'Ex: Chad Brobowsky or That One Top',
+                              placeholder: 'Ex: Prince ',
                             ),
 
                             SizedBox(height: 20),
@@ -500,7 +500,7 @@ class _WEFTerPageState extends State<WEFTerPage> {
                             _buildInputField(
                               controller: _batchController,
                               label: 'Batch',
-                              placeholder: 'Grad year? Left for your people!',
+                              placeholder: 'Ex: Tiet\'29 = 2025 ,Tiet\'28 = 2024',
                             ),
 
                             SizedBox(height: 20),
@@ -508,7 +508,7 @@ class _WEFTerPageState extends State<WEFTerPage> {
                             _buildInputField(
                               controller: _branchController,
                               label: 'Branch',
-                              placeholder: 'Ex: Code Sleep Repeat or Mech, Cho',
+                              placeholder: 'Ex: COE, ENC, COPC',
                             ),
 
                             SizedBox(height: 32),

@@ -23,10 +23,10 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   bool _isEditing = false;
 
-  final TextEditingController _nameController = TextEditingController(text: 'Rudra_Prince_toucher');
+  final TextEditingController _nameController = TextEditingController(text: 'Rudra Yadav');
   final TextEditingController _batchController = TextEditingController(text: '2025');
-  final TextEditingController _branchController = TextEditingController(text: 'Freakyyy Science');
-  final TextEditingController _classController = TextEditingController(text: 'Gurneet ke nuts');
+  final TextEditingController _branchController = TextEditingController(text: 'COE');
+  final TextEditingController _classController = TextEditingController(text: '1A62');
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +62,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   child: Column(
                     children: [
-                      Text('@student_username', style: theme.textTheme.bodyMedium?.copyWith(color: theme.textTheme.bodyMedium?.color?.withAlpha((0.6 * 255).toInt()), fontStyle: FontStyle.italic)),
+                      Text('@rudie', style: theme.textTheme.bodyMedium?.copyWith(color: theme.textTheme.bodyMedium?.color?.withAlpha((0.6 * 255).toInt()), fontStyle: FontStyle.italic)),
                       const SizedBox(height: 8),
                       Align(
                         alignment: Alignment.centerLeft,
