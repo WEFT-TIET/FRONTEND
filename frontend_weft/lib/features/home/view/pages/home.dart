@@ -86,7 +86,7 @@ class HomePage extends StatelessWidget {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MapPage()),
+                        MaterialPageRoute(builder: (context) => ThaparMapScreen()),
                       ); // Close the drawer
                       // Do something
                     },
