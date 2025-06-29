@@ -50,7 +50,6 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo/Title
                   Container(
                     margin: EdgeInsets.only(bottom: 60),
                     child: Text(
@@ -63,8 +62,6 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
-                  // Card Container
                   Container(
                     padding: EdgeInsets.all(32),
                     decoration: BoxDecoration(
@@ -107,8 +104,6 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 32),
-                        
-                        // Modern Button
                         Container(
                           width: double.infinity,
                           height: 56,
@@ -178,7 +173,6 @@ class ThaparMapScreen extends StatelessWidget {
           child: SafeArea(
             child: Column(
               children: [
-                // Custom App Bar
                 Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Row(
@@ -217,7 +211,6 @@ class ThaparMapScreen extends StatelessWidget {
       );
 }
 
-/// Map of buildings to <svg> element IDs
 const Map<String, String> nameToSvgId = {
   // Academic Blocks
   'CS Block': 'cs_block',
@@ -231,44 +224,38 @@ const Map<String, String> nameToSvgId = {
   'Venture Lab': 'venture_lab',
   'TSLAS': 'tslas',
   'Mechanical Workshop': 'mechanical_workshop',
-
-  // Other Buildings
+  'B Block': 'b_block',
+  'BC Corridor': 'bc_corridor',
+  'C Block': 'c_block',
+  'CD Corridor': 'cd_corridor',
+  'D Block': 'd_block',
+  'E Block': 'e_block',
+  'F Block': 'f_block',
   'G Block': 'g_block',
   'H Block': 'h_block',
-  'D Block': 'd_block',
-  'C Block': 'c_block',
-  'B Block': 'b_block',
-  'F Block': 'f_block',
-  'E Block': 'e_block',
-  'CD Corridor': 'cd_corridor',
-  'BC Corridor': 'bc_corridor',
-  
-  // Hostels
-  'Hostel K': 'hostel_k',
-  'Hostel L': 'hostel_l',
-  'Hostel D': 'hostel_d',
-  'Hostel O': 'hostel_o',
   'Hostel A': 'hostel_a',
-  'Hostel Q': 'hostel_q',
-  'Hostel C': 'hostel_c',
   'Hostel B': 'hostel_b',
-  'Hostel M': 'hostel_m',
-  'Hostel J': 'hostel_j',
-  'Hostel H': 'hostel_h',
-  'Hostel PG': 'hostel_pg',
+  'Hostel C': 'hostel_c',
+  'Hostel D': 'hostel_d',
   'Hostel E': 'hostel_e',
   'Hostel G': 'hostel_g',
+  'Hostel H': 'hostel_h',
   'Hostel I': 'hostel_i',
+  'Hostel J': 'hostel_j',
+  'Hostel K': 'hostel_k',
+  'Hostel L': 'hostel_l',
+  'Hostel M': 'hostel_m',
   'Hostel N': 'hostel_n',
-  'FRF': 'frf',
+  'Hostel O': 'hostel_o',
+  'Hostel PG': 'hostel_pg',
+  'Hostel Q': 'hostel_q',
+  'FRA': 'fra',
+  'FRB': 'frb',
+  'FRC': 'frc',
   'FRD': 'frd',
   'FRE': 'fre',
+  'FRF': 'frf',
   'FRG': 'frg',
-  'FRC': 'frc',
-  'FRB': 'frb',
-  'FRA': 'fra',
-  
-  // Food & Retail
   'Kravings': 'kravings',
   'Just Food': 'just_food',
   'Aahar': 'aahar',
@@ -277,9 +264,6 @@ const Map<String, String> nameToSvgId = {
   'G Block Canteen': 'g_block_canteen',
   'Stationary Shop': 'stationary_shop',
   'Waterbody Cafe': 'waterbody_cafe',
-  'Nescafe': 'stationary_shop',
-
-  // Landmarks
   'Main Audi': 'main_audi',
   'SBOP Lawns': 'sbop_lawns',
   'Fete Area': 'fete_area',
@@ -291,9 +275,6 @@ const Map<String, String> nameToSvgId = {
   'Shiv Mandir': 'shiv_mandir',
   'Gurudwara': 'gurudwara',
   'Waterbody': 'waterbody',
-  
-  
-  // Sports & Recreation
   'Cricket Field': 'cricket_field',
   'Running Track': 'running_track',
   'Tennis Courts': '4_tennis_courts',
@@ -302,24 +283,19 @@ const Map<String, String> nameToSvgId = {
   'Volleyball Court': 'volleyball_court',
   'Indoor Courts': 'indoor_courts',
   'Swimming Pool': 'swimming_pool',
-  
-  // Administrative & Services
   'Staff Quarters': 'staff_quarters',
   'Health Centre': 'health_centre',
   'Dean Office': 'dean_office',
   'Directorate': 'directorate',
   'Sports Office': 'sports_office',
   'Post Office': 'post_office',
-  
-  // Gates
   'Main Gate': 'main_gate',
   'Gate 2': 'gate_2',
   'Gate 3': 'gate_3',
   'Polytechnic Gate': 'polytechnic_gate',
-  
-  // Roads 
   'Road': 'road',
 };
+
 Future<String> highlightSvg(String assetPath, String? highlightId) async {
   final rawSvg = await rootBundle.loadString(assetPath);
   final doc = XmlDocument.parse(rawSvg);
@@ -351,9 +327,12 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
   String? _selectedName;
   String? _svgString;
   final List<String> _buildingNames = nameToSvgId.keys.toList();
+  List<String> _filteredBuildings = [];
   bool _isDropdownOpen = false;
   late AnimationController _animationController;
   late Animation<double> _animation;
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -366,12 +345,15 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
       parent: _animationController,
       curve: Curves.easeInOut,
     );
+    _filteredBuildings = _buildingNames;
     _loadBaseSvg();
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -386,6 +368,8 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
     setState(() {
       _selectedName = name;
       _isDropdownOpen = false;
+      _searchController.clear();
+      _filteredBuildings = _buildingNames;
     });
     _animationController.reverse();
     
@@ -394,9 +378,24 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
     setState(() => _svgString = s);
   }
 
+  void _filterBuildings(String query) {
+    setState(() {
+      _filteredBuildings = _buildingNames
+          .where((building) => building.toLowerCase()
+          .contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
   void _toggleDropdown() {
     setState(() {
       _isDropdownOpen = !_isDropdownOpen;
+      if (_isDropdownOpen) {
+        _searchFocusNode.requestFocus();
+      } else {
+        _searchController.clear();
+        _filteredBuildings = _buildingNames;
+      }
     });
     if (_isDropdownOpen) {
       _animationController.forward();
@@ -409,7 +408,6 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
   Widget build(BuildContext ctx) {
     return Column(
       children: [
-        // Custom Dropdown
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -473,13 +471,13 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
                 ),
               ),
               
-              // Dropdown List
+              // Dropdown List with Search
               AnimatedBuilder(
                 animation: _animation,
                 builder: (context, child) {
                   return ClipRect(
                     child: Container(
-                      height: _animation.value * 300,
+                      height: _animation.value * 400,
                       child: _animation.value > 0
                           ? Container(
                               margin: EdgeInsets.only(top: 8),
@@ -503,65 +501,107 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
                                   ),
                                 ],
                               ),
-                              child: ListView.builder(
-                                padding: EdgeInsets.symmetric(vertical: 8),
-                                itemCount: _buildingNames.length,
-                                itemBuilder: (context, index) {
-                                  final building = _buildingNames[index];
-                                  final isSelected = building == _selectedName;
-                                  
-                                  return GestureDetector(
-                                    onTap: () => _onSelect(building),
+                              child: Column(
+                                children: [
+                                  // Search Bar
+                                  Padding(
+                                    padding: EdgeInsets.all(12),
                                     child: Container(
-                                      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                       decoration: BoxDecoration(
-                                        color: isSelected 
-                                            ? Color(0xFF6366F1).withOpacity(0.2)
-                                            : Colors.transparent,
+                                        color: Colors.white.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(12),
-                                        border: isSelected
-                                            ? Border.all(color: Color(0xFF6366F1).withOpacity(0.5))
-                                            : null,
                                       ),
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            width: 8,
-                                            height: 8,
-                                            decoration: BoxDecoration(
-                                              color: isSelected 
-                                                  ? Color(0xFF6366F1)
-                                                  : Colors.white.withOpacity(0.4),
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                          SizedBox(width: 12),
-                                          Expanded(
-                                            child: Text(
-                                              building,
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                color: isSelected 
-                                                    ? Colors.white
-                                                    : Colors.white.withOpacity(0.8),
-                                                fontWeight: isSelected 
-                                                    ? FontWeight.w600
-                                                    : FontWeight.w400,
-                                              ),
-                                            ),
-                                          ),
-                                          if (isSelected)
-                                            Icon(
-                                              Icons.check,
-                                              color: Color(0xFF6366F1),
-                                              size: 18,
-                                            ),
-                                        ],
+                                      child: TextField(
+                                        controller: _searchController,
+                                        focusNode: _searchFocusNode,
+                                        onChanged: _filterBuildings,
+                                        style: TextStyle(color: Colors.white),
+                                        decoration: InputDecoration(
+                                          hintText: 'Search buildings...',
+                                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                                          prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.6)),
+                                          border: InputBorder.none,
+                                          contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 14),
+                                        ),
                                       ),
                                     ),
-                                  );
-                                },
+                                  ),
+                                  
+                                  // Building List
+                                  Expanded(
+                                    child: _filteredBuildings.isEmpty
+                                        ? Center(
+                                            child: Text(
+                                              'No buildings found',
+                                              style: TextStyle(
+                                                color: Colors.white.withOpacity(0.6),
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          )
+                                        : ListView.builder(
+                                            padding: EdgeInsets.only(bottom: 8),
+                                            itemCount: _filteredBuildings.length,
+                                            itemBuilder: (context, index) {
+                                              final building = _filteredBuildings[index];
+                                              final isSelected = building == _selectedName;
+                                              
+                                              return GestureDetector(
+                                                onTap: () => _onSelect(building),
+                                                child: Container(
+                                                  margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                                  decoration: BoxDecoration(
+                                                    color: isSelected 
+                                                        ? Color(0xFF6366F1).withOpacity(0.2)
+                                                        : Colors.transparent,
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    border: isSelected
+                                                        ? Border.all(color: Color(0xFF6366F1).withOpacity(0.5))
+                                                        : null,
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Container(
+                                                        width: 8,
+                                                        height: 8,
+                                                        decoration: BoxDecoration(
+                                                          color: isSelected 
+                                                              ? Color(0xFF6366F1)
+                                                              : Colors.white.withOpacity(0.4),
+                                                          shape: BoxShape.circle,
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 12),
+                                                      Expanded(
+                                                        child: Text(
+                                                          building,
+                                                          style: TextStyle(
+                                                            fontSize: 15,
+                                                            color: isSelected 
+                                                                ? Colors.white
+                                                                : Colors.white.withOpacity(0.8),
+                                                            fontWeight: isSelected 
+                                                                ? FontWeight.w600
+                                                                : FontWeight.w400,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      if (isSelected)
+                                                        Icon(
+                                                          Icons.check,
+                                                          color: Color(0xFF6366F1),
+                                                          size: 18,
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                  ),
+                                ],
                               ),
                             )
                           : SizedBox.shrink(),

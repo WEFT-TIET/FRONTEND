@@ -37,71 +37,67 @@ class HomePage extends StatelessWidget {
           child: SizedBox(
             width: 280,
             child: Drawer(
-              backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-              child: ListView(
-                padding: EdgeInsets.zero,
+              backgroundColor: const Color(0xFF1a1a2e),
+              child: Column(
                 children: <Widget>[
-                  SizedBox(
-                    height: 80,
-                    child: DrawerHeader(
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 0, 0, 0),
+                  // Header
+                  Container(
+                    height: 100,
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color(0xFF1a1a2e),
+                          Color(0xFF16213e),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
+                    ),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
                       child: Text(
                         'For Students',
-                        style: TextStyle(color: Colors.white, fontSize: 24),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                  ListTile(
-                    leading: Icon(Icons.location_on),
-                    title: Text('Society Events'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => EventPage()),
-                      ); // Close the drawer
-                      // Do something
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.calendar_month_rounded),
-                    title: Text('Attendance'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AttendancePage(),
+                  
+                  // Menu Items
+                  Expanded(
+                    child: ListView(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      children: <Widget>[
+                        _buildMenuItem(
+                          context: context,
+                          icon: Icons.event,
+                          title: 'Society Events',
+                          page: EventPage(),
                         ),
-                      ); // Close the drawer
-                      // Navigate to settings
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.map),
-                    title: Text('Map'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ThaparMapScreen()),
-                      ); // Close the drawer
-                      // Do something
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.mic),
-                    title: Text('Party Tickets'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => PartyPage()),
-                      ); // Close the drawer
-                      // Do something
-                    },
+                        _buildMenuItem(
+                          context: context,
+                          icon: Icons.calendar_month_rounded,
+                          title: 'Attendance',
+                          page: AttendancePage(),
+                        ),
+                        _buildMenuItem(
+                          context: context,
+                          icon: Icons.map,
+                          title: 'Map',
+                          page: ThaparMapScreen(),
+                        ),
+                        _buildMenuItem(
+                          context: context,
+                          icon: Icons.mic,
+                          title: 'Party Tickets',
+                          page: PartyPage(),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -172,6 +168,60 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Helper method for drawer menu items
+  Widget _buildMenuItem({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required Widget page,
+  }) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.orange.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            color: Colors.orange,
+            size: 20,
+          ),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        trailing: Icon(
+          Icons.arrow_forward_ios,
+          color: Colors.white30,
+          size: 16,
+        ),
+        onTap: () {
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => page),
+          );
+        },
       ),
     );
   }
