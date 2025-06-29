@@ -253,7 +253,7 @@ const Map<String, String> nameToSvgId = {
   'Hostel C': 'hostel_c',
   'Hostel B': 'hostel_b',
   'Hostel M': 'hostel_m',
-  'Hostel J': 'hostel_j',
+  'Hostel J': 'Vector 12',
   'Hostel H': 'hostel_h',
   'Hostel PG': 'hostel_pg',
   'Hostel E': 'hostel_e',
