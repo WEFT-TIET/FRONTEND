@@ -1,102 +1,140 @@
+// map.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:xml/xml.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:location/location.dart';
 
-class ThaparMapScreen extends StatefulWidget {
-  const ThaparMapScreen({super.key});
+void main() => runApp(ThaparMapScreen());
 
+class ThaparMapScreen extends StatelessWidget {
   @override
-  _ThaparMapScreenState createState() => _ThaparMapScreenState();
+  Widget build(BuildContext ctx) => MaterialApp(
+        title: 'Thapar Campus Map',
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: CampusMapWithSidebar(),
+      );
 }
 
-class _ThaparMapScreenState extends State<ThaparMapScreen> {
-  LocationData? _userLocation;
-  final Location location = Location();
+/// Map of buildings to <svg> element IDs
+const Map<String, String> nameToSvgId = {
+  'FRF': 'frf',
+  'FRD': 'frd',
+  'FRE': 'fre',
+  'FRG': 'frg',
+  'FRC': 'frc',
+  'FRB': 'frb',
+  'FRA': 'fra',
+  'Hostel K': 'hostel_k',
+  'Hostel L': 'hostel_l',
+  'Staff Quarters': 'staff_quarters',
+  'Health Centre': 'health_centre',
+  'Sports Office': 'sports_office',
+  '4 Tennis Courts': '4_tennis_courts',
+  'Badminton Court': 'badminton_court',
+  'Basketball Court 1': 'basketball_court_1',
+  'Basketball Court 2': 'basketball_court_2',
+  'Basketball Court 3': 'basketball_court_3',
+  // …add more as needed
+};
 
-  // GPS bounds (mock values bbg, calibrate with real values)
-  final double lat1 = 30.352; // NW corner
-  final double lon1 = 76.362;
-  final double lat2 = 30.345; // SE corner
-  final double lon2 = 76.370;
+/// Loads the SVG file, finds the element with [highlightId], and
+/// applies a gold fill + orange stroke(meeeeeeeee :3) to highlight it.
+Future<String> highlightSvg(String assetPath, String? highlightId) async {
+  final rawSvg = await rootBundle.loadString(assetPath);
+  final doc = XmlDocument.parse(rawSvg);
 
-  // SVG size in pixels (match SVG image viewBox or size)
-  final double mapWidth = 800;
-  final double mapHeight = 600;
+  if (highlightId != null) {
+    // Collect all element nodes…
+    final allElements = doc.descendants.whereType<XmlElement>();
+    // Find those whose id matches
+    final matches =
+        allElements.where((node) => node.getAttribute('id') == highlightId);
+
+    if (matches.isNotEmpty) {
+      final node = matches.first;
+      node.setAttribute('fill', '#FFD700');       // gold
+      node.setAttribute('stroke', '#FF8C00');     // dark orange
+      node.setAttribute('stroke-width', '4');
+    }
+  }
+
+  return doc.toXmlString(pretty: false);
+}
+
+/// Sidebar
+class CampusMapWithSidebar extends StatefulWidget {
+  @override
+  _CampusMapWithSidebarState createState() => _CampusMapWithSidebarState();
+}
+
+class _CampusMapWithSidebarState extends State<CampusMapWithSidebar> {
+  String? _selectedName;
+  String? _svgString;
 
   @override
   void initState() {
     super.initState();
-    _getUserLocation();
+    _loadBaseSvg();
   }
 
-  Future<void> _getUserLocation() async {
-    bool serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) return;
-    }
-
-    PermissionStatus permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) return;
-    }
-
-    final loc = await location.getLocation();
-    setState(() => _userLocation = loc);
+  /// Load SVG initially with no highlights
+  Future<void> _loadBaseSvg() async {
+    final s = await highlightSvg('lib/core/assets/thapar_map.svg', null);
+    setState(() => _svgString = s);
   }
 
-  Offset? _getUserOffset() {
-    if (_userLocation == null) return null;
-
-    final lat = _userLocation!.latitude!;
-    final lon = _userLocation!.longitude!;
-
-    // Linear interpolation to convert GPS to SVG pixel coords(meow meow :3)
-    final xPercent = (lon - lon1) / (lon2 - lon1);
-    final yPercent = 1 - (lat - lat1) / (lat2 - lat1); // invert Y
-
-    final x = mapWidth * xPercent;
-    final y = mapHeight * yPercent;
-
-    return Offset(x, y);
+  /// Called when user taps an entry
+  Future<void> _onSelect(String name) async {
+    setState(() => _selectedName = name);
+    final id = nameToSvgId[name];
+    final s = await highlightSvg('lib/core/assets/thapar_map.svg', id);
+    setState(() => _svgString = s);
   }
 
   @override
-  Widget build(BuildContext context) {
-    final userOffset = _getUserOffset();
-
+  Widget build(BuildContext ctx) {
+    final names = nameToSvgId.keys.toList();
     return Scaffold(
       appBar: AppBar(title: Text('Thapar Campus Map')),
-      body: Center(
-        child: SizedBox(
-          width: mapWidth,
-          height: mapHeight,
-          child: Stack(
-            children: [
-              SvgPicture.asset(
-                'lib/core/assets/thapar_map.svg',
-                width: mapWidth,
-                height: mapHeight,
-                fit: BoxFit.contain,
-              ),
-              if (userOffset != null)
-                Positioned(
-                  left: userOffset.dx - 6, // center the circle
-                  top: userOffset.dy - 6,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+      body: Row(
+        children: [
+          // ── Sidebar ───────────────────────────────────────
+          Container(
+            width: 200,
+            color: Colors.grey.shade200,
+            child: ListView.separated(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              itemCount: names.length,
+              separatorBuilder: (_, __) => Divider(height: 1),
+              itemBuilder: (_, i) {
+                final name = names[i];
+                final sel = name == _selectedName;
+                return ListTile(
+                  title: Text(
+                    name,
+                    style: TextStyle(
+                      color: sel ? Colors.blue : Colors.black87,
+                      fontWeight: sel ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
-                ),
-            ],
+                  onTap: () => _onSelect(name),
+                );
+              },
+            ),
           ),
-        ),
+
+          // ── SVG Map ───────────────────────────────────────
+          Expanded(
+            child: Center(
+              child: _svgString == null
+                  ? CircularProgressIndicator()
+                  : SvgPicture.string(
+                      _svgString!,
+                      fit: BoxFit.contain,
+                    ),
+            ),
+          ),
+        ],
       ),
     );
   }
