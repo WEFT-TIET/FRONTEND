@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:frontend_weft/core/constants/server_constants.dart';
 import 'package:frontend_weft/core/failure/failure.dart';
 import 'package:frontend_weft/features/auth/model/user_model.dart';
@@ -17,17 +18,13 @@ class AuthRemoteRepository {
   Future<Either<String, UserModel>> signup({
     required String name,
     required String email,
-    required String year,
-    required String branch,
-    required String class_id,
     required String password,
   }) async {
     try {
       final response = await http.post(
         Uri.parse('${ServerConstants.serverUrl}/auth/signup'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'name': name, 'email': email, 'password': password, 
-                          'year': year, 'branch': branch, 'class_id': class_id}),
+        body: jsonEncode({'name': name, 'email': email, 'password': password}),
       );
 
       final responseBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
@@ -40,38 +37,29 @@ class AuthRemoteRepository {
     }
   }
 
-Future<Either<AppFailure, UserModel>> login({
-  required String email,
-  required String password,
-}) async {
-  try {
-    final response = await http.post(
-      Uri.parse('${ServerConstants.serverUrl}/auth/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
-
-    final responseBody = response.body.isNotEmpty ? response.body : '{}';
-    final Map<String, dynamic> responseBodyMap = jsonDecode(responseBody);
-
-    if (response.statusCode != 200) {
-      final errorDetail = responseBodyMap['detail'] ?? 'Login failed';
-      return Left(AppFailure(errorDetail));
+  Future<Either<AppFailure, UserModel>> login({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ServerConstants.serverUrl}/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+      final responseBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode != 200) {
+        return Left(AppFailure(responseBodyMap['detail']));
+      }
+      return Right(
+        UserModel.fromMap(
+          responseBodyMap['user'],
+        ).copyWith(token: responseBodyMap['token']),
+      );
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
     }
-
-    final userData = responseBodyMap['user'];
-    final token = responseBodyMap['token'];
-
-    if (userData == null || token == null) {
-      return Left(AppFailure('Invalid server response'));
-    }
-
-    final user = UserModel.fromMap(userData).copyWith(token: token);
-    return Right(user);
-  } catch (e) {
-    return Left(AppFailure('Unexpected error: ${e.toString()}'));
   }
-}
 
   Future<Either<AppFailure, UserModel>> getUserData(String token) async {
     try {

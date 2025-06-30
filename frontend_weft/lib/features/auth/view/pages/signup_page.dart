@@ -11,74 +11,53 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class SignupPage extends ConsumerStatefulWidget {
   const SignupPage({super.key});
 
-  static route() => MaterialPageRoute(builder: (context) => const SignupPage());
-
   @override
   ConsumerState<SignupPage> createState() => _SignupPageState();
 }
 
 class _SignupPageState extends ConsumerState<SignupPage> {
-  final yearController = TextEditingController();
-  final branchController = TextEditingController();
-  final sectionController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final nameController = TextEditingController();
+  final emailcontroller = TextEditingController();
+  final passwordcontroller = TextEditingController();
+  final namecontroller = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
 
-  bool isLoading = false;
-
   @override
   void dispose() {
-    yearController.dispose();
-    branchController.dispose();
-    sectionController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    nameController.dispose();
+    emailcontroller.dispose();
+    passwordcontroller.dispose();
+    namecontroller.dispose();
     super.dispose();
-  }
-
-  Future<void> _handleSignup() async {
-    if (!formKey.currentState!.validate()) {
-      showSnackBar(context, "Missing fields");
-      return;
-    }
-
-    setState(() => isLoading = true);
-
-    final authVM = ref.read(authViewModelProvider);
-    final result = await authVM.signup(
-      name: nameController.text.trim(),
-      email: emailController.text.trim(),
-      password: passwordController.text.trim(),
-      year: yearController.text.trim(),
-      branch: branchController.text.trim(),
-      class_id: sectionController.text.trim(),
-    );
-
-    setState(() => isLoading = false);
-
-    if (result) {
-      showSnackBar(context, 'Account created successfully!');
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    } else {
-      showSnackBar(context, 'Signup failed. Try again.');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(
+      authViewmodelProvider.select((val) => val?.isLoading == true),
+    );
+
+    ref.listen(authViewmodelProvider, (_, next) {
+      next?.when(
+        data: (data) {
+          showSnackBar(context, 'Account created successfully!');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+        },
+        error: (error, st) {
+          showSnackBar(context, error.toString());
+        },
+        loading: () {},
+      );
+    });
+
     return Scaffold(
       appBar: AppBar(),
-      body: isLoading
-          ? const LoadingIndicator()
-          : Center(
-              child: SingleChildScrollView(
+      body:
+          isLoading
+              ? LoadingIndicator()
+              : Center(
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Form(
@@ -86,7 +65,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           "Sign Up.",
                           style: TextStyle(
                             fontSize: 50,
@@ -94,33 +73,41 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        CustomField(hintText: "Name", controller: nameController),
+                        CustomField(hintText: "Name", controller: namecontroller),
                         const SizedBox(height: 10),
-                        CustomField(hintText: "Email", controller: emailController),
-                        const SizedBox(height: 10),
-                        CustomField(hintText: "Year", controller: yearController),
-                        const SizedBox(height: 10),
-                        CustomField(hintText: "Branch", controller: branchController),
-                        const SizedBox(height: 10),
-                        CustomField(hintText: "Section", controller: sectionController),
+                        CustomField(
+                          hintText: "Email",
+                          controller: emailcontroller,
+                        ),
                         const SizedBox(height: 10),
                         CustomField(
                           hintText: "Password",
-                          controller: passwordController,
+                          controller: passwordcontroller,
                           isPassword: true,
                         ),
                         const SizedBox(height: 20),
                         AuthButton(
                           buttonText: 'Sign Up',
-                          onTap: _handleSignup,
+                          onTap: () async {
+                            if (formKey.currentState!.validate()) {
+                              await ref
+                                  .read(authViewmodelProvider.notifier)
+                                  .signup(
+                                    name: namecontroller.text,
+                                    email: emailcontroller.text,
+                                    password: passwordcontroller.text,
+                                  );
+                            } else {
+                              showSnackBar(context, "Missing fields");
+                            }
+                          },
                         ),
                         const SizedBox(height: 20),
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              LoginPage.route(),
-                            );
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => const LoginPage(),
+                            ));
                           },
                           child: RichText(
                             text: TextSpan(
@@ -129,13 +116,12 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                               children: [
                                 TextSpan(
                                   text: "Login",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
-                                        color: AppPallete.gradient2,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium?.copyWith(
+                                    color: AppPallete.gradient2,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ],
                             ),
@@ -146,7 +132,6 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                   ),
                 ),
               ),
-            ),
     );
   }
 }
