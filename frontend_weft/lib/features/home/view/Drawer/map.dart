@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:xml/xml.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
+import 'dart:async';
+import 'dart:math' as math;
 
 void main() => runApp(ThaparApp());
 
@@ -211,6 +214,85 @@ class ThaparMapScreen extends StatelessWidget {
       );
 }
 
+// Campus boundary coordinates
+class CampusBounds {
+  static const double bottomLeftLat = 30.3531022;
+  static const double bottomLeftLng = 76.3590561;
+  static const double topRightLat = 30.3585832;
+  static const double topRightLng = 76.3731977;
+  static const double bottomRightLat = 30.3513122;
+  static const double bottomRightLng = 76.3740141;
+  static const double topLeftLat = 30.3569345;
+  static const double topLeftLng = 76.3585424;
+}
+
+class LocationService {
+  static Future<bool> checkLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return false;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return false;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return false;
+    }
+
+    return true;
+  }
+
+  static Future<Position?> getCurrentLocation() async {
+    try {
+      bool hasPermission = await checkLocationPermission();
+      if (!hasPermission) return null;
+
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+    } catch (e) {
+      print('Error getting location: $e');
+      return null;
+    }
+  }
+
+  static bool isWithinCampus(double lat, double lng) {
+    // Check if the coordinates are within the campus boundaries
+    // Using a simple bounding box approach
+    return lat >= CampusBounds.bottomRightLat &&
+           lat <= CampusBounds.topRightLat &&
+           lng >= CampusBounds.topLeftLng &&
+           lng <= CampusBounds.bottomRightLng;
+  }
+
+  // Convert GPS coordinates to SVG coordinates
+  static Offset? gpsToSvgCoordinates(double lat, double lng, Size svgSize) {
+    if (!isWithinCampus(lat, lng)) return null;
+
+    // Calculate relative position within campus bounds
+    double latRange = CampusBounds.topRightLat - CampusBounds.bottomRightLat;
+    double lngRange = CampusBounds.bottomRightLng - CampusBounds.topLeftLng;
+
+    double relativeX = (lng - CampusBounds.topLeftLng) / lngRange;
+    double relativeY = 1.0 - ((lat - CampusBounds.bottomRightLat) / latRange);
+
+    // Convert to SVG coordinates
+    double svgX = relativeX * svgSize.width;
+    double svgY = relativeY * svgSize.height;
+
+    return Offset(svgX, svgY);
+  }
+}
+
 const Map<String, String> nameToSvgId = {
   // Academic Blocks
   'CS Block': 'cs_block',
@@ -296,7 +378,7 @@ const Map<String, String> nameToSvgId = {
   'Road': 'road',
 };
 
-Future<String> highlightSvg(String assetPath, String? highlightId) async {
+Future<String> highlightSvg(String assetPath, String? highlightId, {Offset? userLocation}) async {
   final rawSvg = await rootBundle.loadString(assetPath);
   final doc = XmlDocument.parse(rawSvg);
 
@@ -310,6 +392,47 @@ Future<String> highlightSvg(String assetPath, String? highlightId) async {
       node.setAttribute('stroke', '#FF8C00');
       node.setAttribute('stroke-width', '4');
     }
+  }
+
+  // Add user location marker if provided
+  if (userLocation != null) {
+    final svgElement = doc.rootElement;
+    
+    // Create a group for the user location marker
+    final markerGroup = XmlElement(XmlName('g'));
+    markerGroup.setAttribute('id', 'user_location_marker');
+    
+    // Outer circle (pulsing effect)
+    final outerCircle = XmlElement(XmlName('circle'));
+    outerCircle.setAttribute('cx', userLocation.dx.toString());
+    outerCircle.setAttribute('cy', userLocation.dy.toString());
+    outerCircle.setAttribute('r', '20');
+    outerCircle.setAttribute('fill', '#3B82F6');
+    outerCircle.setAttribute('fill-opacity', '0.3');
+    outerCircle.setAttribute('stroke', '#3B82F6');
+    outerCircle.setAttribute('stroke-width', '2');
+    
+    // Inner circle (solid)
+    final innerCircle = XmlElement(XmlName('circle'));
+    innerCircle.setAttribute('cx', userLocation.dx.toString());
+    innerCircle.setAttribute('cy', userLocation.dy.toString());
+    innerCircle.setAttribute('r', '8');
+    innerCircle.setAttribute('fill', '#3B82F6');
+    innerCircle.setAttribute('stroke', '#FFFFFF');
+    innerCircle.setAttribute('stroke-width', '3');
+    
+    // Center dot
+    final centerDot = XmlElement(XmlName('circle'));
+    centerDot.setAttribute('cx', userLocation.dx.toString());
+    centerDot.setAttribute('cy', userLocation.dy.toString());
+    centerDot.setAttribute('r', '3');
+    centerDot.setAttribute('fill', '#FFFFFF');
+    
+    markerGroup.children.add(outerCircle);
+    markerGroup.children.add(innerCircle);
+    markerGroup.children.add(centerDot);
+    
+    svgElement.children.add(markerGroup);
   }
 
   return doc.toXmlString(pretty: false);
@@ -333,6 +456,14 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
   late Animation<double> _animation;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  
+  // Location related variables
+  Position? _currentPosition;
+  Offset? _userLocationOnMap;
+  bool _isLocationEnabled = false;
+  bool _isLoadingLocation = false;
+  StreamSubscription<Position>? _positionStreamSubscription;
+  Timer? _locationUpdateTimer;
 
   @override
   void initState() {
@@ -347,6 +478,7 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
     );
     _filteredBuildings = _buildingNames;
     _loadBaseSvg();
+    _initializeLocation();
   }
 
   @override
@@ -354,11 +486,71 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
     _animationController.dispose();
     _searchController.dispose();
     _searchFocusNode.dispose();
+    _positionStreamSubscription?.cancel();
+    _locationUpdateTimer?.cancel();
     super.dispose();
   }
 
+  Future<void> _initializeLocation() async {
+    setState(() => _isLoadingLocation = true);
+    
+    bool hasPermission = await LocationService.checkLocationPermission();
+    if (hasPermission) {
+      await _getCurrentLocation();
+      _startLocationUpdates();
+    }
+    
+    setState(() => _isLoadingLocation = false);
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      Position? position = await LocationService.getCurrentLocation();
+      if (position != null) {
+        setState(() {
+          _currentPosition = position;
+          _isLocationEnabled = LocationService.isWithinCampus(
+            position.latitude, 
+            position.longitude
+          );
+        });
+        await _updateMapWithLocation();
+      }
+    } catch (e) {
+      print('Error getting current location: $e');
+    }
+  }
+
+  void _startLocationUpdates() {
+    _locationUpdateTimer = Timer.periodic(Duration(seconds: 10), (timer) {
+      _getCurrentLocation();
+    });
+  }
+
+  Future<void> _updateMapWithLocation() async {
+    if (_currentPosition != null && _isLocationEnabled) {
+      // Assume SVG size (you might want to get this dynamically)
+      Size svgSize = Size(800, 600); // Adjust based on your SVG
+      
+      _userLocationOnMap = LocationService.gpsToSvgCoordinates(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+        svgSize,
+      );
+    } else {
+      _userLocationOnMap = null;
+    }
+    
+    await _loadBaseSvg();
+  }
+
   Future<void> _loadBaseSvg() async {
-    final s = await highlightSvg('lib/core/assets/thapar_map.svg', null);
+    final id = _selectedName != null ? nameToSvgId[_selectedName] : null;
+    final s = await highlightSvg(
+      'lib/core/assets/thapar_map.svg', 
+      id,
+      userLocation: _userLocationOnMap,
+    );
     setState(() => _svgString = s);
   }
 
@@ -373,9 +565,7 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
     });
     _animationController.reverse();
     
-    final id = nameToSvgId[name];
-    final s = await highlightSvg('lib/core/assets/thapar_map.svg', id);
-    setState(() => _svgString = s);
+    await _loadBaseSvg();
   }
 
   void _filterBuildings(String query) {
@@ -404,6 +594,101 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
     }
   }
 
+  Widget _buildLocationStatusIndicator() {
+    if (_isLoadingLocation) {
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange.withOpacity(0.4)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+              ),
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Getting location...',
+              style: TextStyle(color: Colors.orange, fontSize: 12),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_currentPosition == null) {
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.red.withOpacity(0.4)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.location_off, color: Colors.red, size: 16),
+            SizedBox(width: 8),
+            Text(
+              'Location unavailable',
+              style: TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (!_isLocationEnabled) {
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.amber.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.amber.withOpacity(0.4)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.location_searching, color: Colors.amber, size: 16),
+            SizedBox(width: 8),
+            Text(
+              'Outside campus',
+              style: TextStyle(color: Colors.amber, fontSize: 12),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.green.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green.withOpacity(0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.my_location, color: Colors.green, size: 16),
+          SizedBox(width: 8),
+          Text(
+            'Location active',
+            style: TextStyle(color: Colors.green, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext ctx) {
     return Column(
@@ -412,6 +697,35 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              // Location Status Indicator
+              Padding(
+                padding: EdgeInsets.only(bottom: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildLocationStatusIndicator(),
+                    GestureDetector(
+                      onTap: _getCurrentLocation,
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF6366F1).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Color(0xFF6366F1).withOpacity(0.4),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.refresh,
+                          color: Color(0xFF6366F1),
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
               // Dropdown Button
               GestureDetector(
                 onTap: _toggleDropdown,
@@ -641,16 +955,68 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
               borderRadius: BorderRadius.circular(20),
               child: _svgString == null
                   ? Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6366F1)),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6366F1)),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Loading campus map...',
+                            style: TextStyle(
+                              color: Color(0xFF6366F1),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     )
-                  : RotatedBox(
-                      quarterTurns: 1,
-                      child: SvgPicture.string(
-                        _svgString!,
-                        fit: BoxFit.contain,
-                      ),
+                  : Stack(
+                      children: [
+                        RotatedBox(
+                          quarterTurns: 1,
+                          child: SvgPicture.string(
+                            _svgString!,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        if (_isLocationEnabled && _userLocationOnMap != null)
+                          Positioned(
+                            bottom: 16,
+                            right: 16,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.7),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF3B82F6),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Your Location',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
             ),
           ),
