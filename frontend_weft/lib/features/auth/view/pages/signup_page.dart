@@ -17,6 +17,9 @@ class SignupPage extends ConsumerStatefulWidget {
 
 class _SignupPageState extends ConsumerState<SignupPage> {
   final emailcontroller = TextEditingController();
+  final yearcontroller = TextEditingController();
+  final branchcontroller = TextEditingController();
+  final classIdcontroller = TextEditingController();
   final passwordcontroller = TextEditingController();
   final namecontroller = TextEditingController();
 
@@ -25,6 +28,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   @override
   void dispose() {
     emailcontroller.dispose();
+    yearcontroller.dispose();
+    branchcontroller.dispose();
+    classIdcontroller.dispose();
     passwordcontroller.dispose();
     namecontroller.dispose();
     super.dispose();
@@ -76,6 +82,21 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                         CustomField(hintText: "Name", controller: namecontroller),
                         const SizedBox(height: 10),
                         CustomField(
+                          hintText: "Year",
+                          controller: yearcontroller,
+                        ),
+                        const SizedBox(height: 10),
+                        CustomField(
+                          hintText: "Branch",
+                          controller: branchcontroller,
+                        ),
+                        const SizedBox(height: 10),
+                        CustomField(
+                          hintText: "Section",
+                          controller: classIdcontroller,
+                        ),
+                        const SizedBox(height: 10),
+                        CustomField(
                           hintText: "Email",
                           controller: emailcontroller,
                         ),
@@ -94,6 +115,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                                   .read(authViewmodelProvider.notifier)
                                   .signup(
                                     name: namecontroller.text,
+                                    year: yearcontroller.text,
+                                    branch: branchcontroller.text,
+                                    class_id: classIdcontroller.text,
                                     email: emailcontroller.text,
                                     password: passwordcontroller.text,
                                   );

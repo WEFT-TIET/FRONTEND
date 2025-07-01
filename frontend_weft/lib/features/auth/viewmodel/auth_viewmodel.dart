@@ -27,12 +27,18 @@ class AuthViewmodel extends _$AuthViewmodel {
 
   Future<void> signup({
     required String name,
+    required String year,
+    required String branch,
+    required String class_id,
     required String email,
     required String password,
   }) async {
     state = const AsyncValue.loading();
     final response = await _authRemoteRepository.signup(
       name: name,
+      year: year,
+      branch: branch,
+      class_id: class_id,
       email: email,
       password: password,
     );

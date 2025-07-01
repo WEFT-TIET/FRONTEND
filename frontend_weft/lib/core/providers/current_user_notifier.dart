@@ -7,7 +7,7 @@ part 'current_user_notifier.g.dart';
 class CurrentUserNotifier extends _$CurrentUserNotifier {
   @override
   UserModel? build() {
-    return null; // Initialize with no user
+    return null;
   }
 
   void addUser(UserModel user) {

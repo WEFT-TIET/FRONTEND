@@ -17,6 +17,9 @@ AuthRemoteRepository authRemoteRepository(AuthRemoteRepositoryRef ref) {
 class AuthRemoteRepository {
   Future<Either<String, UserModel>> signup({
     required String name,
+    required String year,
+    required String branch,
+    required String class_id,
     required String email,
     required String password,
   }) async {
@@ -24,7 +27,14 @@ class AuthRemoteRepository {
       final response = await http.post(
         Uri.parse('${ServerConstants.serverUrl}/auth/signup'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'name': name, 'email': email, 'password': password}),
+        body: jsonEncode({
+          'name': name,
+          'year': year,
+          'branch': branch,
+          'class_id': class_id,
+          'email': email,
+          'password': password,
+        }),
       );
 
       final responseBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
