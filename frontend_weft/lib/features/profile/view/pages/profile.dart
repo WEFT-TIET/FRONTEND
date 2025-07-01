@@ -62,8 +62,7 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Header
-              const SizedBox(height: 10),
+              // Header   
               const Text(
                 'WEFT',
                 style: TextStyle(
@@ -73,7 +72,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   letterSpacing: 4,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // Profile Card with Glass Effect
               Container(
@@ -104,29 +103,39 @@ class _ProfilePageState extends State<ProfilePage> {
                           children: [
                             // Profile Image
                             GestureDetector(
-                              onTap: _isEditing ? _showImagePicker : null,
-                              child: Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF6366F1),
-                                  shape: BoxShape.circle,
-                                  border: _isEditing ? Border.all(color: Colors.white, width: 2) : null,
-                                ),
-                                child: _isEditing
-                                    ? const Icon(Icons.camera_alt, color: Colors.white, size: 28)
-                                    : const Center(
-                                        child: Text(
-                                          'Img',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                              ),
-                            ),
+  onTap: _isEditing ? _showImagePicker : null,
+  child: Container(
+    width: 80,
+    height: 80,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      border: _isEditing ? Border.all(color: Colors.white, width: 2) : null,
+    ),
+    child: _isEditing
+        ? const Icon(Icons.camera_alt, color: Colors.white, size: 28)
+        : ClipOval(
+            child: Image.asset(
+              'lib/core/assets/profile_photo.jpeg', // Path to your image in assets folder
+              fit: BoxFit.cover,
+              width: 80,
+              height: 80,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: const Color(0xFF6366F1),
+                child: const Center(
+                  child: Text(
+                    'Img',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+  ),
+),
                             const SizedBox(width: 24),
                             // Society Tags with Horizontal Scrolling
                             Expanded(
