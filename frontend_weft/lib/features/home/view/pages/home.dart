@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
           backgroundColor: AppPallete.transperantColor,
           elevation: 0,
           title: Text(
-            'Hi, Rudra !',
+            'Hi Rudra !',
             style: GoogleFonts.getFont(
               'Indie Flower', 
               fontSize: 30,
