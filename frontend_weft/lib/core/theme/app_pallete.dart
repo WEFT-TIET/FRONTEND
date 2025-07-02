@@ -30,4 +30,16 @@ class AppPallete {
   static const Color gradient1 = Color(0xFF1a1a2e);
   static const Color gradient2 = Color(0xFF16213e);
   static const Color gradient3 = Color(0xFF0f1419);
+
+  // Profile Page Specific Colors
+  static const Color profileBackgroundDark = Color(0xFF1A1B2E);
+  static const Color profileCardBackground = Color(0xFF3B3F5C);
+  static const Color profileAccent = Color(0xFF6366F1);
+  static const Color profileTextSecondary = Color(0xFFB0B3C7);
+  static const Color profileDialogBackground = Color(0xFF2A2D47);
+  
+  // Glass effect colors
+  static const Color glassWhite10 = Color(0x1AFFFFFF);
+  static const Color glassWhite05 = Color(0x0DFFFFFF);
+  static const Color glassWhite20 = Color(0x33FFFFFF);
 }

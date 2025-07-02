@@ -25,19 +25,31 @@ class HomePage extends StatelessWidget {
         backgroundColor: AppPallete.transperantColor,
         appBar: AppBar(
           backgroundColor: AppPallete.transperantColor,
+          elevation: 0,
           title: Text(
             'Hi, Rudra !',
-            style: GoogleFonts.getFont('Indie Flower', fontSize: 30),
+            style: GoogleFonts.getFont(
+              'Indie Flower', 
+              fontSize: 30,
+              color: AppPallete.textPrimaryDark,
+            ),
           ),
+          iconTheme: IconThemeData(color: AppPallete.textPrimaryDark),
           actions: [
-            IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
+            IconButton(
+              icon: Icon(
+                Icons.notifications,
+                color: AppPallete.textPrimaryDark,
+              ),
+              onPressed: () {},
+            ),
           ],
         ),
         drawer: SafeArea(
           child: SizedBox(
             width: 280,
             child: Drawer(
-              backgroundColor: const Color(0xFF1a1a2e),
+              backgroundColor: AppPallete.profileBackgroundDark,
               child: Column(
                 children: <Widget>[
                   // Header
@@ -47,8 +59,8 @@ class HomePage extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Color(0xFF1a1a2e),
-                          Color(0xFF16213e),
+                          AppPallete.gradient1,
+                          AppPallete.gradient2,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -59,7 +71,7 @@ class HomePage extends StatelessWidget {
                       child: Text(
                         'For Students',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppPallete.textPrimaryDark,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -110,13 +122,14 @@ class HomePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: .20),
+                const SizedBox(height: 20),
                 Text(
                   'SOCIETY EVENTS',
                   style: GoogleFonts.getFont(
                     'Oswald',
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
+                    color: AppPallete.textPrimaryDark,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -126,33 +139,34 @@ class HomePage extends StatelessWidget {
                     scrollDirection: Axis.horizontal,
                     itemCount: 5,
                     separatorBuilder: (context, index) =>
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 12),
                     itemBuilder: (context, index) => EventCard(
                       title: 'CCS',
                       subtitle: 'CCS Tech Fest',
                       date: 'Dec 15',
                       location: 'Main Auditorium',
-                      backgroundColor: const Color.fromARGB(255, 26, 15, 59),
+                      backgroundColor: AppPallete.eventCardColor,
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 30),
                 Text(
                   'STUDENTS\' POSTS',
                   style: GoogleFonts.getFont(
                     'Oswald',
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
+                    color: AppPallete.textPrimaryDark,
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 15),
                 SizedBox(
                   child: ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: 15,
                     separatorBuilder: (context, index) =>
-                        const SizedBox(height: 1),
+                        const SizedBox(height: 8),
                     itemBuilder: (context, index) => PostCard(
                       name: 'Rudra',
                       tag: 'CCS',
@@ -182,10 +196,10 @@ class HomePage extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: AppPallete.glassWhite05,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: AppPallete.glassWhite10,
           width: 1,
         ),
       ),
@@ -193,26 +207,26 @@ class HomePage extends StatelessWidget {
         leading: Container(
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.orange.withOpacity(0.2),
+            color: AppPallete.profileAccent.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: Colors.orange,
+            color: AppPallete.profileAccent,
             size: 20,
           ),
         ),
         title: Text(
           title,
           style: TextStyle(
-            color: Colors.white,
+            color: AppPallete.textPrimaryDark,
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
         ),
         trailing: Icon(
           Icons.arrow_forward_ios,
-          color: Colors.white30,
+          color: AppPallete.profileTextSecondary,
           size: 16,
         ),
         onTap: () {

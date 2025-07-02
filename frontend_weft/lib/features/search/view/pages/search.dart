@@ -476,7 +476,7 @@ class _WEFTerPageState extends State<WEFTerPage> {
                             SizedBox(height: 8),
 
                             Text(
-                              'Type a name... or just stalk randomly, we don\'t judge',
+                              'Enter the details below to find your WEFTer.',
                               style: TextStyle(
                                 color: Colors.grey[400],
                                 fontSize: 14,
@@ -489,7 +489,7 @@ class _WEFTerPageState extends State<WEFTerPage> {
                             _buildInputField(
                               controller: _nameController,
                               label: 'Name',
-                              placeholder: 'Ex: Chad Brobowsky or That One Top',
+                              placeholder: 'Ex: Rudra Yadav',
                             ),
 
                             SizedBox(height: 20),
@@ -505,7 +505,7 @@ class _WEFTerPageState extends State<WEFTerPage> {
                             _buildInputField(
                               controller: _branchController,
                               label: 'Branch',
-                              placeholder: 'Ex: Code Sleep Repeat or Mech, Cho',
+                              placeholder: 'Ex: COE, COPC, ENC',
                             ),
 
                             SizedBox(height: 32),
