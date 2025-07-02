@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/Drawer/attendance.dart';
 import 'package:frontend_weft/features/home/view/Drawer/event.dart';
@@ -6,19 +7,24 @@ import 'package:frontend_weft/features/home/view/Drawer/map.dart';
 import 'package:frontend_weft/features/home/view/Drawer/party.dart';
 import 'package:frontend_weft/features/home/view/widgets/event_card.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
+import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppPallete.gradient1, AppPallete.gradient2, AppPallete.gradient3],
+          colors: [
+            AppPallete.gradient1,
+            AppPallete.gradient2,
+            AppPallete.gradient3,
+          ],
         ),
       ),
       child: Scaffold(
@@ -30,7 +36,13 @@ class HomePage extends StatelessWidget {
             style: GoogleFonts.getFont('Indie Flower', fontSize: 30),
           ),
           actions: [
-            IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await ref.read(authViewModelProvider.notifier).logoutUser();
+                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+              },
+            ),
           ],
         ),
         drawer: SafeArea(
@@ -40,12 +52,12 @@ class HomePage extends StatelessWidget {
               backgroundColor: const Color.fromARGB(255, 0, 0, 0),
               child: ListView(
                 padding: EdgeInsets.zero,
-                children: <Widget>[
-                  SizedBox(
+                children: [
+                  const SizedBox(
                     height: 80,
                     child: DrawerHeader(
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 0, 0, 0),
+                        color: Color.fromARGB(255, 0, 0, 0),
                       ),
                       child: Text(
                         'For Students',
@@ -54,53 +66,47 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.location_on),
-                    title: Text('Society Events'),
+                    leading: const Icon(Icons.location_on),
+                    title: const Text('Society Events'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => EventPage()),
-                      ); // Close the drawer
-                      // Do something
+                        MaterialPageRoute(builder: (context) => const EventPage()),
+                      );
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.calendar_month_rounded),
-                    title: Text('Attendance'),
+                    leading: const Icon(Icons.calendar_month_rounded),
+                    title: const Text('Attendance'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => AttendancePage(),
-                        ),
-                      ); // Close the drawer
-                      // Navigate to settings
+                        MaterialPageRoute(builder: (context) => const AttendancePage()),
+                      );
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.map),
-                    title: Text('Map'),
+                    leading: const Icon(Icons.map),
+                    title: const Text('Map'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ThaparMapScreen()),
-                      ); // Close the drawer
-                      // Do something
+                        MaterialPageRoute(builder: (context) => const ThaparMapScreen()),
+                      );
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.mic),
-                    title: Text('Party Tickets'),
+                    leading: const Icon(Icons.mic),
+                    title: const Text('Party Tickets'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => PartyPage()),
-                      ); // Close the drawer
-                      // Do something
+                        MaterialPageRoute(builder: (context) => const PartyPage()),
+                      );
                     },
                   ),
                 ],
@@ -114,7 +120,7 @@ class HomePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: .20),
+                const SizedBox(height: 0.20),
                 Text(
                   'SOCIETY EVENTS',
                   style: GoogleFonts.getFont(
@@ -129,20 +135,19 @@ class HomePage extends StatelessWidget {
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: 5,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: 4),
-                    itemBuilder: (context, index) => EventCard(
+                    separatorBuilder: (context, index) => const SizedBox(width: 4),
+                    itemBuilder: (context, index) => const EventCard(
                       title: 'CCS',
                       subtitle: 'CCS Tech Fest',
                       date: 'Dec 15',
                       location: 'Main Auditorium',
-                      backgroundColor: const Color.fromARGB(255, 26, 15, 59),
+                      backgroundColor: Color.fromARGB(255, 26, 15, 59),
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'STUDENTS\' POSTS',
+                  "STUDENTS' POSTS",
                   style: GoogleFonts.getFont(
                     'Oswald',
                     fontSize: 24,
@@ -150,22 +155,19 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 5),
-                SizedBox(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: 15,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 1),
-                    itemBuilder: (context, index) => PostCard(
-                      name: 'Rudra',
-                      tag: 'CCS',
-                      timeAgo: '2h ago',
-                      content:
-                          'Join us for the CCS Tech Fest! Exciting events and workshops await.',
-                      stars: 21,
-                      comments: 5,
-                    ),
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 15,
+                  separatorBuilder: (context, index) => const SizedBox(height: 1),
+                  itemBuilder: (context, index) => const PostCard(
+                    name: 'Rudra',
+                    tag: 'CCS',
+                    timeAgo: '2h ago',
+                    content:
+                        'Join us for the CCS Tech Fest! Exciting events and workshops await.',
+                    stars: 21,
+                    comments: 5,
                   ),
                 ),
               ],

@@ -1,89 +1,70 @@
-import 'package:frontend_weft/core/providers/current_user_notifier.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_weft/features/auth/data/auth_service.dart';
 import 'package:frontend_weft/features/auth/model/user_model.dart';
-import 'package:frontend_weft/features/auth/repositories/auth_local_repository.dart';
-import 'package:frontend_weft/features/auth/repositories/auth_remote_repository.dart';
+import 'auth_local_repository.dart';
 
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+final authViewModelProvider = StateNotifierProvider<AuthViewModel, User?>((ref) {
+  return AuthViewModel(ref);
+});
 
-part 'auth_viewmodel.g.dart';
+class AuthViewModel extends StateNotifier<User?> {
+  final Ref ref;
+  AuthViewModel(this.ref) : super(null);
 
-@riverpod
-class AuthViewmodel extends _$AuthViewmodel {
-  late AuthRemoteRepository _authRemoteRepository;
-  late AuthLocalRepository _authLocalRepository;
-  late CurrentUserNotifier _currentUserNotifier;
-
-  @override
-  AsyncValue<UserModel>? build() {
-    _authRemoteRepository = ref.watch(authRemoteRepositoryProvider);
-    _authLocalRepository = ref.watch(authLocalRepositoryProvider);
-    _currentUserNotifier = ref.watch(currentUserNotifierProvider.notifier);
-    return null;
-  }
-
-  Future<void> initSharedPreferences() async {
-    await _authLocalRepository.init();
-  }
-
-  Future<void> signup({
+  Future<bool> signup({
     required String name,
-    required String year,
-    required String branch,
-    required String class_id,
     required String email,
     required String password,
+    required String year,
+    required String classId,
+    required String branch,
+    required BuildContext context,
   }) async {
-    state = const AsyncValue.loading();
-    final response = await _authRemoteRepository.signup(
-      name: name,
-      year: year,
-      branch: branch,
-      class_id: class_id,
-      email: email,
-      password: password,
-    );
+    try {
+      final user = await ref.read(authServiceProvider).signup({
+        "name": name,
+        "email": email,
+        "password": password,
+        "year": year,
+        "class_id": classId,
+        "branch": branch,
+      });
 
-    response.match(
-      (l) => state = AsyncValue.error(l, StackTrace.current),
-      (r) => state = AsyncValue.data(r),
-    );
-  }
-
-  Future<void> login({required String email, required String password}) async {
-    state = const AsyncValue.loading();
-    final response = await _authRemoteRepository.login(
-      email: email,
-      password: password,
-    );
-
-    response.match(
-      (l) => state = AsyncValue.error(l, StackTrace.current),
-      (r) => _loginSuccess(r),
-    );
-  }
-
-  AsyncValue<UserModel>? _loginSuccess(UserModel user) {
-    _authLocalRepository.setToken(user.token);
-    _currentUserNotifier.addUser(user);
-    return state = AsyncValue.data(user);
-  }
-
-  Future<UserModel?> getData() async {
-    state = const AsyncValue.loading();
-    final token = _authLocalRepository.getToken();
-    if (token != null) {
-      final response = await _authRemoteRepository.getUserData(token);
-      final result = response.match(
-        (l) => state = AsyncValue.error(l, StackTrace.current),
-        (r) => _getDataSuccess(r),
-      );
-      return result.value;
+      state = user;
+      await ref.read(authLocalRepositoryProvider).saveUser(user);
+      return true;
+    } catch (e) {
+      _showError(context, e.toString());
+      return false;
     }
-    return null;
   }
 
-  AsyncValue<UserModel> _getDataSuccess(UserModel user) {
-    _currentUserNotifier.addUser(user);
-    return state = AsyncValue.data(user);
+  Future<bool> login({
+    required String email,
+    required String password,
+    required BuildContext context,
+  }) async {
+    try {
+      final user = await ref.read(authServiceProvider).login(email, password);
+      state = user;
+      await ref.read(authLocalRepositoryProvider).saveUser(user);
+      return true;
+    } catch (e) {
+      _showError(context, e.toString());
+      return false;
+    }
+  }
+
+  /// ✅ FIXED: No need to pass `ref` when it's already in scope
+  Future<void> logoutUser() async {
+    await ref.read(authLocalRepositoryProvider).clearUser();
+    state = null;
+  }
+
+  void _showError(BuildContext context, String error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(error), backgroundColor: Colors.red),
+    );
   }
 }
