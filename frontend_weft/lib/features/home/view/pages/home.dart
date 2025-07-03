@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/Drawer/attendance.dart';
 import 'package:frontend_weft/features/home/view/Drawer/event.dart';
@@ -6,19 +7,24 @@ import 'package:frontend_weft/features/home/view/Drawer/map.dart';
 import 'package:frontend_weft/features/home/view/Drawer/party.dart';
 import 'package:frontend_weft/features/home/view/widgets/event_card.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
+import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppPallete.gradient1, AppPallete.gradient2, AppPallete.gradient3],
+          colors: [
+            AppPallete.gradient1,
+            AppPallete.gradient2,
+            AppPallete.gradient3,
+          ],
         ),
       ),
       child: Scaffold(
@@ -37,11 +43,11 @@ class HomePage extends StatelessWidget {
           iconTheme: IconThemeData(color: AppPallete.textPrimaryDark),
           actions: [
             IconButton(
-              icon: Icon(
-                Icons.notifications,
-                color: AppPallete.textPrimaryDark,
-              ),
-              onPressed: () {},
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await ref.read(authViewModelProvider.notifier).logoutUser();
+                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+              },
             ),
           ],
         ),
@@ -78,6 +84,7 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   
                   // Menu Items
                   Expanded(
@@ -141,17 +148,19 @@ class HomePage extends StatelessWidget {
                     separatorBuilder: (context, index) =>
                         const SizedBox(width: 12),
                     itemBuilder: (context, index) => EventCard(
+
                       title: 'CCS',
                       subtitle: 'CCS Tech Fest',
                       date: 'Dec 15',
                       location: 'Main Auditorium',
+
                       backgroundColor: AppPallete.eventCardColor,
                     ),
                   ),
                 ),
                 const SizedBox(height: 30),
                 Text(
-                  'STUDENTS\' POSTS',
+                  "STUDENTS' POSTS",
                   style: GoogleFonts.getFont(
                     'Oswald',
                     fontSize: 24,

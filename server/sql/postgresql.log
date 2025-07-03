@@ -1,0 +1,20 @@
+2025-07-02 16:19:49.427 IST [34502] LOG:  starting PostgreSQL 17.5 (Postgres.app) on aarch64-apple-darwin23.6.0, compiled by Apple clang version 15.0.0 (clang-1500.3.9.4), 64-bit
+2025-07-02 16:19:49.430 IST [34502] LOG:  listening on IPv6 address "::1", port 5436
+2025-07-02 16:19:49.430 IST [34502] LOG:  listening on IPv4 address "127.0.0.1", port 5436
+2025-07-02 16:19:49.430 IST [34502] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5436"
+2025-07-02 16:19:49.432 IST [34505] LOG:  database system was shut down at 2025-07-02 16:19:49 IST
+2025-07-02 16:19:49.435 IST [34502] LOG:  database system is ready to accept connections
+2025-07-02 16:20:35.102 IST [34635] ERROR:  new locale provider (libc) does not match locale provider of the template database (icu)
+2025-07-02 16:20:35.102 IST [34635] HINT:  Use the same locale provider as in the template database, or use template0 as template.
+2025-07-02 16:20:35.102 IST [34635] STATEMENT:  CREATE DATABASE "WEFT"
+	    WITH
+	    OWNER = postgres
+	    ENCODING = 'UTF8'
+	    LOCALE_PROVIDER = 'libc'
+	    CONNECTION LIMIT = -1
+	    IS_TEMPLATE = False;
+	
+2025-07-02 16:24:49.443 IST [34503] LOG:  checkpoint starting: time
+2025-07-02 16:28:04.727 IST [34503] LOG:  checkpoint complete: wrote 1927 buffers (11.8%); 0 WAL file(s) added, 0 removed, 1 recycled; write=195.253 s, sync=0.017 s, total=195.288 s; sync files=621, longest=0.002 s, average=0.001 s; distance=9017 kB, estimate=9017 kB; lsn=0/2029BA8, redo lsn=0/2027B80
+2025-07-02 16:34:49.738 IST [34503] LOG:  checkpoint starting: time
+2025-07-02 16:34:50.564 IST [34503] LOG:  checkpoint complete: wrote 9 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.819 s, sync=0.001 s, total=0.828 s; sync files=6, longest=0.001 s, average=0.001 s; distance=9 kB, estimate=8116 kB; lsn=0/202A238, redo lsn=0/202A1E0

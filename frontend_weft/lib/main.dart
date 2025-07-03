@@ -1,36 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/theme.dart';
+import 'package:frontend_weft/features/auth/view/login_page.dart';
+import 'package:frontend_weft/features/auth/view/signup_page.dart';
+import 'package:frontend_weft/features/auth/viewmodel/auth_local_repository.dart';
+import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:frontend_weft/features/navbar/navigation.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
+  final container = ProviderContainer();
 
-void main() {
-  runApp(const MyApp());
+  // Load user from local storage on startup
+  final user = await container.read(authLocalRepositoryProvider).getUser();
+  if (user != null) {
+    container.read(authViewModelProvider.notifier).state = user;
+  }
+
+  runApp(
+    UncontrolledProviderScope(
+      container: container,
+      child: const MyApp(),
+    ),
+  );
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(authViewModelProvider);
 
-class _MyAppState extends State<MyApp> {
-  bool _isDarkMode = true;
-
-  void _toggleTheme() {
-    setState(() {
-      _isDarkMode = !_isDarkMode;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'WEFT',
       theme: DarkAppTheme.darkThemeMode,
-      home: BottomNavBar(onThemeToggle: _toggleTheme),
+      initialRoute: currentUser == null ? '/login' : '/home',
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/signup': (context) => const SignupPage(),
+        '/home': (context) => const BottomNavBar(),
+      },
     );
   }
 }
