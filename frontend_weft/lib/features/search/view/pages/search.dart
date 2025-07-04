@@ -118,7 +118,7 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                       SizedBox(height: 32),
                       Text(
-                        'Popular Societies',
+                        'Societies',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -204,9 +204,9 @@ class SocietyCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Color(0xFF2d2d4a),
+          color: AppPallete.glassWhite05,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Color(0xFF3d3d5a), width: 1),
+          border: Border.all(color: AppPallete.glassWhite20, width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.3),

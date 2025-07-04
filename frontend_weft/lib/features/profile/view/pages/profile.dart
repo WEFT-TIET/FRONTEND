@@ -56,230 +56,253 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppPallete.profileBackgroundDark,
-      body: SafeArea(
-        child: SingleChildScrollView(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppPallete.gradient1,
+            AppPallete.gradient2,
+            AppPallete.gradient3,
+          ],
+        ),
+      ),
+      child: SafeArea(
+        child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Header   
-              Text(
-                'WEFT',
-                style: TextStyle(
-                  color: AppPallete.textPrimaryDark,
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 4,
-                ),
+          child: Scaffold(
+            backgroundColor: AppPallete.transperantColor,
+            appBar: AppBar(
+              backgroundColor: AppPallete.transperantColor,
+              title: Text(
+                      'WEFT',
+                      style: TextStyle(
+                        color: AppPallete.textPrimaryDark,
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 4,
+                      ),
+                    ),
+              actions: [
+              IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () {
+                    Navigator.of(context).pushNamed('/settings');
+                  },
               ),
-              const SizedBox(height: 10),
-
-              // Profile Card with Glass Effect
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppPallete.glassWhite10,
-                      AppPallete.glassWhite05,
-                    ],
-                  ),
-                  border: Border.all(
-                    color: AppPallete.glassWhite20,
-                    width: 1,
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    child: Column(
-                      children: [
-                        // Profile Header Row
-                        Row(
+            ],),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Column(
+                children: [
+                  // Profile Card with Glass Effect
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppPallete.glassWhite10,
+                          AppPallete.glassWhite05,
+                        ],
+                      ),
+                      border: Border.all(
+                        color: AppPallete.glassWhite20,
+                        width: 1,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Column(
                           children: [
-                            // Profile Image
-                            GestureDetector(
-                              onTap: _isEditing ? _showImagePicker : null,
-                              child: Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: _isEditing ? Border.all(color: AppPallete.textPrimaryDark, width: 2) : null,
-                                ),
-                                child: _isEditing
-                                    ? Icon(Icons.camera_alt, color: AppPallete.textPrimaryDark, size: 28)
-                                    : ClipOval(
-                                        child: Image.asset(
-                                          'lib/core/assets/profile_photo.jpeg',
-                                          fit: BoxFit.cover,
-                                          width: 80,
-                                          height: 80,
-                                          errorBuilder: (context, error, stackTrace) => Container(
-                                            color: AppPallete.profileAccent,
-                                            child: Center(
-                                              child: Text(
-                                                'Img',
-                                                style: TextStyle(
-                                                  color: AppPallete.textPrimaryDark,
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
+                            // Profile Header Row
+                            Row(
+                              children: [
+                                // Profile Image
+                                GestureDetector(
+                                  onTap: _isEditing ? _showImagePicker : null,
+                                  child: Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: _isEditing ? Border.all(color: AppPallete.textPrimaryDark, width: 2) : null,
+                                    ),
+                                    child: _isEditing
+                                        ? Icon(Icons.camera_alt, color: AppPallete.textPrimaryDark, size: 28)
+                                        : ClipOval(
+                                            child: Image.asset(
+                                              'lib/core/assets/profile_photo.jpeg',
+                                              fit: BoxFit.cover,
+                                              width: 80,
+                                              height: 80,
+                                              errorBuilder: (context, error, stackTrace) => Container(
+                                                color: AppPallete.profileAccent,
+                                                child: Center(
+                                                  child: Text(
+                                                    'Img',
+                                                    style: TextStyle(
+                                                      color: AppPallete.textPrimaryDark,
+                                                      fontSize: 20,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ),
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            // Society Tags with Horizontal Scrolling
-                            Expanded(
-                              child: SizedBox(
-                                height: 40,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: _societies.length + (_isEditing ? 1 : 0),
-                                  itemBuilder: (context, index) {
-                                    if (index < _societies.length) {
-                                      return Padding(
-                                        padding: const EdgeInsets.only(right: 8.0),
-                                        child: _buildSocietyChip(_societies[index]),
-                                      );
-                                    } else {
-                                      return Padding(
-                                        padding: const EdgeInsets.only(right: 8.0),
-                                        child: _buildAddSocietyButton(),
-                                      );
-                                    }
-                                  },
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: 24),
+                                // Society Tags with Horizontal Scrolling
+                                Expanded(
+                                  child: SizedBox(
+                                    height: 40,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: _societies.length + (_isEditing ? 1 : 0),
+                                      itemBuilder: (context, index) {
+                                        if (index < _societies.length) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(right: 8.0),
+                                            child: _buildSocietyChip(_societies[index]),
+                                          );
+                                        } else {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(right: 8.0),
+                                            child: _buildAddSocietyButton(),
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Name with House (Editable)
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: _isEditing
-                              ? TextFormField(
-                                  controller: _nameController,
-                                  style: TextStyle(
-                                    color: AppPallete.textPrimaryDark,
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  decoration: InputDecoration(
-                                    border: const UnderlineInputBorder(),
-                                    enabledBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(color: AppPallete.profileTextSecondary),
-                                    ),
-                                    focusedBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(color: AppPallete.profileAccent),
-                                    ),
-                                  ),
-                                )
-                              : Row(
-                                  children: [
-                                    Text(
-                                      _nameController.text,
+                            const SizedBox(height: 24),
+                  
+                            // Name with House (Editable)
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: _isEditing
+                                  ? TextFormField(
+                                      controller: _nameController,
                                       style: TextStyle(
                                         color: AppPallete.textPrimaryDark,
                                         fontSize: 28,
                                         fontWeight: FontWeight.bold,
                                       ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: AppPallete.profileCardBackground,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        'House',
-                                        style: TextStyle(
-                                          color: AppPallete.profileTextSecondary,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
+                                      decoration: InputDecoration(
+                                        border: const UnderlineInputBorder(),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(color: AppPallete.profileTextSecondary),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(color: AppPallete.profileAccent),
                                         ),
                                       ),
+                                    )
+                                  : Row(
+                                      children: [
+                                        Text(
+                                          _nameController.text,
+                                          style: TextStyle(
+                                            color: AppPallete.textPrimaryDark,
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: AppPallete.profileCardBackground,
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            'House',
+                                            style: TextStyle(
+                                              color: AppPallete.profileTextSecondary,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                            ),
+                            const SizedBox(height: 24),
+                  
+                            // Details Row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _buildDetailColumn('Batch', _batchController, _isEditing),
+                                _buildDetailColumn('Branch', _branchController, _isEditing),
+                                _buildDetailColumn('Class', _classController, _isEditing),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                  
+                            // Action Buttons
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildMainButton(
+                                    _isEditing ? 'Save Changes' : 'Edit Profile',
+                                    AppPallete.profileCardBackground,
+                                    AppPallete.textPrimaryDark,
+                                    _toggleEdit,
+                                  ),
                                 ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Details Row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildDetailColumn('Batch', _batchController, _isEditing),
-                            _buildDetailColumn('Branch', _branchController, _isEditing),
-                            _buildDetailColumn('Class', _classController, _isEditing),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Action Buttons
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildMainButton(
-                                _isEditing ? 'Save Changes' : 'Edit Profile',
-                                AppPallete.profileCardBackground,
-                                AppPallete.textPrimaryDark,
-                                _toggleEdit,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _buildMainButton(
-                                'Share',
-                                AppPallete.profileAccent,
-                                AppPallete.textPrimaryDark,
-                                _shareProfile,
-                              ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildMainButton(
+                                    'Share',
+                                    AppPallete.profileAccent,
+                                    AppPallete.textPrimaryDark,
+                                    _shareProfile,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ), 
                     ),
-                  ), 
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // Your Wefts Section
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Your Wefs',
-                  style: TextStyle(
-                    color: AppPallete.textPrimaryDark,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
                   ),
-                ),
+                  const SizedBox(height: 40),
+                  
+                  // Your Wefts Section
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Your Wefs',
+                      style: TextStyle(
+                        color: AppPallete.textPrimaryDark,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Weft Items
+                  ..._wefts.map((weft) => _buildWeftItem(
+                        weft['date'],
+                        weft['time'],
+                        weft['content'],
+                        weft['likes'],
+                        weft['comments'],
+                      )),
+                ],
               ),
-              const SizedBox(height: 16),
-
-              // Weft Items
-              ..._wefts.map((weft) => _buildWeftItem(
-                    weft['date'],
-                    weft['time'],
-                    weft['content'],
-                    weft['likes'],
-                    weft['comments'],
-                  )),
-            ],
+            ),
           ),
         ),
       ),

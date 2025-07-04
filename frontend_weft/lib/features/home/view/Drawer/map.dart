@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:xml/xml.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -40,9 +41,9 @@ class HomeScreen extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF2A2D5A),
-              Color(0xFF4A4E8A),
-              Color(0xFF3A3E7A),
+              AppPallete.gradient1,
+              AppPallete.gradient2,
+              AppPallete.gradient3,
             ],
           ),
         ),

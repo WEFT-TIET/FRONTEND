@@ -26,7 +26,7 @@ class PostCard extends StatelessWidget {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppPallete.postCardColor, // Dark background
+        color: AppPallete.glassWhite05, // Dark background
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(

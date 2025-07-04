@@ -38,7 +38,7 @@ class _EventCardState extends State<EventCard> {
       margin: const EdgeInsets.all(8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: widget.backgroundColor,
+        color: AppPallete.glassWhite05,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -69,27 +69,6 @@ class _EventCardState extends State<EventCard> {
               Text(widget.location,
                   style: const TextStyle(color: AppPallete.whiteColor)),
             ],
-          ),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _toggleInterest,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _isInterested
-                    ? AppPallete.primaryDark
-                    : AppPallete.secondaryDark,
-                foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                textStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              child: Text(_isInterested ? '✔ INTERESTED' : 'INTERESTED?'),
-            ),
           ),
         ],
       ),

@@ -20,7 +20,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   static final List<Widget> _pages = <Widget>[
     HomePage(),
     SearchPage(),
-    MessagePage(),
+    // MessagePage(),
     ProfilePage(),
   ];
 
@@ -93,14 +93,14 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   ),
                   label: 'Search',
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.chat_bubble_outline),
-                  activeIcon: GradientIcon(
-                    icon: Icons.forum_outlined,
-                    gradient: LinearGradient(colors: gradientColors),
-                  ),
-                  label: 'Message',
-                ),
+                // BottomNavigationBarItem(
+                //   icon: Icon(Icons.chat_bubble_outline),
+                //   activeIcon: GradientIcon(
+                //     icon: Icons.forum_outlined,
+                //     gradient: LinearGradient(colors: gradientColors),
+                //   ),
+                //   label: 'Message',
+                // ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person_outline),
                   activeIcon: GradientIcon(

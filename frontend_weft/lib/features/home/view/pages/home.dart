@@ -35,20 +35,14 @@ class HomePage extends ConsumerWidget {
           title: Text(
             'Hi Rudra !',
             style: GoogleFonts.getFont(
-              'Indie Flower', 
+              'Indie Flower',
               fontSize: 30,
               color: AppPallete.textPrimaryDark,
             ),
           ),
           iconTheme: IconThemeData(color: AppPallete.textPrimaryDark),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () async {
-                await ref.read(authViewModelProvider.notifier).logoutUser();
-                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-              },
-            ),
+            IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
           ],
         ),
         drawer: SafeArea(
@@ -64,10 +58,7 @@ class HomePage extends ConsumerWidget {
                     padding: EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [
-                          AppPallete.gradient1,
-                          AppPallete.gradient2,
-                        ],
+                        colors: [AppPallete.gradient1, AppPallete.gradient2],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -85,7 +76,6 @@ class HomePage extends ConsumerWidget {
                     ),
                   ),
 
-                  
                   // Menu Items
                   Expanded(
                     child: ListView(
@@ -141,14 +131,13 @@ class HomePage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
-                  height: 200,
+                  height: 160,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: 5,
                     separatorBuilder: (context, index) =>
                         const SizedBox(width: 12),
                     itemBuilder: (context, index) => EventCard(
-
                       title: 'CCS',
                       subtitle: 'CCS Tech Fest',
                       date: 'Dec 15',
@@ -158,7 +147,7 @@ class HomePage extends ConsumerWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 Text(
                   "STUDENTS' POSTS",
                   style: GoogleFonts.getFont(
@@ -207,10 +196,7 @@ class HomePage extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppPallete.glassWhite05,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppPallete.glassWhite10,
-          width: 1,
-        ),
+        border: Border.all(color: AppPallete.glassWhite10, width: 1),
       ),
       child: ListTile(
         leading: Container(
@@ -219,11 +205,7 @@ class HomePage extends ConsumerWidget {
             color: AppPallete.profileAccent.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: AppPallete.profileAccent,
-            size: 20,
-          ),
+          child: Icon(icon, color: AppPallete.profileAccent, size: 20),
         ),
         title: Text(
           title,
