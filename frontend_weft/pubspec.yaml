@@ -78,6 +78,8 @@ flutter:
     - lib/core/assets/profile_photo.jpeg
     - lib/core/assets/thapar_map.svg
     - lib/core/assets/Time_Table.xlsx
+    - lib/core/assets/data.json
+    - lib/core/assets/subjects.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
