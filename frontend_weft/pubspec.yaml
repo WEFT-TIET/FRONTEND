@@ -61,6 +61,11 @@ dev_dependencies:
   riverpod_lint: ^2.6.5
   riverpod_generator: ^2.6.5
   build_runner: ^2.5.3
+  flutter_launcher_icons: ^0.13.1
+flutter_launcher_icons:
+    android: "launcher_icon"
+    ios: true
+    image_path: "lib/core/assets/logo.jpeg"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
