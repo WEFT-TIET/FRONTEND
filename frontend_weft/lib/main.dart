@@ -38,7 +38,7 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       title: 'WEFT',
       theme: DarkAppTheme.darkThemeMode,
-      initialRoute: currentUser == null ? '/login' : '/signup',
+      initialRoute: currentUser == null ? '/login' : '/home',
       routes: {
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
