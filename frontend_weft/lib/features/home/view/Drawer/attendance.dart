@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum ClassStatus { completed, live, upcoming }
 
@@ -33,14 +35,18 @@ class AttendancePage extends StatefulWidget {
 class _AttendancePageState extends State<AttendancePage> {
   DateTime selectedDate = DateTime.now();
   String selectedSubgroup = '1B11';
-  List<String> subgroups = [
-    '1B11','1B12','1B13','1B14','1B15','1B16','1B17','1B18','1B21',
-    // add up to 1B66...
+  bool loading = true;
+
+  // List all subgroups you support here
+  final List<String> subgroups = [
+    '1A11','1A12','1A13','1A14',
+    '1B11','1B12','1B13','1B14','1B15','1B16','1B17','1B18','1B19','1B20',
+    // … up to 1B66
   ];
 
   Map<String, String> subjectMap = {};
   Map<String, List<ClassSchedule>> timetableData = {};
-  bool loading = true;
+  Map<String, bool> attendanceMap = {}; // key → present/absent
 
   @override
   void initState() {
@@ -51,6 +57,7 @@ class _AttendancePageState extends State<AttendancePage> {
   Future<void> _loadAllData() async {
     await _loadSubjectMap();
     await _loadTimetable(selectedSubgroup);
+    await _loadAttendanceMap();
     setState(() => loading = false);
   }
 
@@ -58,8 +65,7 @@ class _AttendancePageState extends State<AttendancePage> {
     final raw = await rootBundle.loadString('lib/core/assets/subjects.json');
     final Map<String, dynamic> jsonMap = jsonDecode(raw);
     subjectMap = {
-      for (var code in jsonMap.keys)
-        code: jsonMap[code]['name'] as String
+      for (var code in jsonMap.keys) code: jsonMap[code]['name'] as String
     };
   }
 
@@ -67,11 +73,11 @@ class _AttendancePageState extends State<AttendancePage> {
     final raw = await rootBundle.loadString('lib/core/assets/data.json');
     final Map<String, dynamic> jsonMap = jsonDecode(raw);
 
-    List<List<dynamic>>? matrixRows;
-
-    for (final yearBlock in jsonMap.values) {
-      if (yearBlock is Map<String, dynamic> && yearBlock.containsKey(subgroup)) {
-        matrixRows = List<List<dynamic>>.from(yearBlock[subgroup]);
+    List<dynamic>? matrixRows;
+    for (var yearBlock in jsonMap.values) {
+      if (yearBlock is Map<String, dynamic> &&
+          yearBlock.containsKey(subgroup)) {
+        matrixRows = yearBlock[subgroup] as List<dynamic>;
         break;
       }
     }
@@ -81,52 +87,84 @@ class _AttendancePageState extends State<AttendancePage> {
       return;
     }
 
-    // ...continue parsing logic as before...
-  
-
-
-    // Now it's safe to cast
-    final List<dynamic> rows = matrixRows;
-    // Proceed using rows...
-  
-
-    // First row is header: [ {"course":"Timings"}, {"course":"Monday"}, ... ]
     final header = matrixRows[0] as List<dynamic>;
     final weekdays = header
         .skip(1)
         .map((cell) => (cell as Map<String, dynamic>)['course'] as String)
         .toList();
 
-    Map<String, List<ClassSchedule>> result = {};
+    final Map<String, List<ClassSchedule>> result = {};
 
-    // Iterate each time-row
-    for (var r = 1; r < matrixRows.length; r++) {
+    for (int r = 1; r < matrixRows.length; r++) {
       final row = matrixRows[r] as List<dynamic>;
       final time = (row[0] as Map<String, dynamic>)['course'] as String;
 
-      for (var c = 1; c < row.length; c++) {
+      for (int c = 1; c < row.length; c++) {
         final cell = row[c] as Map<String, dynamic>;
         final rawCourse = (cell['course'] as String).trim();
         if (rawCourse.isEmpty) continue;
 
-        // subject code is first token before space
         final code = rawCourse.split(' ').first;
         final name = subjectMap[code] ?? code;
         final day = weekdays[c - 1];
 
         result.putIfAbsent(day, () => []);
+        final todayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+        final now = DateTime.now();
+
+        // Normalize today's date to midnight to ignore time
+        final today = DateTime(now.year, now.month, now.day);
+
+        // Parse classDateTime from selectedDate + time
+        DateTime? classDateTime;
+        try {
+          classDateTime = DateFormat('yyyy-MM-dd HH:mm').parse('$todayStr $time');
+        } catch (_) {
+          classDateTime = null;
+        }
+
+        late final ClassStatus status;
+
+        if (classDateTime == null) {
+          status = ClassStatus.upcoming;
+        } else if (selectedDate.isBefore(today)) {
+          status = ClassStatus.completed;
+        } else if (selectedDate.isAfter(today)) {
+          status = ClassStatus.upcoming;
+        } else {
+          // selectedDate == today, so compare time now
+          final diff = classDateTime.difference(now).inMinutes;
+          if (diff < -10) {
+            status = ClassStatus.completed;
+          } else if (diff >= -10 && diff <= 30) {
+            status = ClassStatus.live;
+          } else {
+            status = ClassStatus.upcoming;
+          }
+        }
+
+
         result[day]!.add(ClassSchedule(
           subject: name,
           time: time,
-          status: ClassStatus.upcoming,
+          status: status,
           present: 0,
           total: 30,
           subgroups: [subgroup],
         ));
+
+
       }
     }
 
     timetableData = result;
+  }
+
+  Future<void> _loadAttendanceMap() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('attendance') ?? '{}';
+    final Map<String, dynamic> decoded = jsonDecode(saved);
+    attendanceMap = decoded.map((k, v) => MapEntry(k, v as bool));
   }
 
   void _changeDate(int days) {
@@ -142,22 +180,49 @@ class _AttendancePageState extends State<AttendancePage> {
       loading = true;
     });
     _loadTimetable(newValue).then((_) {
-      setState(() => loading = false);
+      _loadAttendanceMap().then((_) {
+        setState(() => loading = false);
+      });
     });
   }
 
-  void _markAttendance(ClassSchedule cls, bool present) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          present
-              ? 'Marked Present for ${cls.subject}'
-              : 'Marked Absent for ${cls.subject}',
-        ),
-        backgroundColor: present ? Colors.green : Colors.red,
-      ),
-    );
+  String _attendanceKey(ClassSchedule cls) {
+    final date = DateFormat('yyyy-MM-dd').format(selectedDate);
+    return '$date|$selectedSubgroup|${cls.subject}|${cls.time}';
   }
+
+  void _markAttendance(ClassSchedule cls, bool present) async {
+  final key = _attendanceKey(cls);
+  final current = attendanceMap[key];
+
+  setState(() {
+    // If same button clicked again, remove the attendance entry
+    if (current == present) {
+      attendanceMap.remove(key);
+    } else {
+      attendanceMap[key] = present;
+    }
+  });
+
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('attendance', jsonEncode(attendanceMap));
+
+  final message = attendanceMap.containsKey(key)
+      ? (present ? 'Marked Present for ${cls.subject}' : 'Marked Absent for ${cls.subject}')
+      : 'Cleared attendance for ${cls.subject}';
+
+  final color = attendanceMap.containsKey(key)
+      ? (present ? Colors.green : Colors.red)
+      : Colors.grey;
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      backgroundColor: color,
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +231,7 @@ class _AttendancePageState extends State<AttendancePage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Attendance - TIET', style: TextStyle(fontSize: 16)),
+        title: const Text('Attendance - TIET'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -174,12 +239,12 @@ class _AttendancePageState extends State<AttendancePage> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // Subgroup selector
+                // Subgroup dropdown
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
@@ -188,10 +253,10 @@ class _AttendancePageState extends State<AttendancePage> {
                       child: DropdownButton<String>(
                         value: selectedSubgroup,
                         dropdownColor: const Color(0xFF6B73FF),
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 16),
-                        icon:
-                            const Icon(Icons.arrow_drop_down, color: Colors.white),
+                        style: const TextStyle(
+                            color: Colors.white, fontSize: 16),
+                        icon: const Icon(Icons.arrow_drop_down,
+                            color: Colors.white),
                         items: subgroups
                             .map((s) =>
                                 DropdownMenuItem(value: s, child: Text(s)))
@@ -202,7 +267,7 @@ class _AttendancePageState extends State<AttendancePage> {
                   ),
                 ),
 
-                // Date header
+                // Date selector
                 _buildDateSelector(),
 
                 const SizedBox(height: 24),
@@ -222,10 +287,7 @@ class _AttendancePageState extends State<AttendancePage> {
                         const Text(
                           "Today's Classes",
                           style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 20),
                         Expanded(child: _buildClassesList(dayName)),
@@ -250,19 +312,13 @@ class _AttendancePageState extends State<AttendancePage> {
         children: [
           Text(
             DateFormat('EEEE').format(selectedDate),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 24),
           ),
           const SizedBox(height: 4),
           Text(
             DateFormat('MMMM dd, yyyy').format(selectedDate),
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
-              fontSize: 14,
-            ),
+            style:
+                TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
           ),
           const SizedBox(height: 16),
           Row(
@@ -270,31 +326,39 @@ class _AttendancePageState extends State<AttendancePage> {
             children: [
               GestureDetector(
                 onTap: () => _changeDate(-1),
-                child: Row(children: [
-                  const Icon(Icons.arrow_back_ios,
-                      color: Colors.white, size: 16),
-                  Text(
-                    DateFormat('EEEE')
-                        .format(selectedDate.subtract(const Duration(days: 1))),
-                    style: TextStyle(
-                        color: Colors.white.withOpacity(0.8), fontSize: 14),
-                  )
-                ]),
+                child: Row(
+                  children: [
+                    const Icon(Icons.arrow_back_ios,
+                        color: Colors.white, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      DateFormat('EEEE')
+                          .format(selectedDate.subtract(const Duration(days: 1))),
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 14),
+                    ),
+                  ],
+                ),
               ),
               const Text('Swipe to navigate',
                   style: TextStyle(color: Colors.white, fontSize: 12)),
               GestureDetector(
                 onTap: () => _changeDate(1),
-                child: Row(children: [
-                  Text(
-                    DateFormat('EEEE')
-                        .format(selectedDate.add(const Duration(days: 1))),
-                    style: TextStyle(
-                        color: Colors.white.withOpacity(0.8), fontSize: 14),
-                  ),
-                  const Icon(Icons.arrow_forward_ios,
-                      color: Colors.white, size: 16),
-                ]),
+                child: Row(
+                  children: [
+                    Text(
+                      DateFormat('EEEE')
+                          .format(selectedDate.add(const Duration(days: 1))),
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 14),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.arrow_forward_ios,
+                        color: Colors.white, size: 16),
+                  ],
+                ),
               ),
             ],
           )
@@ -305,9 +369,8 @@ class _AttendancePageState extends State<AttendancePage> {
 
   Widget _buildClassesList(String dayName) {
     final classes = timetableData[dayName] ?? [];
-    final filtered = classes
-        .where((c) => c.subgroups.contains(selectedSubgroup))
-        .toList();
+    final filtered =
+        classes.where((c) => c.subgroups.contains(selectedSubgroup)).toList();
 
     if (filtered.isEmpty) {
       return Center(
@@ -328,11 +391,14 @@ class _AttendancePageState extends State<AttendancePage> {
 
     return ListView.builder(
       itemCount: filtered.length,
-      itemBuilder: (context, idx) => _buildClassCard(filtered[idx]),
+      itemBuilder: (_, i) => _buildClassCard(filtered[i]),
     );
   }
 
   Widget _buildClassCard(ClassSchedule cls) {
+    final key = _attendanceKey(cls);
+    final recorded = attendanceMap[key]; // true, false, or null
+
     Color borderColor;
     Widget statusChip;
     switch (cls.status) {
@@ -344,11 +410,9 @@ class _AttendancePageState extends State<AttendancePage> {
         borderColor = Colors.green;
         statusChip = _liveChip();
         break;
-      case ClassStatus.upcoming:
       default:
         borderColor = Colors.orange;
         statusChip = _statusChip('Upcoming', Colors.orange, Colors.white);
-        break;
     }
 
     return Container(
@@ -383,54 +447,55 @@ class _AttendancePageState extends State<AttendancePage> {
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            cls.time,
-            style: TextStyle(color: Colors.grey[600], fontSize: 14),
-          ),
+          Text(cls.time, style: TextStyle(color: Colors.grey[600])),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(children: [
-                ElevatedButton(
-                  onPressed: cls.status == ClassStatus.upcoming
-                      ? null
-                      : () => _markAttendance(cls, true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: cls.status != ClassStatus.upcoming
+                        ? () => _markAttendance(cls, true)
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
+                    child: recorded == true
+                        ? const Icon(Icons.check, size: 16)
+                        : const Text('Present', style: TextStyle(fontSize: 12)),
                   ),
-                  child: const Text('Present', style: TextStyle(fontSize: 12)),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: cls.status == ClassStatus.upcoming
-                      ? null
-                      : () => _markAttendance(cls, false),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: cls.status != ClassStatus.upcoming
+                        ? () => _markAttendance(cls, false)
+                        : null,
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
+                    child: recorded == false
+                        ? const Icon(Icons.close, size: 16)
+                        : const Text('Absent', style: TextStyle(fontSize: 12)),
                   ),
-                  child: const Text('Absent', style: TextStyle(fontSize: 12)),
-                ),
-              ]),
-              if (cls.status != ClassStatus.upcoming)
+                ],
+              ),
+              if (recorded != null)
                 Text(
-                  '${cls.present}/${cls.total}',
-                  style: const TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14),
+                  recorded ? 'You were Present' : 'You were Absent',
+                  style: TextStyle(
+                      color: recorded ? Colors.green : Colors.red,
+                      fontWeight: FontWeight.bold),
                 ),
             ],
           ),
@@ -439,23 +504,24 @@ class _AttendancePageState extends State<AttendancePage> {
     );
   }
 
-  Widget _statusChip(String text, Color bg, Color fg) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
-      child: Text(text, style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w500)),
-    );
-  }
+  Widget _statusChip(String text, Color bg, Color fg) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration:
+            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+        child: Text(text,
+            style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w500)),
+      );
 
-  Widget _liveChip() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(12)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: const [
-        Icon(Icons.circle, size: 6, color: Colors.white),
-        SizedBox(width: 4),
-        Text('Live Now', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500)),
-      ]),
-    );
-  }
+  Widget _liveChip() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration:
+            BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(12)),
+        child: Row(mainAxisSize: MainAxisSize.min, children: const [
+          Icon(Icons.circle, size: 6, color: Colors.white),
+          SizedBox(width: 4),
+          Text('Live Now',
+              style: TextStyle(
+                  color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500)),
+        ]),
+      );
 }
