@@ -29,42 +29,71 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: Column(
               children: [
                 const Text(
-                  'Welcome Back!',
-                  style: TextStyle(fontSize: 30, color: Colors.white),
+                  'WEFT',
+                  style: TextStyle(
+                    fontSize: 30,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 25),
                 const Text(
-                  'Login to your WEFT account',
+                  'Login with your college email',
                   style: TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(height: 30),
-
-                _buildLabel("College Email"),
-                _buildInput(emailController, "your.name@college.edu"),
-                const SizedBox(height: 16),
-
-                _buildLabel("Password"),
-                _buildInput(passwordController, "Enter your password", obscure: true),
-                const SizedBox(height: 30),
-
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : _handleLogin,
-                    style: _buttonStyle(),
-                    child: isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text("Login"),
+                Container(
+                  height: 330,
+                  width: 370,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1D1D2F),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildLabel("College Email"),
+                      _buildInput(emailController, "your.name@college.edu"),
+                      const SizedBox(height: 20),
+                      _buildLabel("Password"),
+                      _buildInput(
+                        passwordController,
+                        "Enter your password",
+                        obscure: true,
+                      ),
+                      const SizedBox(height: 40),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _handleLogin,
+                          style: _buttonStyle(),
+                          child: isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : const Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
                 TextButton(
                   onPressed: () {
                     Navigator.pushReplacementNamed(context, '/signup');
                   },
-                  child: const Text("Don't have an account? Sign up",
-                      style: TextStyle(color: Colors.grey)),
+                  child: const Text(
+                    "Don't have an account? Sign up",
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ),
               ],
             ),
@@ -74,36 +103,50 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  Widget _buildLabel(String text) =>
-      Align(alignment: Alignment.centerLeft, child: Text(text, style: const TextStyle(color: Colors.white)));
+  Widget _buildLabel(String text) => Align(
+    alignment: Alignment.centerLeft,
+    child: Padding(
+      padding: const EdgeInsets.all(6.0),
+      child: Text(text, style: const TextStyle(color: Colors.white)),
+    ),
+  );
 
-  Widget _buildInput(TextEditingController c, String hint, {bool obscure = false}) => TextFormField(
-        controller: c,
-        obscureText: obscure,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.grey),
-          filled: true,
-          fillColor: const Color(0xFF1D1D2F),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        ),
-        validator: (v) => v!.isEmpty ? 'Required' : null,
-      );
+  Widget _buildInput(
+    TextEditingController c,
+    String hint, {
+    bool obscure = false,
+  }) => TextFormField(
+    controller: c,
+    obscureText: obscure,
+    style: const TextStyle(color: Colors.white),
+    decoration: InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: Colors.grey),
+      filled: true,
+      fillColor: const Color(0xFF1D1D2F),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    ),
+    validator: (v) => v!.isEmpty ? 'Required' : null,
+  );
 
   ButtonStyle _buttonStyle() => ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF4A5FE4),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      );
+    backgroundColor: const Color(0xFF4A5FE4),
+    padding: const EdgeInsets.symmetric(vertical: 16),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  );
 
   void _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isLoading = true);
 
-    final success = await ref.read(authViewModelProvider.notifier).login(
+    final success = await ref
+        .read(authViewModelProvider.notifier)
+        .login(
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
           context: context,

@@ -25,68 +25,95 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF121221),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                const Text(
-                  'Create Account',
-                  style: TextStyle(fontSize: 30, color: Colors.white),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    const Text(
+                      'WEFT',
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Create your account',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    const SizedBox(height: 30),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1D1D2F),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildLabel("Full Name"),
+                          _buildInput(nameController, "Enter your full name"),
+                          const SizedBox(height: 16),
+          
+                          _buildLabel("College Email"),
+                          _buildInput(emailController, "your.name@college.edu"),
+                          const SizedBox(height: 16),
+          
+                          _buildLabel("Password"),
+                          _buildInput(passwordController, "Enter your password", obscure: true),
+                          const SizedBox(height: 16),
+          
+                          _buildLabel("Branch"),
+                          _buildInput(branchController, "e.g. COE, COPC, ENC"),
+                          const SizedBox(height: 16),
+          
+                          _buildLabel("Year"),
+                          _buildInput(yearController, "e.g. 2025"),
+                          const SizedBox(height: 16),
+          
+                          _buildLabel("Class ID"),
+                          _buildInput(classIdController, "e.g. 1A15, 1A62, 1B84"),
+                          const SizedBox(height: 24),
+          
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: isLoading ? null : _handleSignup,
+                              style: _buttonStyle(),
+                              child: isLoading
+                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  : const Text(
+                                      "Continue",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                      child: const Text(
+                        "Already have an account? Log in",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Add your details to connect with your peers',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 30),
-
-                _buildLabel("Full Name"),
-                _buildInput(nameController, "Enter your full name"),
-                const SizedBox(height: 16),
-
-                _buildLabel("College Email"),
-                _buildInput(emailController, "your.name@college.edu"),
-                const SizedBox(height: 16),
-
-                _buildLabel("Password"),
-                _buildInput(passwordController, "Enter your password", obscure: true),
-                const SizedBox(height: 16),
-
-                _buildLabel("Branch"),
-                _buildInput(branchController, "e.g. COE, COPC, ENC"),
-                const SizedBox(height: 16),
-
-                _buildLabel("Year"),
-                _buildInput(yearController, "e.g. 2025"),
-                const SizedBox(height: 16),
-
-                _buildLabel("Class ID"),
-                _buildInput(classIdController, "e.g. COE123"),
-                const SizedBox(height: 24),
-
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : _handleSignup,
-                    style: _buttonStyle(),
-                    child: isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text("Continue"),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/login');
-                  },
-                  child: const Text("Already have an account? Log in",
-                      style: TextStyle(color: Colors.grey)),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -96,11 +123,17 @@ class _SignupPageState extends ConsumerState<SignupPage> {
 
   Widget _buildLabel(String text) => Align(
         alignment: Alignment.centerLeft,
-        child: Text(text, style: const TextStyle(color: Colors.white)),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 6.0),
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
       );
 
-  Widget _buildInput(TextEditingController controller, String hint,
-          {bool obscure = false}) =>
+  Widget _buildInput(
+    TextEditingController controller,
+    String hint, {
+    bool obscure = false,
+  }) =>
       TextFormField(
         controller: controller,
         obscureText: obscure,
@@ -112,10 +145,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
           fillColor: const Color(0xFF1D1D2F),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+            borderSide: const BorderSide(color: Colors.grey),
           ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
         validator: (value) => value!.isEmpty ? 'Required' : null,
       );
@@ -123,9 +155,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   ButtonStyle _buttonStyle() => ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF4A5FE4),
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       );
 
   void _handleSignup() async {
