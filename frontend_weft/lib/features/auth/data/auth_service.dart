@@ -1,38 +1,37 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_weft/core/server_constants.dart';
 import 'package:http/http.dart' as http;
-import '../model/user_model.dart';
+import 'package:frontend_weft/features/auth/model/user_model.dart';
 
-final authServiceProvider = Provider((ref) => AuthService());
+final authServiceProvider = Provider<AuthService>((ref) {
+  return AuthService();
+});
 
 class AuthService {
-  final String baseUrl = "http://localhost:8000";
+  static const String baseUrl = ServerConstants.baseUrl;
 
-  Future<User> signup(Map<String, dynamic> body) async {
+  Future<bool> login(String email, String password) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/auth/signup'),
+      Uri.parse('$baseUrl/login'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
+      body: jsonEncode({'email': email, 'password': password}),
+    );
+
+    return response.statusCode == 200;
+  }
+
+  Future<User> signup(Map<String, dynamic> userData) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/register'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(userData),
     );
 
     if (response.statusCode == 200) {
       return User.fromJson(jsonDecode(response.body));
     } else {
       throw Exception("Signup failed: ${response.body}");
-    }
-  }
-
-  Future<User> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/auth/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
-
-    if (response.statusCode == 200) {
-      return User.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception("Login failed: ${response.body}");
     }
   }
 }

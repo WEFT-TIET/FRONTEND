@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../viewmodel/auth_viewmodel.dart';
-import '../../navbar/navigation.dart'; // import your BottomNavBar
+import '../../navbar/navigation.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -14,88 +14,109 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
   bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF121221),
-      body: Center(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                const Text(
-                  'WEFT',
-                  style: TextStyle(
-                    fontSize: 30,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 25),
-                const Text(
-                  'Login with your college email',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 30),
-                Container(
-                  height: 330,
-                  width: 370,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1D1D2F),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      _buildLabel("College Email"),
-                      _buildInput(emailController, "your.name@college.edu"),
-                      const SizedBox(height: 20),
-                      _buildLabel("Password"),
-                      _buildInput(
-                        passwordController,
-                        "Enter your password",
-                        obscure: true,
-                      ),
-                      const SizedBox(height: 40),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : _handleLogin,
-                          style: _buttonStyle(),
-                          child: isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                              : const Text(
-                                  "Login",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight:
+                  MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom,
+            ),
+            child: IntrinsicHeight(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: IntrinsicHeight(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'WEFT',
+                            style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 25),
+                          const Text(
+                            'Login with your college email',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          const SizedBox(height: 30),
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1D1D2F),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              children: [
+                                _buildLabel("College Email"),
+                                _buildInput(
+                                  emailController,
+                                  "your.name@college.edu",
+                                ),
+                                const SizedBox(height: 20),
+                                _buildLabel("Password"),
+                                _buildInput(
+                                  passwordController,
+                                  "Enter your password",
+                                  obscure: true,
+                                ),
+                                const SizedBox(height: 40),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: isLoading ? null : _handleLogin,
+                                    style: _buttonStyle(),
+                                    child: isLoading
+                                        ? const CircularProgressIndicator(
+                                            color: Colors.white,
+                                          )
+                                        : const Text(
+                                            "Login",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                   ),
                                 ),
-                        ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushReplacementNamed(
+                                context,
+                                '/signup',
+                              );
+                            },
+                            child: const Text(
+                              "Don't have an account? Sign up",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
-
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/signup');
-                  },
-                  child: const Text(
-                    "Don't have an account? Sign up",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -112,11 +133,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   );
 
   Widget _buildInput(
-    TextEditingController c,
+    TextEditingController controller,
     String hint, {
     bool obscure = false,
   }) => TextFormField(
-    controller: c,
+    controller: controller,
     obscureText: obscure,
     style: const TextStyle(color: Colors.white),
     decoration: InputDecoration(
@@ -126,11 +147,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       fillColor: const Color(0xFF1D1D2F),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey),
+        borderSide: const BorderSide(color: Colors.grey),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
-    validator: (v) => v!.isEmpty ? 'Required' : null,
+    validator: (value) => value!.isEmpty ? 'Required' : null,
   );
 
   ButtonStyle _buttonStyle() => ElevatedButton.styleFrom(

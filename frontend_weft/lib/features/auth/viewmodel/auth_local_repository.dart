@@ -9,6 +9,7 @@ final authLocalRepositoryProvider = Provider<AuthLocalRepository>((ref) {
 
 class AuthLocalRepository {
   static const _userKey = 'logged_in_user';
+  static const _tokenKey = 'access_token';
 
   Future<void> saveUser(User user) async {
     final prefs = await SharedPreferences.getInstance();
@@ -22,8 +23,24 @@ class AuthLocalRepository {
     return User.fromJson(jsonDecode(data));
   }
 
+  Future<void> saveAccessToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, token);
+  }
+
+  Future<String?> getAccessToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_tokenKey);
+  }
+
+  Future<void> clearAccessToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
+  }
+
   Future<void> clearUser() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userKey);
+    await prefs.remove(_tokenKey); // also remove token
   }
 }

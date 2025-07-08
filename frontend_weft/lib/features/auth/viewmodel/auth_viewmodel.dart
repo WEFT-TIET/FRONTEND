@@ -10,8 +10,10 @@ final authViewModelProvider = StateNotifierProvider<AuthViewModel, User?>((ref) 
 
 class AuthViewModel extends StateNotifier<User?> {
   final Ref ref;
+
   AuthViewModel(this.ref) : super(null);
 
+  /// Sign up returns a user and saves it
   Future<bool> signup({
     required String name,
     required String email,
@@ -40,23 +42,21 @@ class AuthViewModel extends StateNotifier<User?> {
     }
   }
 
-  Future<bool> login({
-    required String email,
-    required String password,
-    required BuildContext context,
-  }) async {
-    try {
-      final user = await ref.read(authServiceProvider).login(email, password);
-      state = user;
-      await ref.read(authLocalRepositoryProvider).saveUser(user);
-      return true;
-    } catch (e) {
-      _showError(context, e.toString());
-      return false;
-    }
+Future<bool> login({
+  required String email,
+  required String password,
+  required BuildContext context,
+}) async {
+  try {
+    final success = await ref.read(authServiceProvider).login(email, password);
+    // No user data for now
+    return success;
+  } catch (e) {
+    _showError(context, e.toString());
+    return false;
   }
+}
 
-  /// ✅ FIXED: No need to pass `ref` when it's already in scope
   Future<void> logoutUser() async {
     await ref.read(authLocalRepositoryProvider).clearUser();
     state = null;
@@ -67,4 +67,5 @@ class AuthViewModel extends StateNotifier<User?> {
       SnackBar(content: Text(error), backgroundColor: Colors.red),
     );
   }
+  
 }

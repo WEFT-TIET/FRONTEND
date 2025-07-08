@@ -32,7 +32,6 @@ class PostCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Avatar + Name + Time
           Row(
             children: [
               const CircleAvatar(

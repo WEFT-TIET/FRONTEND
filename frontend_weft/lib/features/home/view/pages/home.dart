@@ -4,6 +4,7 @@ import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/Drawer/drawer.dart';
 import 'package:frontend_weft/features/home/view/widgets/event_card.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
+import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends ConsumerWidget {
@@ -87,23 +88,33 @@ class HomePage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 15),
-                SizedBox(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: 15,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 8),
-                    itemBuilder: (context, index) => PostCard(
-                      name: 'Rudra',
-                      tag: 'CCS',
-                      timeAgo: '2h ago',
-                      content:
-                          'Join us for the CCS Tech Fest! Exciting events and workshops await.',
-                      stars: 21,
-                      comments: 5,
-                    ),
-                  ),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final postsAsync = ref.watch(postsProvider);
+
+                    return postsAsync.when(
+                      data: (posts) => ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: posts.length,
+                        itemBuilder: (context, index) {
+                          final post = posts[index];
+                          return PostCard(
+                            name: post.userName,
+                            tag: post.title,
+                            timeAgo: _formatTimeAgo(post.createdAt),
+                            content: post.content,
+                            stars: post.likesCount,
+                            comments: post.commentsCount,
+                          );
+                        },
+                      ),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (error, stack) =>
+                          Center(child: Text('Error: $error')),
+                    );
+                  },
                 ),
               ],
             ),
@@ -111,5 +122,15 @@ class HomePage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  String _formatTimeAgo(String dateTimeStr) {
+    final dateTime = DateTime.parse(dateTimeStr);
+    final difference = DateTime.now().difference(dateTime);
+
+    if (difference.inMinutes < 1) return 'just now';
+    if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
+    if (difference.inHours < 24) return '${difference.inHours}h ago';
+    return '${difference.inDays}d ago';
   }
 }
