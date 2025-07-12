@@ -53,6 +53,7 @@ dependencies:
   js: ^0.6.7
   flutter_card_swiper: ^3.0.0
   image_picker: ^0.8.6+3  # For image picking functionality
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:

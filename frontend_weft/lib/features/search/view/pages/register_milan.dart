@@ -8,6 +8,11 @@ import 'milan.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+
+
+
 
 
 class RegistrationPage extends StatefulWidget {
@@ -603,37 +608,59 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
 
-  Future<String?> _uploadProfileImage({File? file, Uint8List? bytes}) async {
+  Future<String?> uploadToCloudinary({File? file, Uint8List? bytes}) async {
+    
+    const cloudName = 'Your_Cloud_Name'; // 🔁 Replace with your actual Cloudinary cloud name
+    const uploadPreset = 'Your_Upload_Preset'; // 🔁 Use your unsigned upload preset
+
     try {
-      final ref = FirebaseStorage.instance
-        .ref()
-        .child('profiles/${DateTime.now().millisecondsSinceEpoch}.jpg');
-
-      UploadTask uploadTask;
-
+      Uint8List imageBytes;
       if (kIsWeb && bytes != null) {
-        uploadTask = ref.putData(bytes);
+        imageBytes = bytes;
       } else if (file != null) {
-        uploadTask = ref.putFile(file);
+        imageBytes = await file.readAsBytes();
       } else {
-        print('No valid image source provided');
+        print('No image to upload');
         return null;
       }
 
-      final snapshot = await uploadTask;
+      final uri = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
 
-      if (snapshot.state == TaskState.success) {
-        return await ref.getDownloadURL();
+      final response = await http.post(
+        uri,
+        body: {
+          'file': 'data:image/jpeg;base64,${base64Encode(imageBytes)}',
+          'upload_preset': uploadPreset,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['secure_url']; // ✅ Public image URL
       } else {
-        print('Upload failed. Task state: ${snapshot.state}');
+        print('Cloudinary upload failed: ${response.body}');
         return null;
       }
     } catch (e) {
-      print('Error uploading image: $e');
+      print('Error uploading to Cloudinary: $e');
       return null;
     }
   }
 
+  void _showLoadingDialog(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      },
+    );
+  }
 
 
   Future<void> _submitRegistration() async {
@@ -652,12 +679,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
 
     try {
-      final imageUrl = await _uploadProfileImage(
+      _showLoadingDialog(context); // 🌀 Show modal loading
+
+      final imageUrl = await uploadToCloudinary(
         file: !kIsWeb ? _selectedImage : null,
         bytes: kIsWeb ? _imageBytes : null,
       );
 
       if (imageUrl == null) {
+        Navigator.of(context, rootNavigator: true).pop(); // ❌ Hide dialog
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Image upload failed. Try again.')),
         );
@@ -665,12 +695,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       }
 
       final userData = {
-        'name': _nameController.text.trim(),
-        'birthday': _selectedDate?.toIso8601String(),
-        'gender': _selectedGender,
-        'sexuality': _selectedSexuality,
-        'hobbies': _hobbiesController.text.trim(),
-        'description': _descriptionController.text.trim(),
+        // your profile fields...
         'photoUrl': imageUrl,
         'createdAt': FieldValue.serverTimestamp(),
       };
@@ -681,17 +706,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
       await prefs.setBool('isRegistered', true);
       await prefs.setString('displayName', _nameController.text.trim());
 
+      Navigator.of(context, rootNavigator: true).pop(); // ✅ Hide loading
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => Milan()),
       );
     } catch (e) {
+      Navigator.of(context, rootNavigator: true).pop(); // ⛔ Hide on error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Something went wrong: $e')),
       );
       print('Registration error: $e');
     }
   }
+
+  
+
 
 
 

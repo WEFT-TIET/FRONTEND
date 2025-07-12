@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'register_milan.dart';
+import 'milan.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -13,19 +15,19 @@ class _SearchPageState extends State<SearchPage> {
 
   final List<Society> popularSocieties = [
     Society(
-      name: 'CCS',
-      icon: Icons.computer,
+      name: 'MILAN',
+      icon: Icons.people,
       memberCount: '2.4k members',
       isHot: true,
     ),
     Society(
-      name: 'FAPS',
-      icon: Icons.flag,
+      name: 'ANONYMOUS CHAT',
+      icon: Icons.chat_bubble_outline,
       memberCount: '1.8k members',
       isHot: false,
     ),
     Society(
-      name: 'DRAMA',
+      name: 'HANGOUT',
       icon: Icons.theater_comedy,
       memberCount: '1.2k members',
       isHot: true,
@@ -36,18 +38,6 @@ class _SearchPageState extends State<SearchPage> {
       memberCount: '3.1k members',
       isHot: false,
     ),
-    Society(
-      name: 'DANCE',
-      icon: Icons.accessibility_new,
-      memberCount: '2.7k members',
-      isHot: false,
-    ),
-    Society(
-      name: 'DEBATE',
-      icon: Icons.forum,
-      memberCount: '1.5k members',
-      isHot: true,
-    ),
   ];
 
   final List<String> recentSearches = ['Tech Fest', 'Drama Workshop'];
@@ -56,6 +46,17 @@ class _SearchPageState extends State<SearchPage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => WEFTerPage()),
+    );
+  }
+
+  final List<Widget> pages = [
+    Milan(),
+  ];
+
+  void _navigateToPages(int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => pages[index]),
     );
   }
 
@@ -140,9 +141,7 @@ class _SearchPageState extends State<SearchPage> {
                           return SocietyCard(
                             society: popularSocieties[index],
                             onTap: () {
-                              print(
-                                'Tapped on ${popularSocieties[index].name}',
-                              );
+                              _navigateToPages(index);
                             },
                           );
                         },
