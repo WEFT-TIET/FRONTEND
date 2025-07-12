@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "429378688516",
+    "project_id": "weftweb",
+    "storage_bucket": "weftweb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:429378688516:android:e0e900a34827f480388751",
+        "android_client_info": {
+          "package_name": "com.weftconnectscollege.weft"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgIBrLuQyJwDMHNvDVzIUT257bbHxZw6U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:429378688516:android:8c510a812b3733a9388751",
+        "android_client_info": {
+          "package_name": "weft.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgIBrLuQyJwDMHNvDVzIUT257bbHxZw6U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
