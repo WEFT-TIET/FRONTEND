@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'register_milan.dart';
+// import 'register_milan.dart';
 
 class Milan extends StatefulWidget {
   @override
@@ -11,25 +11,9 @@ class Milan extends StatefulWidget {
 
 class _MilanState extends State<Milan> {
   @override
-  void initState() {
-    super.initState();
-    _checkRegistrationStatus();
-  }
+  
 
-  Future<void> _checkRegistrationStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isRegistered = prefs.getBool('isRegistered') ?? false;
-
-    if (!isRegistered) {
-      // Use a post-frame callback to navigate after the build method completes
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => RegistrationPage()),
-        );
-      });
-    }
-  }
+  
 
   final List<Map<String, String>> profiles = [
     {
