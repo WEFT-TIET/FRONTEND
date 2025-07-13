@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBgIBrLuQyJwDMHNvDVzIUT257bbHxZw6U',
-    appId: '1:429378688516:android:8c510a812b3733a9388751',
+    appId: '1:429378688516:android:88b59aea17e192fa388751',
     messagingSenderId: '429378688516',
     projectId: 'weftweb',
     storageBucket: 'weftweb.firebasestorage.app',
@@ -59,20 +59,20 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDIp74VFP9dZEHtDlGH7LCRUkrQXkPt1A8',
-    appId: '1:429378688516:ios:511e125cbcc05458388751',
+    appId: '1:429378688516:ios:28ced1553e27ed39388751',
     messagingSenderId: '429378688516',
     projectId: 'weftweb',
     storageBucket: 'weftweb.firebasestorage.app',
-    iosBundleId: 'com.example.map',
+    iosBundleId: 'com.example.frontendWeft',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyDIp74VFP9dZEHtDlGH7LCRUkrQXkPt1A8',
-    appId: '1:429378688516:ios:511e125cbcc05458388751',
+    appId: '1:429378688516:ios:28ced1553e27ed39388751',
     messagingSenderId: '429378688516',
     projectId: 'weftweb',
     storageBucket: 'weftweb.firebasestorage.app',
-    iosBundleId: 'com.example.map',
+    iosBundleId: 'com.example.frontendWeft',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
