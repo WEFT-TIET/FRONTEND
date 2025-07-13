@@ -3,7 +3,6 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
         android:label="WEFT"
-        android:name="WEFT"
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
