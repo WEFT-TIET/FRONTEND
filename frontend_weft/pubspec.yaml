@@ -32,7 +32,6 @@ dependencies:
     sdk: flutter
   flutter_svg: ^2.0.7  # For SVG map rendering
   xml: ^6.3.0
-  location: ^5.0.3     # For getting user location
   geolocator: ^10.1.0
   intl: ^0.18.0
   excel: ^2.0.0  # For reading Excel files
