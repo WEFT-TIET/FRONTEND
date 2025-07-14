@@ -7,6 +7,10 @@ import 'package:frontend_weft/features/auth/viewmodel/auth_local_repository.dart
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:frontend_weft/features/navbar/navigation.dart';
 import 'package:frontend_weft/features/settings/settings_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

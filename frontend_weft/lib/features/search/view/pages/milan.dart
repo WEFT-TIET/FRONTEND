@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'register_milan.dart';
+import 'register_milan.dart';
 
 class Milan extends StatefulWidget {
   @override
