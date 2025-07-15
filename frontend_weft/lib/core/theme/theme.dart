@@ -25,7 +25,7 @@ class DarkAppTheme {
       ProfileTheme(
         backgroundColor: AppPallete.profileBackgroundDark,
         cardColor: AppPallete.profileCardBackground,
-        accentColor: AppPallete.profileAccent,
+        accentColor: const Color.fromARGB(255, 99, 102, 241),
         textSecondaryColor: AppPallete.profileTextSecondary,
         dialogBackgroundColor: AppPallete.profileDialogBackground,
         glassEffect: GlassEffect(

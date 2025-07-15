@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/Drawer/attendance.dart';
-import 'package:frontend_weft/features/home/view/Drawer/event.dart';
+import 'package:frontend_weft/features/home/view/Drawer/soc_page/pages/society_page.dart';
 import 'package:frontend_weft/features/home/view/Drawer/map.dart';
 import 'package:frontend_weft/features/home/view/Drawer/party.dart';
 
@@ -51,7 +51,7 @@ class DrawerWidget extends StatelessWidget {
                           context: context,
                           icon: Icons.event,
                           title: 'Society Events',
-                          page: EventPage(),
+                          page: SocietyPage(),
                         ),
                         _buildMenuItem(
                           context: context,
@@ -73,16 +73,6 @@ class DrawerWidget extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text("Made with 🤍 by WEFT",
-                        style: TextStyle(
-                          color: AppPallete.textPrimaryDark,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
                   ),
                 ],
               ),
