@@ -26,9 +26,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:429378688516:android:8c510a812b3733a9388751",
+        "mobilesdk_app_id": "1:429378688516:android:88b59aea17e192fa388751",
         "android_client_info": {
-          "package_name": "weft.app"
+          "package_name": "com.weftconnectspeople.weft"
         }
       },
       "oauth_client": [],

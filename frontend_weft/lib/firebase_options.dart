@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBgIBrLuQyJwDMHNvDVzIUT257bbHxZw6U',
-    appId: '1:429378688516:android:88b59aea17e192fa388751',
+    appId: '1:429378688516:android:e0e900a34827f480388751',
     messagingSenderId: '429378688516',
     projectId: 'weftweb',
     storageBucket: 'weftweb.firebasestorage.app',

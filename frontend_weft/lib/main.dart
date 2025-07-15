@@ -7,10 +7,6 @@ import 'package:frontend_weft/features/auth/viewmodel/auth_local_repository.dart
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:frontend_weft/features/navbar/navigation.dart';
 import 'package:frontend_weft/features/settings/settings_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,15 +16,10 @@ void main() async {
   // Load user from local storage on startup
   final user = await container.read(authLocalRepositoryProvider).getUser();
   if (user != null) {
-    container.read(authViewModelProvider.notifier).state = user;
+    container.read(authViewModelProvider.notifier).initializeUser(user);
   }
 
-  runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const MyApp(),
-    ),
-  );
+  runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
 class MyApp extends ConsumerWidget {
@@ -47,7 +38,7 @@ class MyApp extends ConsumerWidget {
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
         '/home': (context) => const BottomNavBar(),
-        '/settings': (context) =>  const SettingsPage(),
+        '/settings': (context) => const SettingsPage(),
       },
     );
   }

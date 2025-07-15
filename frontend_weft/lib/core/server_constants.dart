@@ -1,4 +1,3 @@
 class ServerConstants {
-  static const String baseUrl =
-      "http://rnsid-2a09-bac1-36c0-68--2a8-5e.a.free.pinggy.link";
+  static const String baseUrl = 'http://ec2-3-7-223-144.ap-south-1.compute.amazonaws.com:8080';
 }
