@@ -609,9 +609,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
 
   Future<String?> uploadToCloudinary({File? file, Uint8List? bytes}) async {
-    
-    const cloudName = 'Your_Cloud_Name'; // 🔁 Replace with your actual Cloudinary cloud name
-    const uploadPreset = 'Your_Upload_Preset'; // 🔁 Use your unsigned upload preset
+
+    const cloudName = 'dcp9mr9st'; // 🔁 Replace with your actual Cloudinary cloud name
+    const uploadPreset = 'ml_default'; // 🔁 Use your unsigned upload preset
 
     try {
       Uint8List imageBytes;

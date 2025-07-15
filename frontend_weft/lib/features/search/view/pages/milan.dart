@@ -11,9 +11,25 @@ class Milan extends StatefulWidget {
 
 class _MilanState extends State<Milan> {
   @override
-  
+  void initState() {
+    super.initState();
+    _checkRegistrationStatus();
+  }
 
-  
+  Future<void> _checkRegistrationStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isRegistered = prefs.getBool('isRegistered') ?? false;
+
+    if (!isRegistered) {
+      // Use a post-frame callback to navigate after the build method completes
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => RegistrationPage()),
+        );
+      });
+    }
+  }
 
   final List<Map<String, String>> profiles = [
     {

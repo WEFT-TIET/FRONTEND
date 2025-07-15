@@ -87,6 +87,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - lib/core/assets/profile_photo.jpeg
+    - lib/core/assets/sanni_dancer.png
+    - lib/core/assets/neeraj_pepsu.png
     - lib/core/assets/thapar_map.svg
     - lib/core/assets/Time_Table.xlsx
     - lib/core/assets/data.json
