@@ -327,65 +327,7 @@ class RecentSearchItem extends StatelessWidget {
   }
 }
 
-class CustomBottomNavigationBar extends StatelessWidget {
-  final int currentIndex;
-  final Function(int) onTap;
 
-  const CustomBottomNavigationBar({
-    super.key,
-    required this.currentIndex,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        color: Color(0xFF1a1a2e),
-        border: Border(top: BorderSide(color: Color(0xFF2d2d4a), width: 1)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(0, Icons.home_outlined, 'Home'),
-          _buildNavItem(1, Icons.search, 'Search'),
-          _buildNavItem(2, Icons.chat_bubble_outline, 'Messages'),
-          _buildNavItem(3, Icons.person_outline, 'Profile'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(int index, IconData icon, String label) {
-    final isActive = currentIndex == index;
-    return GestureDetector(
-      onTap: () => onTap(index),
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isActive ? Color(0xFF6366f1) : Colors.grey[400],
-              size: 24,
-            ),
-            SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isActive ? Color(0xFF6366f1) : Colors.grey[400],
-                fontSize: 12,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 // WEFTer Page Class
 class WEFTerPage extends StatefulWidget {
