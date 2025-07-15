@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends ConsumerWidget {
+  final String postId;
   final String name;
   final String tag;
   final String timeAgo;
@@ -11,6 +14,7 @@ class PostCard extends StatelessWidget {
 
   const PostCard({
     super.key,
+    this.postId = '',
     required this.name,
     required this.tag,
     required this.timeAgo,
@@ -20,7 +24,7 @@ class PostCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.all(12),
@@ -28,30 +32,45 @@ class PostCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppPallete.glassWhite05, // Dark background
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppPallete.glassWhite20, width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 20,
-                backgroundColor: Colors.green,
-                child: Icon(Icons.person, color: AppPallete.whiteColor),
+                backgroundColor: AppPallete.gradient2,
+                child: Text(
+                  name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                  style: const TextStyle(
+                    color: AppPallete.whiteColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)
-                  ),
-                  Text(
-                    '$tag • $timeAgo',
-                    style: const TextStyle(color: AppPallete.whiteColor, fontSize: 12),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppPallete.textPrimaryDark,
+                      ),
+                    ),
+                    Text(
+                      '$tag • $timeAgo',
+                      style: const TextStyle(
+                        color: AppPallete.whiteColor,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -60,24 +79,59 @@ class PostCard extends StatelessWidget {
           // Post content
           Text(
             content,
-            style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w500,
+              color: AppPallete.textPrimaryDark,
+              height: 1.5,
+            ),
           ),
           const SizedBox(height: 16),
 
-          // Footer: stars + comments
+          // Footer: likes + comments
           Row(
             children: [
-              const Icon(Icons.star, size: 18, color: Colors.amber),
-              const SizedBox(width: 4),
-              Text('$stars', style: const TextStyle(color: Colors.white70)),
+              GestureDetector(
+                onTap: postId.isNotEmpty
+                    ? () {
+                        ref
+                            .read(postViewModelProvider.notifier)
+                            .likePost(postId);
+                      }
+                    : null,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.favorite_border,
+                      size: 18,
+                      color: stars > 0 ? Colors.red : Colors.white38,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$stars',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
 
               const SizedBox(width: 16),
 
-              const Icon(Icons.chat_bubble_outline, size: 18, color: Colors.white38),
-              const SizedBox(width: 4),
-              Text('$comments', style: const TextStyle(color: Colors.white70)),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.chat_bubble_outline,
+                    size: 18,
+                    color: Colors.white38,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$comments',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
