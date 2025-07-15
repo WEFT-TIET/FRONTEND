@@ -236,7 +236,7 @@ class SocietyDetailPage extends StatelessWidget {
                             
                             // Society Name
                             Text(
-                              society.name,
+                              society.fullName,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 28,
