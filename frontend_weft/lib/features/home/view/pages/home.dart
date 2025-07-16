@@ -7,11 +7,25 @@ import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -48,10 +62,9 @@ class HomePage extends ConsumerWidget {
             IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
           ],
         ),
-        drawer: DrawerWidget(),
+        drawer: const DrawerWidget(),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            // Simple dialog to create a post for testing
             _showCreatePostDialog(context, ref);
           },
           backgroundColor: AppPallete.gradient2,
@@ -64,30 +77,52 @@ class HomePage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                Text(
-                  'SOCIETY EVENTS',
-                  style: GoogleFonts.getFont(
-                    'Oswald',
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: AppPallete.textPrimaryDark,
+                // Search Bar
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppPallete.whiteColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppPallete.textPrimaryDark.withOpacity(0.3),
+                      width: 1,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: 160,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 5,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: 12),
-                    itemBuilder: (context, index) => EventCard(
-                      title: 'CCS',
-                      subtitle: 'CCS Tech Fest',
-                      date: 'Dec 15',
-                      location: 'Main Auditorium',
-
-                      backgroundColor: AppPallete.eventCardColor,
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value.toLowerCase();
+                      });
+                    },
+                    style: TextStyle(color: AppPallete.textPrimaryDark),
+                    decoration: InputDecoration(
+                      hintText: 'Search posts by title...',
+                      hintStyle: TextStyle(
+                        color: AppPallete.textPrimaryDark.withOpacity(0.6),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: AppPallete.textPrimaryDark.withOpacity(0.6),
+                      ),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(
+                                Icons.clear,
+                                color: AppPallete.textPrimaryDark.withOpacity(0.6),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _searchQuery = '';
+                                  _searchController.clear();
+                                });
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                     ),
                   ),
                 ),
@@ -108,13 +143,22 @@ class HomePage extends ConsumerWidget {
 
                     return postsAsync.when(
                       data: (posts) {
-                        if (posts.isEmpty) {
+                        // Filter posts based on search query
+                        final filteredPosts = _searchQuery.isEmpty
+                            ? posts
+                            : posts.where((post) => post.title
+                                .toLowerCase()
+                                .contains(_searchQuery)).toList();
+
+                        if (filteredPosts.isEmpty) {
                           return Center(
                             child: Column(
                               children: [
                                 const SizedBox(height: 40),
                                 Icon(
-                                  Icons.post_add,
+                                  _searchQuery.isEmpty
+                                      ? Icons.post_add
+                                      : Icons.search_off,
                                   size: 64,
                                   color: AppPallete.textPrimaryDark.withOpacity(
                                     0.5,
@@ -122,7 +166,9 @@ class HomePage extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'No posts yet',
+                                  _searchQuery.isEmpty
+                                      ? 'No posts yet'
+                                      : 'No matching posts found',
                                   style: TextStyle(
                                     color: AppPallete.textPrimaryDark
                                         .withOpacity(0.7),
@@ -131,7 +177,9 @@ class HomePage extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Be the first to share something!',
+                                  _searchQuery.isEmpty
+                                      ? 'Be the first to share something!'
+                                      : 'Try a different search term',
                                   style: TextStyle(
                                     color: AppPallete.textPrimaryDark
                                         .withOpacity(0.5),
@@ -152,9 +200,9 @@ class HomePage extends ConsumerWidget {
                           child: ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: posts.length,
+                            itemCount: filteredPosts.length,
                             itemBuilder: (context, index) {
-                              final post = posts[index];
+                              final post = filteredPosts[index];
                               return PostCard(
                                 postId: post.id,
                                 name: post.userName,

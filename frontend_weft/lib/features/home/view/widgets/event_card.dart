@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 
 class EventCard extends StatefulWidget {
@@ -75,3 +75,4 @@ class _EventCardState extends State<EventCard> {
     );
   }
 }
+*/
