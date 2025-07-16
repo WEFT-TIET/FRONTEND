@@ -58,11 +58,6 @@ class SettingsPage extends ConsumerWidget {
                         onTap: () => _navigateToActivity(context),
                       ),
                       SettingsItem(
-                        icon: Icons.visibility_off,
-                        title: 'Hide Yourself',
-                        onTap: () => _toggleHideProfile(context),
-                      ),
-                      SettingsItem(
                         icon: Icons.lock_outline,
                         title: 'Change Password',
                         onTap: () => _navigateToChangePassword(context),
@@ -97,6 +92,11 @@ class SettingsPage extends ConsumerWidget {
                         icon: Icons.help_outline,
                         title: 'Help Center',
                         onTap: () => _navigateToHelpCenter(context),
+                      ),
+                      SettingsItem(
+                        icon: Icons.people_outline,
+                        title: 'About Us',
+                        onTap: () => _navigateToAboutUs(context),
                       ),
                     ],
                   ),
@@ -176,31 +176,13 @@ class SettingsPage extends ConsumerWidget {
       context,
       MaterialPageRoute(builder: (context) => const HelpCenterPage()),
     );
-  }
-
-  void _toggleHideProfile(BuildContext context) {
-    // Implement hide profile toggle logic
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hide Profile'),
-        content: const Text('Do you want to hide your profile from other users?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // Implement hide profile logic
-            },
-            child: const Text('Hide'),
-          ),
-        ],
-      ),
+  } 
+  void _navigateToAboutUs(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AboutUsPage()),
     );
-  }
+  } 
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
@@ -368,6 +350,30 @@ class HelpCenterPage extends StatelessWidget {
       body: const Center(
         child: Text(
           'Help Center Page',
+          style: TextStyle(color: AppPallete.textPrimaryDark),
+        ),
+      ),
+    );
+  }
+}
+class AboutUsPage extends StatelessWidget {
+  const AboutUsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('About Us'),
+        backgroundColor: AppPallete.transperantColor,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppPallete.textPrimaryDark),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      backgroundColor: AppPallete.transperantColor,
+      body: const Center(
+        child: Text(
+          'About Us Page',
           style: TextStyle(color: AppPallete.textPrimaryDark),
         ),
       ),
