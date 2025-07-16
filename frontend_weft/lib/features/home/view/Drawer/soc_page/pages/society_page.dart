@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/features/home/view/Drawer/soc_page/model/society_model.dart';
 import 'package:frontend_weft/features/home/view/Drawer/soc_page/services/society_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SocietyPage extends StatelessWidget {
   const SocietyPage({Key? key}) : super(key: key);
@@ -314,33 +315,49 @@ class SocietyDetailPage extends StatelessWidget {
                             Row(
                               children: [
                                 Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Contact info will be available soon!'),
-                                          backgroundColor: Color(0xFF6366f1),
-                                          duration: Duration(milliseconds: 500), 
-                                        ),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFF6366f1),
-                                      foregroundColor: Colors.white,
-                                      padding: EdgeInsets.symmetric(vertical: 12),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Contact',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+  child: ElevatedButton(
+    onPressed: () async {
+      if (society.instagramHandle.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No Instagram available for ${society.name}'),
+            backgroundColor: Color(0xFF6366f1),
+          ),
+        );
+        return;
+      }
+
+      final instaUrl = 'https://instagram.com/${society.instagramHandle}';
+      final uri = Uri.parse(instaUrl);
+      
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not launch Instagram'),
+            backgroundColor: Color(0xFF6366f1),
+          ),
+        );
+      }
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Color(0xFF6366f1),
+      foregroundColor: Colors.white,
+      padding: EdgeInsets.symmetric(vertical: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    child: Text(
+      'Contact',
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  ),
+),
                                 SizedBox(width: 12),
                                 Expanded(
                                   child: ElevatedButton(

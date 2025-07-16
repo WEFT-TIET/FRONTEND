@@ -4,6 +4,7 @@ class Society {
   final String id;
   final String name;
   final String fullName;
+   final String instagramHandle;
   final IconData icon;
   //final String memberCount;
  
@@ -13,6 +14,7 @@ class Society {
     required this.id,
     required this.name,
     required this.fullName,
+    required this.instagramHandle,
     required this.icon,
     //required this.memberCount,
     
