@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_weft/features/home/view/Drawer/soc_page/model/society_model.dart';
+import 'package:frontend_weft/features/home/view/Drawer/soc_page/models/society_model.dart';
 import 'package:frontend_weft/features/home/view/Drawer/soc_page/services/society_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/pages/home.dart';
 import 'package:frontend_weft/features/messages/view/pages/message.dart';
-import 'package:frontend_weft/features/profile/view/pages/profile.dart';
+import 'package:frontend_weft/features/profile/pages/profile_page.dart';
 import 'package:frontend_weft/features/search/view/pages/search.dart';
 import 'package:frontend_weft/features/navbar/gradient_icon.dart';
 
