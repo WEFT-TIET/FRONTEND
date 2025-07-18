@@ -105,7 +105,7 @@ class PostsListWidget extends ConsumerWidget {
                 ? 'Be the first to share something!'
                 : 'Try a different search term',
             style: GoogleFonts.getFont(
-              'Indie Flower',
+              'Oswald',
               color: AppPallete.textPrimaryDark.withOpacity(0.5),
               fontSize: 14,
             ),
@@ -136,7 +136,7 @@ class PostsListWidget extends ConsumerWidget {
           Text(
             'Loading posts...',
             style: GoogleFonts.getFont(
-              'Indie Flower',
+              'Oswald',
               color: AppPallete.textPrimaryDark.withOpacity(0.7),
               fontSize: 16,
             ),
@@ -177,7 +177,7 @@ class PostsListWidget extends ConsumerWidget {
           Text(
             'Don\'t worry, we\'ll fix this!',
             style: GoogleFonts.getFont(
-              'Indie Flower',
+              'Oswald',
               color: AppPallete.textPrimaryDark.withOpacity(0.7),
               fontSize: 14,
             ),

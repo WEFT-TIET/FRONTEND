@@ -46,7 +46,7 @@ class WelcomeCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      Icons.school,
+                      Icons.people,
                       color: AppPallete.whiteColor,
                       size: 24,
                     ),

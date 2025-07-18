@@ -30,6 +30,9 @@ class AppPallete {
   static const Color gradient1 = Color(0xFF2A2D5A);
   static const Color gradient2 = Color(0xFF4A4E8A);
   static const Color gradient3 = Color(0xFF3A3E7A);
+  static const Color greyColor = Color(0xFFBDBDBD);
+
+  static const Color blackColor = Colors.black;
 
   // Profile Page Specific Colors
   static const Color profileBackgroundDark = Color(0xFF1A1B2E);

@@ -33,7 +33,7 @@ class FilterChipsWidget extends StatelessWidget {
               onSelected: (selected) => onFilterChanged(filter),
               backgroundColor: AppPallete.whiteColor.withOpacity(0.2),
               selectedColor: AppPallete.gradient1.withOpacity(0.8),
-               checkmarkColor: AppPallete.whiteColor,
+               checkmarkColor: Colors.orange.withOpacity(0.8),
               labelStyle: TextStyle(
                 color: isSelected
                     ? AppPallete.whiteColor

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mailer/mailer.dart';
@@ -234,4 +234,4 @@ Device Info:
       ),
     );
   }
-}
+}*/

@@ -144,26 +144,18 @@ class SocietyCard extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 4),
-                        Text(
-                          society.fullName,
-                          style: GoogleFonts.getFont(
-                            'Indie Flower',
-                            fontSize: 14,
-                            color: AppPallete.textPrimaryDark.withOpacity(0.7),
-                          ),
-                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 12),
+              
               Text(
                 society.description,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.getFont(
-                  'Indie Flower',
+                  'Oswald',
                   fontSize: 14,
                   color: AppPallete.textPrimaryDark.withOpacity(0.8),
                 ),
@@ -323,7 +315,7 @@ class SocietyDetailPage extends StatelessWidget {
                         child: Text(
                           society.description,
                           style: GoogleFonts.getFont(
-                            'Indie Flower',
+                            'Oswald',
                             fontSize: 16,
                             color: AppPallete.textPrimaryDark.withOpacity(0.9),
                             height: 1.5,
@@ -361,7 +353,7 @@ class SocietyDetailPage extends StatelessWidget {
                             Text(
                               'Interested in joining ${society.name}? Connect with us through our events and activities.',
                               style: GoogleFonts.getFont(
-                                'Indie Flower',
+                                'Oswald',
                                 fontSize: 14,
                                 color: AppPallete.textPrimaryDark.withOpacity(0.8),
                                 height: 1.4,

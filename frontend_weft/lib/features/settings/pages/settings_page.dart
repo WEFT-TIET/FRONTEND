@@ -87,11 +87,11 @@ class SettingsPage extends ConsumerWidget {
                   SettingsSection(
                     title: 'Support',
                     items: [
-                      SettingsItem(
+                      /*SettingsItem(
                         icon: Icons.bug_report_outlined,
                         title: 'Report Bug',
                         onTap: () => _navigateToReportBug(context),
-                      ),
+                      ),*/
                       SettingsItem(
                         icon: Icons.help_outline,
                         title: 'Help Center',
@@ -168,12 +168,12 @@ class SettingsPage extends ConsumerWidget {
     );
   }
 
-  void _navigateToReportBug(BuildContext context) {
+  /*void _navigateToReportBug(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const ReportBugPage(userEmail: '',)),
     );
-  }
+  }*/
 
   void _navigateToHelpCenter(BuildContext context) {
     Navigator.push(

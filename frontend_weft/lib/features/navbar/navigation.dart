@@ -5,6 +5,7 @@ import 'package:frontend_weft/features/messages/view/pages/message.dart';
 import 'package:frontend_weft/features/profile/pages/profile_page.dart';
 import 'package:frontend_weft/features/search/view/pages/search.dart';
 import 'package:frontend_weft/features/navbar/gradient_icon.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class BottomNavBar extends StatefulWidget {
   final VoidCallback? onThemeToggle;
@@ -24,15 +25,15 @@ class _BottomNavBarState extends State<BottomNavBar> {
     ProfilePage(),
   ];
 
-  // Color constants
+  // Color scheme
   static const Color backgroundColor = Colors.black;
-  
-  static const Color activeIconColor = Color(0xFF3B82F6);
-  static const Color activeTextColor = Color(0xFF60A5FA);
-  static const Color inactiveColor = Color(0xFF6B7280);
+  static const Color activeIconColor = AppPallete.gradient1;
+  static const Color activeTextColor = AppPallete.gradient2;
+  static final Color inactiveColor = AppPallete.greyColor;
   static const List<Color> gradientColors = [
-    Color(0xFF3B82F6),
-    Color(0xFF8B5CF6),
+    AppPallete.gradient1,
+    AppPallete.gradient2,
+    AppPallete.gradient3,
   ];
 
   void _onItemTapped(int index) {
@@ -47,69 +48,150 @@ class _BottomNavBarState extends State<BottomNavBar> {
       backgroundColor: AppPallete.transperantColor,
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
-    decoration: BoxDecoration(
-          
-         
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: AppPallete.blackColor.withOpacity(0.3),
+              blurRadius: 10,
+              spreadRadius: 2,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(24), 
-          child: Theme(
-             data: Theme.of(context).copyWith(
-        splashColor: Colors.transparent, // Remove splash effect
-        highlightColor: Colors.transparent, // Remove highlight effect
-      ),
-            child: BottomNavigationBar(
-              elevation: 0, // Remove default shadow
-              currentIndex: _selectedIndex,
-              onTap: _onItemTapped,
-              backgroundColor: backgroundColor,
-              selectedItemColor: activeIconColor,
-              unselectedItemColor: inactiveColor,
-              type: BottomNavigationBarType.fixed,
-              showSelectedLabels: true,
-              showUnselectedLabels: true,
-              selectedLabelStyle: const TextStyle(
-                color: activeTextColor,
-                fontSize: 10, 
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppPallete.blackColor.withOpacity(0.9),
+                  AppPallete.blackColor.withOpacity(0.95),
+                ],
               ),
-              unselectedLabelStyle: const TextStyle(
-                fontSize: 10, 
+              border: Border.all(
+                color: AppPallete.greyColor.withOpacity(0.2),
+                width: 0.5,
               ),
-              iconSize: 24, 
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  activeIcon: GradientIcon(
-                    icon: Icons.home_outlined,
-                    gradient: LinearGradient(colors: gradientColors),
-                  ),
-                  label: 'Home',
+            ),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+              ),
+              child: BottomNavigationBar(
+                elevation: 0,
+                currentIndex: _selectedIndex,
+                onTap: _onItemTapped,
+                backgroundColor: Colors.transparent,
+                selectedItemColor: activeIconColor,
+                unselectedItemColor: inactiveColor,
+                type: BottomNavigationBarType.fixed,
+                showSelectedLabels: true,
+                showUnselectedLabels: true,
+                selectedLabelStyle: GoogleFonts.getFont(
+                  'Oswald',
+                  color: activeTextColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.search_outlined),
-                  activeIcon: GradientIcon(
-                    icon: Icons.search_outlined,
-                    gradient: LinearGradient(colors: gradientColors),
-                  ),
-                  label: 'Search',
+                unselectedLabelStyle: GoogleFonts.getFont(
+                  'Oswald',
+                  color: inactiveColor,
+                  fontSize: 12,
                 ),
-                // BottomNavigationBarItem(
-                //   icon: Icon(Icons.chat_bubble_outline),
-                //   activeIcon: GradientIcon(
-                //     icon: Icons.forum_outlined,
-                //     gradient: LinearGradient(colors: gradientColors),
-                //   ),
-                //   label: 'Message',
-                // ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline),
-                  activeIcon: GradientIcon(
-                    icon: Icons.person_outline,
-                    gradient: LinearGradient(colors: gradientColors),
+                iconSize: 28,
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _selectedIndex == 0
+                            ? AppPallete.gradient1.withOpacity(0.2)
+                            : Colors.transparent,
+                      ),
+                      child: const Icon(Icons.home_outlined),
+                    ),
+                    activeIcon: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(colors: [
+                          AppPallete.gradient1.withOpacity(0.3),
+                          AppPallete.gradient2.withOpacity(0.3),
+                        ]),
+                      ),
+                      child: const GradientIcon(
+                        icon: Icons.home_filled,
+                        gradient: LinearGradient(colors: gradientColors),
+                        size: 28,
+                      ),
+                    ),
+                    label: 'Home',
                   ),
-                  label: 'Profile',
-                ),
-              ],
+                  BottomNavigationBarItem(
+                    icon: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _selectedIndex == 1
+                            ? AppPallete.gradient1.withOpacity(0.2)
+                            : Colors.transparent,
+                      ),
+                      child: const Icon(Icons.search_outlined),
+                    ),
+                    activeIcon: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(colors: [
+                          AppPallete.gradient1.withOpacity(0.3),
+                          AppPallete.gradient2.withOpacity(0.3),
+                        ]),
+                      ),
+                      child: const GradientIcon(
+                        icon: Icons.search,
+                        gradient: LinearGradient(colors: gradientColors),
+                        size: 28,
+                      ),
+                    ),
+                    label: 'Search',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _selectedIndex == 2
+                            ? AppPallete.gradient1.withOpacity(0.2)
+                            : Colors.transparent,
+                      ),
+                      child: const Icon(Icons.person_outline),
+                    ),
+                    activeIcon: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(colors: [
+                          AppPallete.gradient1.withOpacity(0.3),
+                          AppPallete.gradient2.withOpacity(0.3),
+                        ]),
+                      ),
+                      child: const GradientIcon(
+                        icon: Icons.person,
+                        gradient: LinearGradient(colors: gradientColors),
+                        size: 28,
+                      ),
+                    ),
+                    label: 'Profile',
+                  ),
+                ],
+              ),
             ),
           ),
         ),
