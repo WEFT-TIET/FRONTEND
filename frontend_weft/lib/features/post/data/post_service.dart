@@ -22,10 +22,17 @@ class PostService {
 
   Future<Map<String, String>> _getHeaders() async {
     final token = await _getAccessToken();
-    return {
+    print("🔑 Retrieved token: $token");
+
+    final headers = {
       'Content-Type': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
+      'Accept': '*/*',
+      'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+      if (token != null) 'Cookie': token,
     };
+
+    print("📤 Headers being sent: $headers");
+    return headers;
   }
 
   Future<List<Post>> getAllPosts() async {
@@ -53,7 +60,7 @@ class PostService {
           // Object with data field
           postsJson = data['data'];
         } else {
-          // Unknown format, try to extract as list
+          // Unknown format, return empty list
           postsJson = [];
           print("⚠️ Unknown response format: $data");
         }
@@ -64,60 +71,12 @@ class PostService {
         print(
           "❌ Failed to fetch posts: ${response.statusCode} - ${response.body}",
         );
-        // If posts endpoint doesn't exist, return some dummy data for testing
-        if (response.statusCode == 404) {
-          print("📝 Posts endpoint not found, returning dummy data");
-          return _getDummyPosts();
-        }
         return [];
       }
     } catch (e) {
       print("❌ Error fetching posts: $e");
-      // Return dummy data for testing when API is not available
-      print("📝 Returning dummy data for testing");
-      return _getDummyPosts();
+      return [];
     }
-  }
-
-  // Dummy data for testing when API is not available
-  List<Post> _getDummyPosts() {
-    return [
-      Post(
-        id: '1',
-        title: 'Welcome to WEFT',
-        content: 'This is a sample post to test the posts functionality!',
-        userName: 'John Doe',
-        createdAt: DateTime.now()
-            .subtract(const Duration(hours: 2))
-            .toIso8601String(),
-        likesCount: 5,
-        commentsCount: 2,
-      ),
-      Post(
-        id: '2',
-        title: 'Flutter Development',
-        content:
-            'Just finished working on a new Flutter feature. Excited to share!',
-        userName: 'Jane Smith',
-        createdAt: DateTime.now()
-            .subtract(const Duration(hours: 5))
-            .toIso8601String(),
-        likesCount: 12,
-        commentsCount: 4,
-      ),
-      Post(
-        id: '3',
-        title: 'College Event',
-        content:
-            'Don\'t miss the upcoming tech fest next week! Registration is now open.',
-        userName: 'Event Committee',
-        createdAt: DateTime.now()
-            .subtract(const Duration(days: 1))
-            .toIso8601String(),
-        likesCount: 25,
-        commentsCount: 8,
-      ),
-    ];
   }
 
   Future<bool> createPost({
