@@ -21,19 +21,19 @@ class PostService {
   }
 
   Future<Map<String, String>> _getHeaders() async {
-    final token = await _getAccessToken();
-    print("🔑 Retrieved token: $token");
+  final token = await _getAccessToken();
+  print("🔑 Retrieved token: $token");
 
-    final headers = {
-      'Content-Type': 'application/json',
-      'Accept': '*/*',
-      'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
-      if (token != null) 'Cookie': token,
-    };
+  final headers = {
+    'Content-Type': 'application/json',
+    'Accept': '*/*',
+    if (token != null) 'Authorization': 'Bearer $token',
+  };
 
-    print("📤 Headers being sent: $headers");
-    return headers;
-  }
+  print("📤 Headers being sent: $headers");
+  return headers;
+}
+
 
   Future<List<Post>> getAllPosts() async {
     try {
