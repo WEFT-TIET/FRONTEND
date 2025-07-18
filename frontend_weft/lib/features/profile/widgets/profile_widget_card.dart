@@ -123,7 +123,7 @@ class ProfileCardWidget extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Name with House
+              // Name
               Align(
                 alignment: Alignment.centerLeft,
                 child: isEditing
@@ -160,14 +160,6 @@ class ProfileCardWidget extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: AppPallete.profileCardBackground,
                               borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              user.house,
-                              style: TextStyle(
-                                color: AppPallete.profileTextSecondary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
                             ),
                           ),
                         ],

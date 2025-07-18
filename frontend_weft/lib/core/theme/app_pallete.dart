@@ -42,4 +42,6 @@ class AppPallete {
   static const Color glassWhite10 = Color(0x1AFFFFFF);
   static const Color glassWhite05 = Color(0x0DFFFFFF);
   static const Color glassWhite20 = Color(0x33FFFFFF);
+
+  static var backgroundDark;
 }

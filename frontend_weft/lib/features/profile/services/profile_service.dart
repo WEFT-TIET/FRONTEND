@@ -1,4 +1,4 @@
-// lib/services/profile_service.dart
+// lib/features/profile/services/profile_service.dart
 import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/models/weft_model.dart';
 import 'package:frontend_weft/features/profile/models/society_model.dart';
@@ -11,6 +11,7 @@ class ProfileService {
   // Mock data - in real app, this would come from API/database
   UserModel _currentUser = UserModel(
     name: 'Rudra Yadav',
+    username: 'rudra_yadav',
     batch: '2025',
     branch: 'COE',
     className: '1A62',
@@ -18,7 +19,7 @@ class ProfileService {
     profileImagePath: 'lib/core/assets/profile_photo.jpeg',
   );
 
-  List<WeftModel> _userWefts = [
+  List<WeftModel> _userWefs = [
     WeftModel(
       id: '1',
       date: '20/07/15',
@@ -59,7 +60,7 @@ class ProfileService {
 
   // Getters
   UserModel get currentUser => _currentUser;
-  List<WeftModel> get userWefts => List.unmodifiable(_userWefts);
+  List<WeftModel> get userWefts => List.unmodifiable(_userWefs);
 
   // User operations
   Future<void> updateUser(UserModel updatedUser) async {
@@ -108,20 +109,27 @@ class ProfileService {
     _currentUser = _currentUser.copyWith(profileImagePath: imagePath);
   }
 
+  // Username validation
+  Future<bool> isUsernameAvailable(String username) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    // Mock validation - in real app, this would check against database
+    return username.isNotEmpty && username.length >= 3;
+  }
+
   // Weft operations
   Future<void> likeWeft(String weftId) async {
     await Future.delayed(const Duration(milliseconds: 200));
-    final index = _userWefts.indexWhere((weft) => weft.id == weftId);
+    final index = _userWefs.indexWhere((weft) => weft.id == weftId);
     if (index != -1) {
-      _userWefts[index] = _userWefts[index].copyWith(likes: _userWefts[index].likes + 1);
+      _userWefs[index] = _userWefs[index].copyWith(likes: _userWefs[index].likes + 1);
     }
   }
 
   Future<void> addComment(String weftId) async {
     await Future.delayed(const Duration(milliseconds: 200));
-    final index = _userWefts.indexWhere((weft) => weft.id == weftId);
+    final index = _userWefs.indexWhere((weft) => weft.id == weftId);
     if (index != -1) {
-      _userWefts[index] = _userWefts[index].copyWith(comments: _userWefts[index].comments + 1);
+      _userWefs[index] = _userWefs[index].copyWith(comments: _userWefs[index].comments + 1);
     }
   }
 

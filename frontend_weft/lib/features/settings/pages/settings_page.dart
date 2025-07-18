@@ -1,11 +1,15 @@
 // lib/pages/settings_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_weft/features/settings/subpages/change_password.dart';
+import 'package:frontend_weft/features/settings/subpages/help_center.dart';
 import 'package:frontend_weft/features/settings/widgets/settings_menu_item.dart';
 import 'package:frontend_weft/features/settings/models/settings_item.dart';
 import 'package:frontend_weft/features/settings/widgets/settings_section.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:frontend_weft/features/settings/subpages/about_us.dart';
+import 'package:frontend_weft/features/settings/subpages/report_bug.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -167,7 +171,7 @@ class SettingsPage extends ConsumerWidget {
   void _navigateToReportBug(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const ReportBugPage()),
+      MaterialPageRoute(builder: (context) => const ReportBugPage(userEmail: '',)),
     );
   }
 
@@ -208,7 +212,7 @@ class SettingsPage extends ConsumerWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              // Use your existing logout logic
+              // Call the logout method from the auth view model
               await ref.read(authViewModelProvider.notifier).logoutUser();
               Navigator.pushNamedAndRemoveUntil(
                 context,
@@ -224,10 +228,6 @@ class SettingsPage extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  void _performLogout(BuildContext context) {
-    // This method is no longer needed since we're using the Riverpod logic
   }
 }
 
@@ -257,31 +257,6 @@ class YourActivityPage extends StatelessWidget {
   }
 }
 
-class ChangePasswordPage extends StatelessWidget {
-  const ChangePasswordPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Change Password'),
-        backgroundColor: AppPallete.transperantColor,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppPallete.textPrimaryDark),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      backgroundColor: AppPallete.transperantColor,
-      body: const Center(
-        child: Text(
-          'Change Password Page',
-          style: TextStyle(color: AppPallete.textPrimaryDark),
-        ),
-      ),
-    );
-  }
-}
-
 class BlockListPage extends StatelessWidget {
   const BlockListPage({super.key});
 
@@ -300,80 +275,6 @@ class BlockListPage extends StatelessWidget {
       body: const Center(
         child: Text(
           'Block List Page',
-          style: TextStyle(color: AppPallete.textPrimaryDark),
-        ),
-      ),
-    );
-  }
-}
-
-class ReportBugPage extends StatelessWidget {
-  const ReportBugPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Report Bug'),
-        backgroundColor: AppPallete.transperantColor,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppPallete.textPrimaryDark),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      backgroundColor: AppPallete.transperantColor,
-      body: const Center(
-        child: Text(
-          'Report Bug Page',
-          style: TextStyle(color: AppPallete.textPrimaryDark),
-        ),
-      ),
-    );
-  }
-}
-
-class HelpCenterPage extends StatelessWidget {
-  const HelpCenterPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Help Center'),
-        backgroundColor: AppPallete.transperantColor,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppPallete.textPrimaryDark),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      backgroundColor: AppPallete.transperantColor,
-      body: const Center(
-        child: Text(
-          'Help Center Page',
-          style: TextStyle(color: AppPallete.textPrimaryDark),
-        ),
-      ),
-    );
-  }
-}
-class AboutUsPage extends StatelessWidget {
-  const AboutUsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('About Us'),
-        backgroundColor: AppPallete.transperantColor,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppPallete.textPrimaryDark),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      backgroundColor: AppPallete.transperantColor,
-      body: const Center(
-        child: Text(
-          'About Us Page',
           style: TextStyle(color: AppPallete.textPrimaryDark),
         ),
       ),
