@@ -44,25 +44,34 @@ class AuthViewModel extends StateNotifier<User?> {
     }
   }
 
-Future<bool> login({
-  required String email,
-  required String password,
-  required BuildContext context,
-}) async {
-  try {
-    final user = await ref.read(authServiceProvider).login(email, password);
-    state = user;
+  Future<bool> login({
+    required String email,
+    required String password,
+    required BuildContext context,
+  }) async {
+    try {
+      final user = await ref.read(authServiceProvider).login(email, password);
+      state = user;
 
-    // Save locally
-    await ref.read(authLocalRepositoryProvider).saveUser(user);
-    await ref.read(authLocalRepositoryProvider).saveAccessToken(user.accessToken);
+      // Save locally
+      await ref.read(authLocalRepositoryProvider).saveUser(user);
+      await ref
+          .read(authLocalRepositoryProvider)
+          .saveAccessToken(user.accessToken);
 
-    return true;
-  } catch (e) {
-    _showError(context, "Login failed. Please check credentials.");
-    return false;
+      // Save refresh token if available
+      if (user.refreshToken != null) {
+        await ref
+            .read(authLocalRepositoryProvider)
+            .saveRefreshToken(user.refreshToken!);
+      }
+
+      return true;
+    } catch (e) {
+      _showError(context, "Login failed. Please check credentials.");
+      return false;
+    }
   }
-}
 
   Future<void> logoutUser() async {
     await ref.read(authLocalRepositoryProvider).clearUser();

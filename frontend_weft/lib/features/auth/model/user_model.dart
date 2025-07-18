@@ -5,7 +5,8 @@ class User {
   final String year;
   final String classId;
   final String branch;
-  final String accessToken; // ✅ Add this
+  final String accessToken;
+  final String? refreshToken;
 
   User({
     required this.id,
@@ -15,25 +16,28 @@ class User {
     required this.classId,
     required this.branch,
     required this.accessToken,
+    this.refreshToken,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json['id'],
-        name: json['name'],
-        email: json['email'],
-        year: json['year'],
-        classId: json['class_id'],
-        branch: json['branch'],
-        accessToken: json['accessToken'] ?? '',
-      );
+    id: json['id'],
+    name: json['name'],
+    email: json['email'],
+    year: json['year'],
+    classId: json['class_id'],
+    branch: json['branch'],
+    accessToken: json['accessToken'] ?? '',
+    refreshToken: json['refreshToken'],
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'email': email,
-        'year': year,
-        'class_id': classId,
-        'branch': branch,
-        'accessToken': accessToken,
-      };
+    'id': id,
+    'name': name,
+    'email': email,
+    'year': year,
+    'class_id': classId,
+    'branch': branch,
+    'accessToken': accessToken,
+    'refreshToken': refreshToken,
+  };
 }
