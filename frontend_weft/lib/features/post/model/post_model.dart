@@ -6,6 +6,7 @@ class Post {
   final String createdAt;
   final int likesCount;
   final int commentsCount;
+  final bool liked;
 
   const Post({
     required this.id,
@@ -15,20 +16,21 @@ class Post {
     required this.createdAt,
     required this.likesCount,
     required this.commentsCount,
+    required this.liked,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
-      id: json['id'] ?? '',
+      id: json['id']?.toString() ?? '',
       title: json['title'] ?? '',
       content: json['content'] ?? '',
       userName: json['userName'] ?? json['user_name'] ?? 'Anonymous',
-      createdAt:
-          json['createdAt'] ??
+      createdAt: json['createdAt'] ??
           json['created_at'] ??
           DateTime.now().toIso8601String(),
       likesCount: json['likesCount'] ?? json['likes_count'] ?? 0,
       commentsCount: json['commentsCount'] ?? json['comments_count'] ?? 0,
+      liked: json['liked'] ?? false,
     );
   }
 
@@ -41,6 +43,7 @@ class Post {
       'createdAt': createdAt,
       'likesCount': likesCount,
       'commentsCount': commentsCount,
+      'liked': liked,
     };
   }
 
@@ -52,6 +55,7 @@ class Post {
     String? createdAt,
     int? likesCount,
     int? commentsCount,
+    bool? liked,
   }) {
     return Post(
       id: id ?? this.id,
@@ -61,6 +65,7 @@ class Post {
       createdAt: createdAt ?? this.createdAt,
       likesCount: likesCount ?? this.likesCount,
       commentsCount: commentsCount ?? this.commentsCount,
+      liked: liked ?? this.liked,
     );
   }
 }

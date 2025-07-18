@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+
 import 'package:frontend_weft/core/server_constants.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_local_repository.dart';
 import 'package:frontend_weft/features/post/model/post_model.dart';
-import 'package:http/http.dart' as http;
 
 final postServiceProvider = Provider<PostService>((ref) {
   final authLocalRepository = ref.watch(authLocalRepositoryProvider);
@@ -21,19 +22,18 @@ class PostService {
   }
 
   Future<Map<String, String>> _getHeaders() async {
-  final token = await _getAccessToken();
-  print("🔑 Retrieved token: $token");
+    final token = await _getAccessToken();
+    print("🔑 Retrieved token: $token");
 
-  final headers = {
-    'Content-Type': 'application/json',
-    'Accept': '*/*',
-    if (token != null) 'Authorization': 'Bearer $token',
-  };
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
 
-  print("📤 Headers being sent: $headers");
-  return headers;
-}
-
+    print("📤 Headers being sent: $headers");
+    return headers;
+  }
 
   Future<List<Post>> getAllPosts() async {
     try {
@@ -48,19 +48,16 @@ class PostService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        // Handle different possible response formats
         List<dynamic> postsJson;
         if (data is List) {
-          // Direct array response
           postsJson = data;
+        } else if (data is Map && data['results'] != null) {
+          postsJson = data['results'];
         } else if (data is Map && data['posts'] != null) {
-          // Object with posts field
           postsJson = data['posts'];
         } else if (data is Map && data['data'] != null) {
-          // Object with data field
           postsJson = data['data'];
         } else {
-          // Unknown format, return empty list
           postsJson = [];
           print("⚠️ Unknown response format: $data");
         }
@@ -68,9 +65,7 @@ class PostService {
         print("📋 Found ${postsJson.length} posts");
         return postsJson.map((json) => Post.fromJson(json)).toList();
       } else {
-        print(
-          "❌ Failed to fetch posts: ${response.statusCode} - ${response.body}",
-        );
+        print("❌ Failed to fetch posts: ${response.statusCode} - ${response.body}");
         return [];
       }
     } catch (e) {
@@ -115,9 +110,7 @@ class PostService {
         final data = jsonDecode(response.body);
         return Post.fromJson(data);
       } else {
-        print(
-          "❌ Failed to fetch post: ${response.statusCode} - ${response.body}",
-        );
+        print("❌ Failed to fetch post: ${response.statusCode} - ${response.body}");
         return null;
       }
     } catch (e) {

@@ -24,10 +24,6 @@ Future<User> login(String email, String password) async {
       body: body,
     );
 
-    print("🔵 Request URL: $url");
-    print("📦 Request Body: $body");
-    print("📬 Response (${response.statusCode}): ${response.body}");
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final accessToken = data['AccessToken'];
