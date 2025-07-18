@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/Drawer/soc_page/models/society_model.dart';
 import 'package:frontend_weft/features/home/view/Drawer/soc_page/services/society_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SocietyPage extends StatelessWidget {
@@ -8,33 +10,46 @@ class SocietyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        color: Color.fromARGB(255, 99, 102, 241),
-        child: SafeArea(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppPallete.gradient1,
+            AppPallete.gradient2,
+            AppPallete.gradient3,
+          ],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: AppPallete.transperantColor,
+        body: SafeArea(
           child: Column(
             children: [
-              // Header
+              // Custom App Bar
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      icon: Icon(Icons.arrow_back, 
+                          color: AppPallete.textPrimaryDark),
                       onPressed: () => Navigator.pop(context),
                     ),
                     Expanded(
                       child: Text(
                         'College Societies',
-                        style: TextStyle(
-                          color: const Color.fromARGB(255, 255, 255, 255),
+                        style: GoogleFonts.getFont(
+                          'Oswald',
                           fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
+                          color: AppPallete.textPrimaryDark,
                         ),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    SizedBox(width: 48), // For balance
+                    SizedBox(width: 48), // Balance the back button
                   ],
                 ),
               ),
@@ -65,14 +80,25 @@ class SocietyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
       margin: EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+      decoration: BoxDecoration(
+        color: AppPallete.whiteColor.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppPallete.whiteColor.withOpacity(0.3),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
       ),
-      elevation: 5,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         onTap: () {
           Navigator.push(
             context,
@@ -93,13 +119,13 @@ class SocietyCard extends StatelessWidget {
                     height: 50,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Color(0xFF6366f1), Color(0xFF8b5cf6)],
+                        colors: [AppPallete.gradient1, AppPallete.gradient2],
                       ),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       society.icon,
-                      color: Colors.white,
+                      color: AppPallete.whiteColor,
                       size: 28,
                     ),
                   ),
@@ -110,9 +136,20 @@ class SocietyCard extends StatelessWidget {
                       children: [
                         Text(
                           society.name,
-                          style: TextStyle(
+                          style: GoogleFonts.getFont(
+                            'Oswald',
                             fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
+                            color: AppPallete.textPrimaryDark,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          society.fullName,
+                          style: GoogleFonts.getFont(
+                            'Indie Flower',
+                            fontSize: 14,
+                            color: AppPallete.textPrimaryDark.withOpacity(0.7),
                           ),
                         ),
                       ],
@@ -125,8 +162,10 @@ class SocietyCard extends StatelessWidget {
                 society.description,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.grey[700],
+                style: GoogleFonts.getFont(
+                  'Indie Flower',
+                  fontSize: 14,
+                  color: AppPallete.textPrimaryDark.withOpacity(0.8),
                 ),
               ),
             ],
@@ -144,20 +183,21 @@ class SocietyDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1a1a2e),
-              Color(0xFF16213e),
-              Color(0xFF0f4c75),
-            ],
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppPallete.gradient1,
+            AppPallete.gradient2,
+            AppPallete.gradient3,
+          ],
         ),
-        child: SafeArea(
+      ),
+      child: Scaffold(
+        backgroundColor: AppPallete.transperantColor,
+        body: SafeArea(
           child: Column(
             children: [
               // Custom App Bar
@@ -166,16 +206,18 @@ class SocietyDetailPage extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      icon: Icon(Icons.arrow_back, 
+                          color: AppPallete.textPrimaryDark),
                       onPressed: () => Navigator.pop(context),
                     ),
                     Expanded(
                       child: Text(
                         society.name,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.getFont(
+                          'Oswald',
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: AppPallete.textPrimaryDark,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -196,12 +238,15 @@ class SocietyDetailPage extends StatelessWidget {
                         width: double.infinity,
                         padding: EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Color(0x0DFFFFFF),
+                          color: AppPallete.whiteColor.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Color(0x33FFFFFF), width: 1),
+                          border: Border.all(
+                            color: AppPallete.whiteColor.withOpacity(0.3),
+                            width: 1,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
+                              color: Colors.black.withOpacity(0.1),
                               blurRadius: 10,
                               offset: Offset(0, 5),
                             ),
@@ -215,12 +260,12 @@ class SocietyDetailPage extends StatelessWidget {
                               height: 100,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Color(0xFF6366f1), Color(0xFF8b5cf6)],
+                                  colors: [AppPallete.gradient1, AppPallete.gradient2],
                                 ),
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Color(0xFF6366f1).withOpacity(0.4),
+                                    color: AppPallete.gradient1.withOpacity(0.4),
                                     blurRadius: 15,
                                     offset: Offset(0, 8),
                                   ),
@@ -228,7 +273,7 @@ class SocietyDetailPage extends StatelessWidget {
                               ),
                               child: Icon(
                                 society.icon,
-                                color: Colors.white,
+                                color: AppPallete.whiteColor,
                                 size: 50,
                               ),
                             ),
@@ -238,10 +283,11 @@ class SocietyDetailPage extends StatelessWidget {
                             // Society Name
                             Text(
                               society.fullName,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
+                              style: GoogleFonts.getFont(
+                                'Oswald',
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                color: AppPallete.textPrimaryDark,
                               ),
                             ),
                           ],
@@ -253,10 +299,11 @@ class SocietyDetailPage extends StatelessWidget {
                       // Description Section
                       Text(
                         'About',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.getFont(
+                          'Oswald',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppPallete.textPrimaryDark,
                         ),
                       ),
                       
@@ -266,15 +313,19 @@ class SocietyDetailPage extends StatelessWidget {
                         width: double.infinity,
                         padding: EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Color(0x0DFFFFFF),
+                          color: AppPallete.whiteColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Color(0x33FFFFFF), width: 1),
+                          border: Border.all(
+                            color: AppPallete.whiteColor.withOpacity(0.2),
+                            width: 1,
+                          ),
                         ),
                         child: Text(
                           society.description,
-                          style: TextStyle(
-                            color: Colors.grey[300],
+                          style: GoogleFonts.getFont(
+                            'Indie Flower',
                             fontSize: 16,
+                            color: AppPallete.textPrimaryDark.withOpacity(0.9),
                             height: 1.5,
                           ),
                         ),
@@ -287,27 +338,32 @@ class SocietyDetailPage extends StatelessWidget {
                         width: double.infinity,
                         padding: EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Color(0x0DFFFFFF),
+                          color: AppPallete.whiteColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Color(0x33FFFFFF), width: 1),
+                          border: Border.all(
+                            color: AppPallete.whiteColor.withOpacity(0.2),
+                            width: 1,
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Get Involved',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                              style: GoogleFonts.getFont(
+                                'Oswald',
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: AppPallete.textPrimaryDark,
                               ),
                             ),
                             SizedBox(height: 12),
                             Text(
                               'Interested in joining ${society.name}? Connect with us through our events and activities.',
-                              style: TextStyle(
-                                color: Colors.grey[300],
+                              style: GoogleFonts.getFont(
+                                'Indie Flower',
                                 fontSize: 14,
+                                color: AppPallete.textPrimaryDark.withOpacity(0.8),
                                 height: 1.4,
                               ),
                             ),
@@ -315,49 +371,50 @@ class SocietyDetailPage extends StatelessWidget {
                             Row(
                               children: [
                                 Expanded(
-  child: ElevatedButton(
-    onPressed: () async {
-      if (society.instagramHandle.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('No Instagram available for ${society.name}'),
-            backgroundColor: Color(0xFF6366f1),
-          ),
-        );
-        return;
-      }
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      if (society.instagramHandle.isEmpty) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('No Instagram available for ${society.name}'),
+                                            backgroundColor: AppPallete.gradient1,
+                                          ),
+                                        );
+                                        return;
+                                      }
 
-      final instaUrl = 'https://instagram.com/${society.instagramHandle}';
-      final uri = Uri.parse(instaUrl);
-      
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Could not launch Instagram'),
-            backgroundColor: Color(0xFF6366f1),
-          ),
-        );
-      }
-    },
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Color(0xFF6366f1),
-      foregroundColor: Colors.white,
-      padding: EdgeInsets.symmetric(vertical: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-    ),
-    child: Text(
-      'Contact',
-      style: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  ),
-),
+                                      final instaUrl = 'https://instagram.com/${society.instagramHandle}';
+                                      final uri = Uri.parse(instaUrl);
+                                      
+                                      if (await canLaunchUrl(uri)) {
+                                        await launchUrl(uri);
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Could not launch Instagram'),
+                                            backgroundColor: AppPallete.gradient1,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppPallete.gradient1,
+                                      foregroundColor: AppPallete.whiteColor,
+                                      padding: EdgeInsets.symmetric(vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Contact',
+                                      style: GoogleFonts.getFont(
+                                        'Oswald',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                                 SizedBox(width: 12),
                                 Expanded(
                                   child: ElevatedButton(
@@ -365,14 +422,13 @@ class SocietyDetailPage extends StatelessWidget {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text('Follow feature coming soon!'),
-                                          backgroundColor: Color(0xFF8b5cf6),
-                                          duration: Duration(milliseconds: 500), 
+                                          backgroundColor: AppPallete.gradient2,
                                         ),
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFF8b5cf6),
-                                      foregroundColor: Colors.white,
+                                      backgroundColor: AppPallete.gradient2,
+                                      foregroundColor: AppPallete.whiteColor,
                                       padding: EdgeInsets.symmetric(vertical: 12),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
@@ -380,9 +436,10 @@ class SocietyDetailPage extends StatelessWidget {
                                     ),
                                     child: Text(
                                       'Follow',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
+                                      style: GoogleFonts.getFont(
+                                        'Oswald',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ),
