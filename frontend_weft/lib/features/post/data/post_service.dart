@@ -1,46 +1,24 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-
 import 'package:frontend_weft/core/server_constants.dart';
-import 'package:frontend_weft/features/auth/viewmodel/auth_local_repository.dart';
+import 'package:frontend_weft/core/http_client.dart';
 import 'package:frontend_weft/features/post/model/post_model.dart';
 
 final postServiceProvider = Provider<PostService>((ref) {
-  final authLocalRepository = ref.watch(authLocalRepositoryProvider);
-  return PostService(authLocalRepository);
+  final httpClient = ref.watch(httpClientProvider);
+  return PostService(httpClient);
 });
 
 class PostService {
   static const String baseUrl = ServerConstants.baseUrl;
-  final AuthLocalRepository _authLocalRepository;
+  final AppHttpClient _httpClient;
 
-  PostService(this._authLocalRepository);
-
-  Future<String?> _getAccessToken() async {
-    return await _authLocalRepository.getAccessToken();
-  }
-
-  Future<Map<String, String>> _getHeaders() async {
-    final token = await _getAccessToken();
-    print("🔑 Retrieved token: $token");
-
-    final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
-    };
-
-    print("📤 Headers being sent: $headers");
-    return headers;
-  }
+  PostService(this._httpClient);
 
   Future<List<Post>> getAllPosts() async {
     try {
       final url = Uri.parse('$baseUrl/posts');
-      final headers = await _getHeaders();
-
-      final response = await http.get(url, headers: headers);
+      final response = await _httpClient.get(url);
 
       print("🔵 GET Posts URL: $url");
       print("📬 Response (${response.statusCode}): ${response.body}");
@@ -80,10 +58,9 @@ class PostService {
   }) async {
     try {
       final url = Uri.parse('$baseUrl/posts');
-      final headers = await _getHeaders();
       final body = jsonEncode({'title': title, 'content': content});
 
-      final response = await http.post(url, headers: headers, body: body);
+      final response = await _httpClient.post(url, body: body);
 
       print("🔵 POST Create URL: $url");
       print("📦 Request Body: $body");
@@ -99,9 +76,7 @@ class PostService {
   Future<Post?> getPostById(String postId) async {
     try {
       final url = Uri.parse('$baseUrl/posts/$postId');
-      final headers = await _getHeaders();
-
-      final response = await http.get(url, headers: headers);
+      final response = await _httpClient.get(url);
 
       print("🔵 GET Post by ID URL: $url");
       print("📬 Response (${response.statusCode}): ${response.body}");
@@ -122,9 +97,7 @@ class PostService {
   Future<bool> likePost(String postId) async {
     try {
       final url = Uri.parse('$baseUrl/posts/$postId/like');
-      final headers = await _getHeaders();
-
-      final response = await http.post(url, headers: headers);
+      final response = await _httpClient.post(url);
 
       print("🔵 POST Like URL: $url");
       print("📬 Response (${response.statusCode}): ${response.body}");
@@ -139,9 +112,7 @@ class PostService {
   Future<bool> deletePost(String postId) async {
     try {
       final url = Uri.parse('$baseUrl/posts/$postId');
-      final headers = await _getHeaders();
-
-      final response = await http.delete(url, headers: headers);
+      final response = await _httpClient.delete(url);
 
       print("🔵 DELETE Post URL: $url");
       print("📬 Response (${response.statusCode}): ${response.body}");

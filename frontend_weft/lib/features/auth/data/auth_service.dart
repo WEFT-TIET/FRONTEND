@@ -1,26 +1,29 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/server_constants.dart';
-import 'package:http/http.dart' as http;
+import 'package:frontend_weft/core/http_client.dart';
 import 'package:frontend_weft/features/auth/model/user_model.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService();
+  final httpClient = ref.watch(httpClientProvider);
+  return AuthService(httpClient);
 });
 
 class AuthService {
   static const String baseUrl = ServerConstants.baseUrl;
+  final AppHttpClient _httpClient;
+
+  AuthService(this._httpClient);
 
   Future<User> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/login');
     final body = jsonEncode({'email': email, 'password': password});
 
     try {
-      final response = await http.post(
+      final response = await _httpClient.post(
         url,
-        headers: {'Content-Type': 'application/json'},
         body: body,
       );
 
@@ -28,18 +31,16 @@ class AuthService {
         final data = jsonDecode(response.body);
         final accessToken = data['AccessToken'];
         final refreshToken = data['RefreshToken'];
+        final userData = data['user'];
         final payload = Jwt.parseJwt(accessToken);
 
-        final id = payload['sub'] ?? '';
-        final emailFromToken = payload['email'] ?? '';
-
         return User(
-          id: id.toString(),
-          name: '',
-          email: emailFromToken,
-          year: '',
-          classId: '',
-          branch: '',
+          id: userData['id'].toString(),
+          name: userData['name'] ?? '',
+          email: userData['email'] ?? '',
+          year: userData['year'] ?? '',
+          classId: userData['class_id'] ?? '',
+          branch: userData['branch'] ?? '',
           accessToken: accessToken,
           refreshToken: refreshToken,
         );
@@ -54,9 +55,8 @@ class AuthService {
 
   /// Sign up and return a User model
   Future<User> signup(Map<String, dynamic> userData) async {
-    final response = await http.post(
+    final response = await _httpClient.post(
       Uri.parse('$baseUrl/register'),
-      headers: {'Content-Type': 'application/json'},
       body: jsonEncode(userData),
     );
 

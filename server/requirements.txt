@@ -2,4 +2,6 @@ fastapi
 pydantic
 sqlalchemy
 passlib[bcrypt]
+PyJWT
+uvicorn
 
