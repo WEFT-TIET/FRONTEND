@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
-import 'package:frontend_weft/features/profile/models/weft_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_service.dart';
 import 'package:frontend_weft/features/profile/widgets/weft_item_widget.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
-import 'package:frontend_weft/features/profile/widgets/profile_widget_card.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);

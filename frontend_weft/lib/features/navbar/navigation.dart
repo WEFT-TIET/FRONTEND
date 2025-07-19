@@ -26,7 +26,6 @@ class _BottomNavBarState extends State<BottomNavBar> {
   ];
 
   // Color scheme
-  static const Color backgroundColor = Colors.black;
   static const Color activeIconColor = AppPallete.gradient1;
   static const Color activeTextColor = AppPallete.gradient2;
   static final Color inactiveColor = AppPallete.greyColor;

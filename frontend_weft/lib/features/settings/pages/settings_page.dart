@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/features/settings/subpages/change_password.dart';
 import 'package:frontend_weft/features/settings/subpages/help_center.dart';
-import 'package:frontend_weft/features/settings/widgets/settings_menu_item.dart';
 import 'package:frontend_weft/features/settings/models/settings_item.dart';
 import 'package:frontend_weft/features/settings/widgets/settings_section.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:frontend_weft/features/settings/subpages/about_us.dart';
-import 'package:frontend_weft/features/settings/subpages/report_bug.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -87,11 +85,6 @@ class SettingsPage extends ConsumerWidget {
                   SettingsSection(
                     title: 'Support',
                     items: [
-                      /*SettingsItem(
-                        icon: Icons.bug_report_outlined,
-                        title: 'Report Bug',
-                        onTap: () => _navigateToReportBug(context),
-                      ),*/
                       SettingsItem(
                         icon: Icons.help_outline,
                         title: 'Help Center',
