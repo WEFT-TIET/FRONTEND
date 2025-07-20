@@ -57,7 +57,7 @@ class PostService {
     required String content,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/posts');
+      final url = Uri.parse('$baseUrl/post/create');
       final body = jsonEncode({'title': title, 'content': content});
 
       final response = await _httpClient.post(url, body: body);
