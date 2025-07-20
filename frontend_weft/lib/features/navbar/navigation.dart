@@ -15,181 +15,187 @@ class BottomNavBar extends StatefulWidget {
   State<BottomNavBar> createState() => _BottomNavBarState();
 }
 
-class _BottomNavBarState extends State<BottomNavBar> {
+class _BottomNavBarState extends State<BottomNavBar>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
+  late AnimationController _animationController;
 
-  static final List<Widget> _pages = <Widget>[
+  // Static pages list - fully const for maximum optimization
+  static const List<Widget> _pages = [
     HomePage(),
     SearchPage(),
-    // MessagePage(),
+    MessagePage(),
     ProfilePage(),
   ];
 
-  // Color scheme
-  static const Color activeIconColor = AppPallete.gradient1;
-  static const Color activeTextColor = AppPallete.gradient2;
-  static final Color inactiveColor = AppPallete.greyColor;
-  static const List<Color> gradientColors = [
+  // Pre-computed static decorations to avoid recreation
+  static final BoxDecoration _activeDecoration = BoxDecoration(
+    shape: BoxShape.circle,
+    gradient: LinearGradient(colors: [
+      AppPallete.gradient2.withOpacity(0.3),
+      AppPallete.gradient3.withOpacity(0.3),
+    ]),
+  );
+
+  static const BoxDecoration _inactiveDecoration = BoxDecoration(
+    shape: BoxShape.circle,
+    color: Colors.transparent,
+  );
+
+  // Cached gradient
+  static const LinearGradient _iconGradient = LinearGradient(colors: [
     AppPallete.gradient1,
     AppPallete.gradient2,
     AppPallete.gradient3,
+  ]);
+
+  // Pre-computed text styles as static
+  static final TextStyle _activeTextStyle = GoogleFonts.oswald(
+    color: AppPallete.gradient2,
+    fontSize: 10,
+    fontWeight: FontWeight.w500,
+  );
+
+  static final TextStyle _inactiveTextStyle = GoogleFonts.oswald(
+    color: AppPallete.greyColor,
+    fontSize: 8,
+  );
+
+  // Navigation items with const constructor
+  static const List<_NavItemData> _navItems = [
+    _NavItemData(Icons.home_outlined, Icons.home_filled, 'Home'),
+    _NavItemData(Icons.search_outlined, Icons.search, 'Search'),
+    _NavItemData(Icons.chat_bubble_outline_rounded, Icons.chat_bubble, 'Messages'),
+    _NavItemData(Icons.person_outline, Icons.person, 'Profile'),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
+  // Pre-built inactive icons to avoid recreation
+  late final List<Widget> _inactiveIcons;
+  late final List<Widget> _activeIcons;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    // Pre-build all icon widgets to avoid recreation
+    _inactiveIcons = List.generate(_navItems.length, (index) {
+      return Icon(
+        _navItems[index].icon,
+        size: 24,
+        color: AppPallete.greyColor,
+        key: ValueKey('inactive_$index'),
+      );
     });
+
+    _activeIcons = List.generate(_navItems.length, (index) {
+      return GradientIcon(
+        icon: _navItems[index].activeIcon,
+        gradient: _iconGradient,
+        size: 24,
+        key: ValueKey('active_$index'),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _onItemTapped(int index) {
+    if (_selectedIndex != index) {
+      setState(() => _selectedIndex = index);
+      _animationController.forward().then((_) {
+        _animationController.reset();
+      });
+    }
+  }
+
+  Widget _buildNavItem(int index) {
+    final item = _navItems[index];
+    final isSelected = _selectedIndex == index;
+    
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _onItemTapped(index),
+        behavior: HitTestBehavior.opaque,
+        child: RepaintBoundary( // Isolate repaints
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                padding: const EdgeInsets.all(6),
+                decoration: isSelected ? _activeDecoration : _inactiveDecoration,
+                child: isSelected ? _activeIcons[index] : _inactiveIcons[index],
+              ),
+              const SizedBox(height: 4),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 150),
+                style: isSelected ? _activeTextStyle : _inactiveTextStyle,
+                child: Text(item.label),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppPallete.transperantColor,
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: AppPallete.blackColor.withOpacity(0.3),
-              blurRadius: 10,
-              spreadRadius: 2,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: RepaintBoundary( // Isolate bottom nav repaints
+        child: Container(
+          decoration: const BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.3),
+                blurRadius: 10,
+                spreadRadius: 2,
+                offset: Offset(0, 5),
+              ),
+            ],
           ),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppPallete.blackColor.withOpacity(0.9),
-                  AppPallete.blackColor.withOpacity(0.95),
-                ],
-              ),
-              border: Border.all(
-                color: AppPallete.greyColor.withOpacity(0.2),
-                width: 0.5,
-              ),
-            ),
-            child: Theme(
-              data: Theme.of(context).copyWith(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-              ),
-              child: BottomNavigationBar(
-                elevation: 0,
-                currentIndex: _selectedIndex,
-                onTap: _onItemTapped,
-                backgroundColor: Colors.transparent,
-                selectedItemColor: activeIconColor,
-                unselectedItemColor: inactiveColor,
-                type: BottomNavigationBarType.fixed,
-                showSelectedLabels: true,
-                showUnselectedLabels: true,
-                selectedLabelStyle: GoogleFonts.getFont(
-                  'Oswald',
-                  color: activeTextColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+          child: ClipRRect(
+            child: Container(
+              height: 70,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppPallete.blackColor.withOpacity(0.9),
+                    AppPallete.blackColor.withOpacity(0.95),
+                  ],
                 ),
-                unselectedLabelStyle: GoogleFonts.getFont(
-                  'Oswald',
-                  color: inactiveColor,
-                  fontSize: 12,
+                border: Border.all(
+                  color: AppPallete.greyColor.withOpacity(0.2),
+                  width: 0.5,
                 ),
-                iconSize: 28,
-                items: [
-                  BottomNavigationBarItem(
-                    icon: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _selectedIndex == 0
-                            ? AppPallete.gradient1.withOpacity(0.2)
-                            : Colors.transparent,
-                      ),
-                      child: const Icon(Icons.home_outlined),
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Row(
+                    children: List.generate(
+                      _navItems.length,
+                      _buildNavItem,
                     ),
-                    activeIcon: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(colors: [
-                          AppPallete.gradient1.withOpacity(0.3),
-                          AppPallete.gradient2.withOpacity(0.3),
-                        ]),
-                      ),
-                      child: const GradientIcon(
-                        icon: Icons.home_filled,
-                        gradient: LinearGradient(colors: gradientColors),
-                        size: 28,
-                      ),
-                    ),
-                    label: 'Home',
                   ),
-                  BottomNavigationBarItem(
-                    icon: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _selectedIndex == 1
-                            ? AppPallete.gradient1.withOpacity(0.2)
-                            : Colors.transparent,
-                      ),
-                      child: const Icon(Icons.search_outlined),
-                    ),
-                    activeIcon: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(colors: [
-                          AppPallete.gradient1.withOpacity(0.3),
-                          AppPallete.gradient2.withOpacity(0.3),
-                        ]),
-                      ),
-                      child: const GradientIcon(
-                        icon: Icons.search,
-                        gradient: LinearGradient(colors: gradientColors),
-                        size: 28,
-                      ),
-                    ),
-                    label: 'Search',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _selectedIndex == 2
-                            ? AppPallete.gradient1.withOpacity(0.2)
-                            : Colors.transparent,
-                      ),
-                      child: const Icon(Icons.person_outline),
-                    ),
-                    activeIcon: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(colors: [
-                          AppPallete.gradient1.withOpacity(0.3),
-                          AppPallete.gradient2.withOpacity(0.3),
-                        ]),
-                      ),
-                      child: const GradientIcon(
-                        icon: Icons.person,
-                        gradient: LinearGradient(colors: gradientColors),
-                        size: 28,
-                      ),
-                    ),
-                    label: 'Profile',
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -197,4 +203,14 @@ class _BottomNavBarState extends State<BottomNavBar> {
       ),
     );
   }
+}
+
+// Immutable data class with const constructor
+@immutable
+class _NavItemData {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  
+  const _NavItemData(this.icon, this.activeIcon, this.label);
 }
