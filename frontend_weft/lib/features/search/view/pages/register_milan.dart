@@ -33,7 +33,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _selectedSexuality = 'Straight';
   
   final List<String> _genders = ['Male', 'Female', 'Non-binary', 'Other'];
-  final List<String> _sexualities = ['Straight', 'Gay', 'Lesbian', 'Bisexual', 'Pansexual', 'Asexual'];
+  final List<String> _sexualities = ['Straight'];
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +66,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     child: Column(
                       children: [
                         Text(
-                          "💕 Welcome to Love 💕",
+                          " Welcome to Milan! ",
                           style: TextStyle(
                             color: AppPallete.textPrimaryDark,
                             fontSize: 32,
@@ -82,7 +82,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         ),
                         SizedBox(height: 10),
                         Text(
-                          "✨ Create your perfect dating profile ✨",
+                          " Create your perfect connecting profile ",
                           style: TextStyle(
                             color: AppPallete.profileTextSecondary,
                             fontSize: 16,
@@ -98,7 +98,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     child: Column(
                       children: [
                         Text(
-                          "📸 Your Beautiful Picture",
+                          "📸 Your Picture",
                           style: TextStyle(
                             color: AppPallete.textPrimaryDark,
                             fontSize: 18,
@@ -178,7 +178,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         SizedBox(height: 10),
                         _buildGlassTextField(
                           controller: _nameController,
-                          hintText: "Enter your beautiful name",
+                          hintText: "Enter your name",
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your name';
@@ -408,7 +408,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         ),
                       ),
                       child: Text(
-                        "💖 Start Finding Love 💖",
+                        " Start connecting",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,

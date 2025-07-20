@@ -5,7 +5,6 @@ class UserModel {
   final String batch;
   final String branch;
   final String className;
-  final List<String> societies;
   final String? profileImagePath;
 
   UserModel({
@@ -14,7 +13,6 @@ class UserModel {
     required this.batch,
     required this.branch,
     required this.className,
-    required this.societies,
     this.profileImagePath,
   });
 
@@ -24,7 +22,6 @@ class UserModel {
     String? batch,
     String? branch,
     String? className,
-    List<String>? societies,
     String? profileImagePath,
   }) {
     return UserModel(
@@ -33,7 +30,6 @@ class UserModel {
       batch: batch ?? this.batch,
       branch: branch ?? this.branch,
       className: className ?? this.className,
-      societies: societies ?? this.societies,
       profileImagePath: profileImagePath ?? this.profileImagePath,
     );
   }
@@ -45,7 +41,6 @@ class UserModel {
       'batch': batch,
       'branch': branch,
       'className': className,
-      'societies': societies,
       'profileImagePath': profileImagePath,
     };
   }
@@ -57,7 +52,6 @@ class UserModel {
       batch: json['batch'] ?? '',
       branch: json['branch'] ?? '',
       className: json['className'] ?? '',
-      societies: List<String>.from(json['societies'] ?? []),
       profileImagePath: json['profileImagePath'],
     );
   }

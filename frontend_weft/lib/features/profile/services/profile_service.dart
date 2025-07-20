@@ -1,8 +1,6 @@
 // lib/features/profile/services/profile_service.dart
-// lib/features/profile/services/profile_service.dart
 import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/models/weft_model.dart';
-import 'package:frontend_weft/features/profile/models/society_model.dart';
 
 class ProfileService {
   static final ProfileService _instance = ProfileService._internal();
@@ -21,7 +19,6 @@ class ProfileService {
     batch: '2025',
     branch: 'COE',
     className: '1A62',
-    societies: ['MLSC', 'CCS'],
     profileImagePath: 'lib/core/assets/profile_photo.jpeg',
   );
 
@@ -87,57 +84,6 @@ class ProfileService {
     } finally {
       _isLoading = false;
     }
-  }
-
-  Future<void> addSociety(String societyName) async {
-    if (_isLoading) return;
-    
-    _isLoading = true;
-    try {
-      await Future.delayed(const Duration(milliseconds: 300));
-      
-      // Check if society already exists
-      if (!_cachedUser!.societies.contains(societyName)) {
-        final updatedSocieties = List<String>.from(_cachedUser!.societies)..add(societyName);
-        _cachedUser = _cachedUser!.copyWith(societies: updatedSocieties);
-      }
-    } finally {
-      _isLoading = false;
-    }
-  }
-
-  Future<void> removeSociety(String society) async {
-    if (_isLoading) return;
-    
-    _isLoading = true;
-    try {
-      await Future.delayed(const Duration(milliseconds: 300));
-      final updatedSocieties = List<String>.from(_cachedUser!.societies)..remove(society);
-      _cachedUser = _cachedUser!.copyWith(societies: updatedSocieties);
-    } finally {
-      _isLoading = false;
-    }
-  }
-
-  // Get available societies for dropdown - cached
-  List<SocietyModel> getAvailableSocieties() {
-    return SocietyData.availableSocieties;
-  }
-
-  // Get societies not already selected by user - optimized
-  List<SocietyModel> getUnselectedSocieties() {
-    final userSocieties = _cachedUser?.societies ?? [];
-    return SocietyData.availableSocieties
-        .where((society) => !userSocieties.contains(society.name))
-        .toList();
-  }
-
-  // Get societies by category - optimized
-  List<SocietyModel> getSocietiesByCategory(String category) {
-    final userSocieties = _cachedUser?.societies ?? [];
-    return SocietyData.getSocietiesByCategory(category)
-        .where((society) => !userSocieties.contains(society.name))
-        .toList();
   }
 
   Future<void> updateProfileImage(String imagePath) async {

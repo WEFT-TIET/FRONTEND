@@ -24,24 +24,6 @@ class _SearchPageState extends State<SearchPage> {
       memberCount: '2.4k members',
       isHot: true,
     ),
-    Society(
-      name: 'ANONYMOUS CHAT',
-      icon: Icons.chat_bubble_outline,
-      memberCount: '1.8k members',
-      isHot: false,
-    ),
-    Society(
-      name: 'HANGOUT',
-      icon: Icons.theater_comedy,
-      memberCount: '1.2k members',
-      isHot: true,
-    ),
-    Society(
-      name: 'MUSIC',
-      icon: Icons.music_note,
-      memberCount: '3.1k members',
-      isHot: false,
-    ),
   ];
 
   final List<String> recentSearches = ['Tech Fest', 'Drama Workshop'];

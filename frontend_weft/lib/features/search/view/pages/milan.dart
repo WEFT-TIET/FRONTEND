@@ -56,7 +56,7 @@ class _MilanState extends State<Milan> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
-          "💕 Campus Crushes 💕",
+          " Campus Connects ",
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -110,7 +110,7 @@ class _MilanState extends State<Milan> {
                   child: Column(
                     children: [
                       Text(
-                        "✨ Find Your Perfect Match ✨",
+                        " Find best clg connections",
                         style: TextStyle(
                           color: AppPallete.textPrimaryDark,
                           fontSize: 18,
@@ -126,7 +126,7 @@ class _MilanState extends State<Milan> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        "Swipe right to fall in love 💖",
+                        "Swipe right to connect with ur peers",
                         style: TextStyle(
                           color: AppPallete.profileTextSecondary,
                           fontSize: 14,
@@ -222,7 +222,7 @@ class _MilanState extends State<Milan> {
                                             ),
                                           ),
                                           child: Text(
-                                            "💖",
+                                            "😎",
                                             style: TextStyle(fontSize: 20),
                                           ),
                                         ),
@@ -299,11 +299,11 @@ class _MilanState extends State<Milan> {
 
                       switch (direction) {
                         case CardSwiperDirection.right:
-                          action = "💖 You're crushing on $name!";
+                          action = "You're connecting with $name!";
                           snackBarColor = AppPallete.secondaryDark;
                           break;
                         case CardSwiperDirection.left:
-                          action = "💔 You passed on $name";
+                          action = "You passed on $name";
                           snackBarColor = AppPallete.red;
                           break;
                         default:
@@ -361,7 +361,7 @@ class _MilanState extends State<Milan> {
                       _buildGlassActionButton(
                         icon: Icons.favorite,
                         color: AppPallete.secondaryDark,
-                        label: "Crush",
+                        label: "Connect",
                         onPressed: () {
                           // Handle like action
                         },
