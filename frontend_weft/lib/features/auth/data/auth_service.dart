@@ -31,16 +31,18 @@ class AuthService {
         final data = jsonDecode(response.body);
         final accessToken = data['AccessToken'];
         final refreshToken = data['RefreshToken'];
-        final userData = data['user'];
         final payload = Jwt.parseJwt(accessToken);
 
+        final id = payload['sub'] ?? '';
+        final emailFromToken = payload['email'] ?? '';
+
         return User(
-          id: userData['id'].toString(),
-          name: userData['name'] ?? '',
-          email: userData['email'] ?? '',
-          year: userData['year'] ?? '',
-          classId: userData['class_id'] ?? '',
-          branch: userData['branch'] ?? '',
+          id: id.toString(),
+          name: '',
+          email: emailFromToken,
+          year: '',
+          classId: '',
+          branch: '',
           accessToken: accessToken,
           refreshToken: refreshToken,
         );
