@@ -22,24 +22,8 @@ class PostsListWidget extends ConsumerWidget {
 
     return postsAsync.when(
       data: (posts) {
-        // Filter posts based on search query and selected filter
-        var filteredPosts = searchQuery.isEmpty
-            ? posts
-            : posts.where((post) => post.title
-                .toLowerCase()
-                .contains(searchQuery)).toList();
-
-        // Apply filter
-        switch (selectedFilter) {
-          case 'Recent':
-            filteredPosts.sort((a, b) => 
-              DateTime.parse(b.createdAt).compareTo(DateTime.parse(a.createdAt)));
-            break;
-          case 'Popular':
-            filteredPosts.sort((a, b) => b.likesCount.compareTo(a.likesCount));
-            break;
-        }
-
+        final filteredPosts = _getFilteredPosts(posts);
+        
         if (filteredPosts.isEmpty) {
           return _buildEmptyState();
         }
@@ -56,12 +40,15 @@ class PostsListWidget extends ConsumerWidget {
             itemCount: filteredPosts.length,
             itemBuilder: (context, index) {
               final post = filteredPosts[index];
-              return PostCard(
-                postId: post.id,
-                name: post.userName,
-                tag: post.title,
-                timeAgo: _formatTimeAgo(post.createdAt),
-                content: post.content,
+              return RepaintBoundary(
+                child: PostCard(
+                  key: ValueKey('post_${post.id}'),
+                  postId: post.id,
+                  name: post.userName,
+                  tag: post.title,
+                  timeAgo: _formatTimeAgo(post.createdAt),
+                  content: post.content,
+                ),
               );
             },
           ),
@@ -70,6 +57,32 @@ class PostsListWidget extends ConsumerWidget {
       loading: () => _buildLoadingState(),
       error: (error, stack) => _buildErrorState(error, ref),
     );
+  }
+
+  List<dynamic> _getFilteredPosts(List<dynamic> posts) {
+    // Filter posts based on search query
+    var filteredPosts = searchQuery.isEmpty
+        ? posts
+        : posts.where((post) => post.title
+            .toLowerCase()
+            .contains(searchQuery)).toList();
+
+    // Apply filter
+    switch (selectedFilter) {
+      case 'Recent':
+        filteredPosts.sort((a, b) => 
+          DateTime.parse(b.createdAt).compareTo(DateTime.parse(a.createdAt)));
+        break;
+      case 'Popular':
+        filteredPosts.sort((a, b) => b.likesCount.compareTo(a.likesCount));
+        break;
+      case 'All':
+      default:
+        // Keep original order
+        break;
+    }
+
+    return filteredPosts;
   }
 
   Widget _buildEmptyState() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/Drawer/drawer.dart';
 import 'package:frontend_weft/features/home/view/widgets/animated_app_bar.dart';
@@ -25,12 +26,17 @@ class _HomePageState extends ConsumerState<HomePage>
   String _selectedFilter = 'All';
   late AnimationController _animationController;
   late Animation<double> _animation;
+  Timer? _debounceTimer;
 
   final List<String> _filters = ['All', 'Recent', 'Popular'];
 
   @override
   void initState() {
     super.initState();
+    _initializeAnimation();
+  }
+
+  void _initializeAnimation() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -47,13 +53,14 @@ class _HomePageState extends ConsumerState<HomePage>
   void dispose() {
     _searchController.dispose();
     _animationController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -68,72 +75,105 @@ class _HomePageState extends ConsumerState<HomePage>
         backgroundColor: AppPallete.transperantColor,
         appBar: AnimatedAppBar(animation: _animation),
         drawer: const DrawerWidget(),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => _showCreatePostDialog(context, ref),
-          backgroundColor: AppPallete.gradient2,
-          icon: const Icon(Icons.add, color: AppPallete.whiteColor),
-          label: Text(
-            'Create Wef',
-            style: GoogleFonts.getFont(
-              'Oswald',
-              color: AppPallete.whiteColor,
-              fontWeight: FontWeight.w600,
+        floatingActionButton: _buildFloatingActionButton(),
+        body: _buildOptimizedBody(),
+      ),
+    );
+  }
+
+  Widget _buildFloatingActionButton() {
+    return RepaintBoundary(
+      child: FloatingActionButton.extended(
+        onPressed: () => _showCreatePostDialog(context, ref),
+        backgroundColor: AppPallete.gradient2,
+        icon: const Icon(Icons.add, color: AppPallete.whiteColor),
+        label: Text(
+          'Create Wef',
+          style: GoogleFonts.getFont(
+            'Oswald',
+            color: AppPallete.whiteColor,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        elevation: 8,
+        heroTag: "createPost",
+      ),
+    );
+  }
+
+  Widget _buildOptimizedBody() {
+    return CustomScrollView(
+      slivers: [
+        // Welcome Card Section
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+            child: RepaintBoundary(
+              child: WelcomeCard(animation: _animation),
             ),
           ),
-          elevation: 8,
-          heroTag: "createPost",
         ),
-        body: SingleChildScrollView(
+
+        // Search Bar Section
+        SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                WelcomeCard(animation: _animation),
-                const SizedBox(height: 20),
-                SearchBarWidget(
-                  controller: _searchController,
-                  isSearchFocused: _isSearchFocused,
-                  onSearchChanged: (value) {
-                    setState(() {
-                      _searchQuery = value.toLowerCase();
-                    });
-                  },
-                  onFocusChanged: (focused) {
-                    setState(() {
-                      _isSearchFocused = focused;
-                    });
-                  },
-                  onClear: () {
-                    setState(() {
-                      _searchQuery = '';
-                      _searchController.clear();
-                      _isSearchFocused = false;
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                FilterChipsWidget(
-                  filters: _filters,
-                  selectedFilter: _selectedFilter,
-                  onFilterChanged: (filter) {
-                    setState(() {
-                      _selectedFilter = filter;
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                _buildSectionHeader(),
-                const SizedBox(height: 15),
-                PostsListWidget(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: RepaintBoundary(
+              child: SearchBarWidget(
+                controller: _searchController,
+                isSearchFocused: _isSearchFocused,
+                onSearchChanged: _debouncedSearch,
+                onFocusChanged: _handleFocusChange,
+                onClear: _handleClearSearch,
+              ),
+            ),
+          ),
+        ),
+
+        // Filter Chips Section
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: RepaintBoundary(
+              child: FilterChipsWidget(
+                filters: _filters,
+                selectedFilter: _selectedFilter,
+                onFilterChanged: _handleFilterChange,
+              ),
+            ),
+          ),
+        ),
+
+        // Section Header
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+            child: RepaintBoundary(
+              child: _buildSectionHeader(),
+            ),
+          ),
+        ),
+
+        // Posts List Section - Optimized with SliverList
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              RepaintBoundary(
+                child: PostsListWidget(
                   searchQuery: _searchQuery,
                   selectedFilter: _selectedFilter,
                 ),
-              ],
-            ),
+              ),
+            ]),
           ),
         ),
-      ),
+
+        // Bottom padding for FAB
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 80),
+        ),
+      ],
     );
   }
 
@@ -147,6 +187,47 @@ class _HomePageState extends ConsumerState<HomePage>
         color: AppPallete.textPrimaryDark,
       ),
     );
+  }
+
+  // Optimized search with debouncing
+  void _debouncedSearch(String value) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _searchQuery = value.toLowerCase();
+        });
+      }
+    });
+  }
+
+  // Optimized focus handling
+  void _handleFocusChange(bool focused) {
+    if (mounted) {
+      setState(() {
+        _isSearchFocused = focused;
+      });
+    }
+  }
+
+  // Optimized clear search
+  void _handleClearSearch() {
+    if (mounted) {
+      setState(() {
+        _searchQuery = '';
+        _searchController.clear();
+        _isSearchFocused = false;
+      });
+    }
+  }
+
+  // Optimized filter change
+  void _handleFilterChange(String filter) {
+    if (mounted) {
+      setState(() {
+        _selectedFilter = filter;
+      });
+    }
   }
 
   void _showCreatePostDialog(BuildContext context, WidgetRef ref) {

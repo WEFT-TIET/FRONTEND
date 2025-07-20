@@ -1,4 +1,5 @@
 // lib/features/profile/services/profile_service.dart
+// lib/features/profile/services/profile_service.dart
 import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/models/weft_model.dart';
 import 'package:frontend_weft/features/profile/models/society_model.dart';
@@ -8,8 +9,13 @@ class ProfileService {
   factory ProfileService() => _instance;
   ProfileService._internal();
 
+  // Cache for better performance
+  UserModel? _cachedUser;
+  List<WeftModel>? _cachedWefts;
+  bool _isLoading = false;
+
   // Mock data - in real app, this would come from API/database
-  UserModel _currentUser = UserModel(
+  UserModel get _currentUserData => UserModel(
     name: 'Rudra Yadav',
     username: 'rudra_yadav',
     batch: '2025',
@@ -19,7 +25,7 @@ class ProfileService {
     profileImagePath: 'lib/core/assets/profile_photo.jpeg',
   );
 
-  List<WeftModel> _userWefs = [
+  List<WeftModel> get _userWeftsData => [
     WeftModel(
       id: '1',
       date: '20/07/15',
@@ -58,83 +64,150 @@ class ProfileService {
     ),
   ];
 
-  // Getters
-  UserModel get currentUser => _currentUser;
-  List<WeftModel> get userWefts => List.unmodifiable(_userWefs);
+  // Optimized getters with caching
+  UserModel get currentUser {
+    _cachedUser ??= _currentUserData;
+    return _cachedUser!;
+  }
 
-  // User operations
+  List<WeftModel> get userWefts {
+    _cachedWefts ??= _userWeftsData;
+    return List.unmodifiable(_cachedWefts!);
+  }
+
+  // User operations with optimized state management
   Future<void> updateUser(UserModel updatedUser) async {
-    // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 500));
-    _currentUser = updatedUser;
+    if (_isLoading) return; // Prevent concurrent operations
+    
+    _isLoading = true;
+    try {
+      // Simulate API call
+      await Future.delayed(const Duration(milliseconds: 500));
+      _cachedUser = updatedUser;
+    } finally {
+      _isLoading = false;
+    }
   }
 
   Future<void> addSociety(String societyName) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    if (_isLoading) return;
     
-    // Check if society already exists
-    if (!_currentUser.societies.contains(societyName)) {
-      final updatedSocieties = List<String>.from(_currentUser.societies)..add(societyName);
-      _currentUser = _currentUser.copyWith(societies: updatedSocieties);
+    _isLoading = true;
+    try {
+      await Future.delayed(const Duration(milliseconds: 300));
+      
+      // Check if society already exists
+      if (!_cachedUser!.societies.contains(societyName)) {
+        final updatedSocieties = List<String>.from(_cachedUser!.societies)..add(societyName);
+        _cachedUser = _cachedUser!.copyWith(societies: updatedSocieties);
+      }
+    } finally {
+      _isLoading = false;
     }
   }
 
   Future<void> removeSociety(String society) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    final updatedSocieties = List<String>.from(_currentUser.societies)..remove(society);
-    _currentUser = _currentUser.copyWith(societies: updatedSocieties);
+    if (_isLoading) return;
+    
+    _isLoading = true;
+    try {
+      await Future.delayed(const Duration(milliseconds: 300));
+      final updatedSocieties = List<String>.from(_cachedUser!.societies)..remove(society);
+      _cachedUser = _cachedUser!.copyWith(societies: updatedSocieties);
+    } finally {
+      _isLoading = false;
+    }
   }
 
-  // Get available societies for dropdown
+  // Get available societies for dropdown - cached
   List<SocietyModel> getAvailableSocieties() {
     return SocietyData.availableSocieties;
   }
 
-  // Get societies not already selected by user
+  // Get societies not already selected by user - optimized
   List<SocietyModel> getUnselectedSocieties() {
+    final userSocieties = _cachedUser?.societies ?? [];
     return SocietyData.availableSocieties
-        .where((society) => !_currentUser.societies.contains(society.name))
+        .where((society) => !userSocieties.contains(society.name))
         .toList();
   }
 
-  // Get societies by category
+  // Get societies by category - optimized
   List<SocietyModel> getSocietiesByCategory(String category) {
+    final userSocieties = _cachedUser?.societies ?? [];
     return SocietyData.getSocietiesByCategory(category)
-        .where((society) => !_currentUser.societies.contains(society.name))
+        .where((society) => !userSocieties.contains(society.name))
         .toList();
   }
 
   Future<void> updateProfileImage(String imagePath) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    _currentUser = _currentUser.copyWith(profileImagePath: imagePath);
+    if (_isLoading) return;
+    
+    _isLoading = true;
+    try {
+      await Future.delayed(const Duration(milliseconds: 500));
+      _cachedUser = _cachedUser!.copyWith(profileImagePath: imagePath);
+    } finally {
+      _isLoading = false;
+    }
   }
 
-  // Username validation
+  // Username validation - optimized
   Future<bool> isUsernameAvailable(String username) async {
     await Future.delayed(const Duration(milliseconds: 300));
     // Mock validation - in real app, this would check against database
     return username.isNotEmpty && username.length >= 3;
   }
 
-  // Weft operations
+  // Weft operations - optimized with direct list manipulation
   Future<void> likeWeft(String weftId) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    final index = _userWefs.indexWhere((weft) => weft.id == weftId);
-    if (index != -1) {
-      _userWefs[index] = _userWefs[index].copyWith(likes: _userWefs[index].likes + 1);
+    if (_isLoading) return;
+    
+    _isLoading = true;
+    try {
+      await Future.delayed(const Duration(milliseconds: 200));
+      final index = _cachedWefts!.indexWhere((weft) => weft.id == weftId);
+      if (index != -1) {
+        _cachedWefts![index] = _cachedWefts![index].copyWith(likes: _cachedWefts![index].likes + 1);
+      }
+    } finally {
+      _isLoading = false;
     }
   }
 
   Future<void> addComment(String weftId) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    final index = _userWefs.indexWhere((weft) => weft.id == weftId);
-    if (index != -1) {
-      _userWefs[index] = _userWefs[index].copyWith(comments: _userWefs[index].comments + 1);
+    if (_isLoading) return;
+    
+    _isLoading = true;
+    try {
+      await Future.delayed(const Duration(milliseconds: 200));
+      final index = _cachedWefts!.indexWhere((weft) => weft.id == weftId);
+      if (index != -1) {
+        _cachedWefts![index] = _cachedWefts![index].copyWith(comments: _cachedWefts![index].comments + 1);
+      }
+    } finally {
+      _isLoading = false;
     }
   }
 
   Future<String> shareProfile() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return 'Profile shared successfully!';
+    if (_isLoading) return 'Already processing...';
+    
+    _isLoading = true;
+    try {
+      await Future.delayed(const Duration(milliseconds: 300));
+      return 'Profile shared successfully!';
+    } finally {
+      _isLoading = false;
+    }
   }
+
+  // Clear cache when needed
+  void clearCache() {
+    _cachedUser = null;
+    _cachedWefts = null;
+  }
+
+  // Check if service is currently loading
+  bool get isLoading => _isLoading;
 }

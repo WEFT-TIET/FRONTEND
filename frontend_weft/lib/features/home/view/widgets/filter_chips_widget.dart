@@ -28,12 +28,13 @@ class FilterChipsWidget extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: FilterChip(
+              key: ValueKey('filter_$filter'),
               label: Text(filter),
               selected: isSelected,
               onSelected: (selected) => onFilterChanged(filter),
               backgroundColor: AppPallete.whiteColor.withOpacity(0.2),
               selectedColor: AppPallete.gradient1.withOpacity(0.8),
-               checkmarkColor: Colors.orange.withOpacity(0.8),
+              checkmarkColor: const Color.fromARGB(255, 255, 165, 0).withOpacity(0.8),
               labelStyle: TextStyle(
                 color: isSelected
                     ? AppPallete.whiteColor

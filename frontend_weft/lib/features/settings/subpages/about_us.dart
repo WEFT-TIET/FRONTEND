@@ -95,7 +95,7 @@ class AboutUsPage extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.98, // Increased to make tiles shorter from bottom
+                    childAspectRatio: 0.80, // Increased to make tiles shorter from bottom
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
                   ),
@@ -185,14 +185,14 @@ class TeamMemberCard extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12), // Reduced padding
+        padding: const EdgeInsets.all(12), 
         child: Column(
           mainAxisSize: MainAxisSize.min, // Important: Use min size
           children: [
             // Profile Picture
             Container(
-              width: 60, // Reduced from 80
-              height: 60, // Reduced from 80
+              width: 60, 
+              height: 60, 
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
@@ -201,7 +201,7 @@ class TeamMemberCard extends StatelessWidget {
                 ),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(30), // Adjusted radius
+                borderRadius: BorderRadius.circular(30), 
                 child: member.photoUrl.isNotEmpty
                     ? Image.network(
                         member.photoUrl,
@@ -213,22 +213,21 @@ class TeamMemberCard extends StatelessWidget {
                     : _buildDefaultAvatar(),
               ),
             ),
-            const SizedBox(height: 8), // Reduced spacing
+            const SizedBox(height: 8), 
             
             // Name
             Text(
               member.name,
               style: const TextStyle(
                 color: AppPallete.textPrimaryDark,
-                fontSize: 14, // Reduced from 16
+                fontSize: 14, 
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 2), // Reduced spacing
-            
+            const SizedBox(height: 2), 
             // Role
             Text(
               member.role,
@@ -241,11 +240,11 @@ class TeamMemberCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 6), // Reduced spacing
+            const SizedBox(height: 6), 
             
             // Branch
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // Reduced padding
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), 
               decoration: BoxDecoration(
                 color: AppPallete.textPrimaryDark.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(6),
@@ -254,7 +253,7 @@ class TeamMemberCard extends StatelessWidget {
                 member.branch,
                 style: TextStyle(
                   color: AppPallete.textPrimaryDark.withOpacity(0.9),
-                  fontSize: 10, // Reduced from 12
+                  fontSize: 10, 
                   fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,
@@ -262,7 +261,7 @@ class TeamMemberCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(height: 8), // Reduced spacing
+            const SizedBox(height: 8), 
             
             // Instagram Button
             if (member.instagramId.isNotEmpty)
@@ -270,7 +269,7 @@ class TeamMemberCard extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () => _openInstagram(member.instagramId),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Reduced padding
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), 
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFF833AB4), Color(0xFFE1306C), Color(0xFFFD1D1D)],
@@ -287,7 +286,7 @@ class TeamMemberCard extends StatelessWidget {
                             '@${member.instagramId}',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 10, // Reduced from 12
+                              fontSize: 10, 
                               fontWeight: FontWeight.w500,
                             ),
                             maxLines: 1,
@@ -345,48 +344,48 @@ class TeamMember {
   });
 }
 
-// Sample team members data - replace with your actual team
+// team members data
 final List<TeamMember> teamMembers = [
   TeamMember(
     name: 'Prince Sharma',
     role: 'Co-Founder & Lead Developer',
     branch: 'COE',
     instagramId: 'tanice_gawd',
-    photoUrl: 'https://via.placeholder.com/150', // Replace with actual photo URL
+    photoUrl: 'https://via.placeholder.com/150', 
   ),
   TeamMember(
     name: 'Shashwat Narwal',
     role: 'Co-Founder & Video Editor',
     branch: 'AI&ML',
     instagramId: 'shshwt_',
-    photoUrl: 'https://via.placeholder.com/150', // Replace with actual photo URL
+    photoUrl: 'https://via.placeholder.com/150', 
   ),
   TeamMember(
     name: 'Gurneet Singh',
     role: 'Backend Developer',
     branch: 'COPC',
     instagramId: 'gurneet_singh12345',
-    photoUrl: 'https://via.placeholder.com/150', // Replace with actual photo URL
+    photoUrl: 'https://via.placeholder.com/150', 
   ),
   TeamMember(
     name: 'Vatsal Gupta',
     role: 'Frontend Developer',
     branch: 'COE',
     instagramId: 'vatsal.gupta06',
-    photoUrl: 'https://via.placeholder.com/150', // Replace with actual photo URL
+    photoUrl: 'https://via.placeholder.com/150', 
   ),
   TeamMember(
     name: 'Krishna Vig',
     role: 'Designer',
     branch: 'COE',
     instagramId: 'vig.krishna19',
-    photoUrl: 'https://via.placeholder.com/150', // Replace with actual photo URL
+    photoUrl: 'https://via.placeholder.com/150', 
   ),
   TeamMember(
     name: 'Samridhi Sharma',
     role: 'UI/UX Designer',
     branch: 'COE',
     instagramId: 'samridhi.s14',
-    photoUrl: 'https://via.placeholder.com/150', // Replace with actual photo URL
+    photoUrl: 'https://via.placeholder.com/150', 
   ),
 ];

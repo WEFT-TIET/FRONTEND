@@ -39,14 +39,14 @@ class SearchBarWidget extends StatelessWidget {
                   offset: const Offset(0, 3),
                 ),
               ]
-            : [],
+            : null,
       ),
       child: TextField(
         controller: controller,
         onChanged: onSearchChanged,
         onTap: () => onFocusChanged(true),
         onEditingComplete: () => onFocusChanged(false),
-        style: TextStyle(color: AppPallete.textPrimaryDark),
+        style: const TextStyle(color: AppPallete.textPrimaryDark),
         decoration: InputDecoration(
           hintText: 'Search posts by title...',
           hintStyle: TextStyle(
@@ -56,15 +56,7 @@ class SearchBarWidget extends StatelessWidget {
             Icons.search,
             color: AppPallete.textPrimaryDark.withOpacity(0.6),
           ),
-          suffixIcon: controller.text.isNotEmpty
-              ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    color: AppPallete.textPrimaryDark.withOpacity(0.6),
-                  ),
-                  onPressed: onClear,
-                )
-              : null,
+          suffixIcon: _buildSuffixIcon(),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -72,6 +64,18 @@ class SearchBarWidget extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget? _buildSuffixIcon() {
+    if (controller.text.isEmpty) return null;
+    
+    return IconButton(
+      icon: const Icon(
+        Icons.clear,
+        color: AppPallete.textPrimaryDark,
+      ),
+      onPressed: onClear,
     );
   }
 }

@@ -7,7 +7,6 @@ import 'package:frontend_weft/features/auth/viewmodel/auth_local_repository.dart
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:frontend_weft/features/navbar/navigation.dart';
 import 'package:frontend_weft/features/settings/pages/settings_page.dart';
-import 'package:frontend_weft/features/settings/pages/settings_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

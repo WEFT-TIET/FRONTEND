@@ -39,43 +39,10 @@ class WelcomeCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppPallete.gradient1.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.people,
-                      color: AppPallete.whiteColor,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 15),
+                  _buildIconContainer(),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Connect, learn, and grow together! 🌱",
-                          style: GoogleFonts.getFont(
-                            'Oswald',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: AppPallete.textPrimaryDark,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          'Welcome back to your learning community',
-                          style: GoogleFonts.getFont(
-                            'Indie Flower',
-                            fontSize: 14,
-                            color: AppPallete.textPrimaryDark.withOpacity(0.7),
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: _buildTextContent(),
                   ),
                 ],
               ),
@@ -83,6 +50,47 @@ class WelcomeCard extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildIconContainer() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: AppPallete.gradient1.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Icon(
+        Icons.people,
+        color: AppPallete.whiteColor,
+        size: 24,
+      ),
+    );
+  }
+
+  Widget _buildTextContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Connect, learn, and grow together! 🌱",
+          style: GoogleFonts.getFont(
+            'Oswald',
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: AppPallete.textPrimaryDark,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Welcome back to your learning community',
+          style: GoogleFonts.getFont(
+            'Indie Flower',
+            fontSize: 10,
+            color: AppPallete.textPrimaryDark.withOpacity(0.7),
+          ),
+        ),
+      ],
     );
   }
 }
