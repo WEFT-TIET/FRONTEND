@@ -72,6 +72,63 @@ class PostCard extends ConsumerWidget {
                   ],
                 ),
               ),
+              PopupMenuButton<String>(
+                icon: Icon(
+                  Icons.more_vert,
+                  color: AppPallete.textPrimaryDark,
+                ),
+                color: AppPallete.glassWhite20,
+                onSelected: (value) {
+                  switch (value) {
+                    case 'report':
+                      _showReportDialog(context, ref);
+                      break;
+                    case 'block':
+                      _showBlockDialog(context, ref);
+                      break;
+                  }
+                },
+                itemBuilder: (BuildContext context) => [
+                  PopupMenuItem<String>(
+                    value: 'report',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.report_outlined,
+                          color: AppPallete.textPrimaryDark,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Report Post',
+                          style: TextStyle(
+                            color: AppPallete.textPrimaryDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'block',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.block_outlined,
+                          color: AppPallete.red,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Block User',
+                          style: TextStyle(
+                            color: AppPallete.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -133,6 +190,134 @@ class PostCard extends ConsumerWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _showReportDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppPallete.glassWhite20,
+          title: Text(
+            'Report Post',
+            style: TextStyle(color: AppPallete.textPrimaryDark),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Why are you reporting this post?',
+                style: TextStyle(color: AppPallete.textPrimaryDark),
+              ),
+              const SizedBox(height: 16),
+              _buildReportOption('Spam or misleading'),
+              _buildReportOption('Harassment or hate speech'),
+              _buildReportOption('Inappropriate content'),
+              _buildReportOption('Violence or dangerous content'),
+              _buildReportOption('Other'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: AppPallete.textPrimaryDark),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildReportOption(String reason) {
+    return Builder(
+      builder: (context) => InkWell(
+        onTap: () {
+          // Handle report submission
+          Navigator.of(context).pop();
+          _submitReport(context, reason);
+        },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          child: Text(
+            reason,
+            style: TextStyle(color: AppPallete.textPrimaryDark),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showBlockDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppPallete.glassWhite20,
+          title: Text(
+            'Block User',
+            style: TextStyle(color: AppPallete.textPrimaryDark),
+          ),
+          content: Text(
+            'Are you sure you want to block $name? You won\'t see their posts anymore.',
+            style: TextStyle(color: AppPallete.textPrimaryDark),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: AppPallete.textPrimaryDark),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _blockUser(context);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: AppPallete.red,
+              ),
+              child: const Text('Block'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _submitReport(BuildContext context, String reason) {
+    // TODO: Implement report submission to backend
+    // ref.read(postViewModelProvider.notifier).reportPost(postId, reason);
+    
+    // Show confirmation snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Post reported for: $reason'),
+        backgroundColor: AppPallete.gradient2,
+      ),
+    );
+  }
+
+  void _blockUser(BuildContext context) {
+    // TODO: Implement user blocking in backend
+    // ref.read(postViewModelProvider.notifier).blockUser(userId);
+    
+    // Show confirmation snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$name has been blocked'),
+        backgroundColor: AppPallete.gradient2,
       ),
     );
   }
