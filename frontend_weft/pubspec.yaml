@@ -35,9 +35,8 @@ dependencies:
   geolocator: ^10.1.0
   intl: ^0.18.0
   excel: ^2.0.0  # For reading Excel files
-  url_launcher: ^6.3.2 
-  mailer: ^6.4.1
-  email_validator: ^3.0.0
+  #mailer: ^6.4.1
+  #email_validator: ^3.0.0
   #fluttertoast: ^8.2.8
 
 

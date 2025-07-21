@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HelpCenterPage extends StatelessWidget {
   const HelpCenterPage({super.key});
@@ -110,24 +109,24 @@ class HelpCenterPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 
-                // Contact Options
-                _buildContactOption(
+                // Contact Information (now as static text)
+                _buildContactInfo(
                   icon: Icons.email,
                   title: 'Email Us',
-                  subtitle: 'Get a response within 24 hours',
-                  onTap: () => _launchEmail(),
+                  subtitle: 'weftatwork@gmail.com',
+                  info: 'Get a response within 24 hours',
                 ),
-                _buildContactOption(
+                _buildContactInfo(
                   icon: Icons.chat,
                   title: 'Live Chat',
-                  subtitle: 'Available 9AM-5PM (IST)',
-                  onTap: () => _showComingSoon(context),
+                  subtitle: 'Coming Soon',
+                  info: 'Available 9AM-5PM (IST)',
                 ),
-                _buildContactOption(
+                _buildContactInfo(
                   icon: Icons.phone,
                   title: 'Call Support',
-                  subtitle: '+91 XXXX XXX XXX',
-                  onTap: () => _launchPhone(),
+                  subtitle: '+91 7023458736',
+                  info: 'Mon-Fri, 9AM-5PM (IST)',
                 ),
                 const SizedBox(height: 20),
               ],
@@ -173,72 +172,69 @@ class HelpCenterPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContactOption({
+  Widget _buildContactInfo({
     required IconData icon,
     required String title,
     required String subtitle,
-    required VoidCallback onTap,
+    required String info,
   }) {
-    return ListTile(
-      onTap: onTap,
-      leading: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppPallete.cardColorDark.withOpacity(0.3),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          icon,
-          color: AppPallete.textPrimaryDark,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppPallete.cardColorDark.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppPallete.textPrimaryDark.withOpacity(0.2),
         ),
       ),
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: AppPallete.textPrimaryDark,
-          fontWeight: FontWeight.w500,
-        ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppPallete.cardColorDark.withOpacity(0.3),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: AppPallete.textPrimaryDark,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: AppPallete.textPrimaryDark,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: AppPallete.textPrimaryDark,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  info,
+                  style: TextStyle(
+                    color: AppPallete.textPrimaryDark.withOpacity(0.6),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(
-          color: AppPallete.textPrimaryDark.withOpacity(0.6),
-        ),
-      ),
-      trailing: Icon(
-        Icons.arrow_forward_ios,
-        color: AppPallete.textPrimaryDark.withOpacity(0.6),
-        size: 16,
-      ),
-      contentPadding: const EdgeInsets.symmetric(vertical: 8),
     );
-  }
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('This feature is coming soon!'),
-        backgroundColor: AppPallete.gradient2,
-      ),
-    );
-  }
-
-  Future<void> _launchEmail() async {
-    final Uri emailLaunchUri = Uri(
-      scheme: 'mailto',
-      path: 'weftatwork@gmail.com',
-      queryParameters: {'subject': 'WEFT App Support'},
-    );
-
-    if (await canLaunchUrl(emailLaunchUri)) {
-      await launchUrl(emailLaunchUri);
-    }
-  }
-
-  Future<void> _launchPhone() async {
-    const phoneNumber = 'tel:+91 7023458736';
-    if (await canLaunch(phoneNumber)) {
-      await launch(phoneNumber);
-    }
   }
 }
