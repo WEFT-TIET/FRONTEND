@@ -598,8 +598,6 @@ class _WEFTerPageState extends ConsumerState<WEFTerPage> {
         client: appHttpClient,
       );
 
-      print('🤣Raw API response: $result');
-
       // Hide loading dialog
       Navigator.of(context, rootNavigator: true).pop();
 
@@ -919,7 +917,6 @@ class WEFTerCard extends StatelessWidget {
                   _buildDetailRow('Year', user['year'] ?? 'Not specified'),
                   _buildDetailRow('Branch', user['branch'] ?? 'Not specified'),
                   _buildDetailRow('Class', user['class_id'] ?? 'Not specified'),
-                  _buildDetailRow('Email', user['email'] ?? 'Not specified'),
 
                   SizedBox(height: 24),
 
