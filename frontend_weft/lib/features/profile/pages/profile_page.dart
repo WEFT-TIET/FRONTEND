@@ -1,52 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
-import 'package:frontend_weft/features/profile/services/profile_service.dart';
+import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/weft_item_widget.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 
-class ProfilePage extends StatefulWidget {
+final userProfileProvider = FutureProvider<UserModel?>((ref) async {
+  final api = ref.read(profileApiServiceProvider);
+  return await api.getUserProfile();
+});
+
+class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> 
+class _ProfilePageState extends ConsumerState<ProfilePage>
     with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
-  final ProfileService _profileService = ProfileService();
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _profileCardKey = GlobalKey();
-  
+
   bool _isEditing = false;
   bool _isProfileCardPinned = false;
   double _profileCardHeight = 0;
-  
+
   // Controllers for editable fields
   late TextEditingController _nameController;
   late TextEditingController _usernameController;
   late TextEditingController _batchController;
   late TextEditingController _branchController;
   late TextEditingController _classController;
-  
+
   // Animation controller for smooth transitions
   late AnimationController _animationController;
-  
+
+  bool _isLoading = false;
+  String? _errorMessage;
+
   @override
   bool get wantKeepAlive => true;
-  
+
   @override
   void initState() {
     super.initState();
-    _initializeControllers();
+    _initializeControllersWithDefaults();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-    
     _scrollController.addListener(_onScroll);
-    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _calculateProfileCardHeight();
       SystemChrome.setPreferredOrientations([
@@ -54,9 +60,26 @@ class _ProfilePageState extends State<ProfilePage>
       ]);
     });
   }
-  
+
+  void _initializeControllersWithDefaults([UserModel? user]) {
+    // Use empty strings as default if user is null
+    _nameController = TextEditingController(text: user?.name ?? '');
+    _usernameController = TextEditingController(text: user?.username ?? '');
+    _batchController = TextEditingController(text: user?.batch ?? '');
+    _branchController = TextEditingController(text: user?.branch ?? '');
+    _classController = TextEditingController(text: user?.className ?? '');
+  }
+
+  void _updateControllers(UserModel user) {
+    _nameController.text = user.name;
+    _usernameController.text = user.username;
+    _batchController.text = user.batch;
+    _branchController.text = user.branch;
+    _classController.text = user.className;
+  }
+
   void _calculateProfileCardHeight() {
-    final RenderBox? renderBox = 
+    final RenderBox? renderBox =
         _profileCardKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null) {
       setState(() {
@@ -64,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage>
       });
     }
   }
-  
+
   void _onScroll() {
     final shouldPin = _scrollController.offset > _profileCardHeight - 100;
     if (shouldPin != _isProfileCardPinned) {
@@ -74,19 +97,11 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  void _initializeControllers() {
-    final user = _profileService.currentUser;
-    _nameController = TextEditingController(text: user.name);
-    _usernameController = TextEditingController(text: user.username);
-    _batchController = TextEditingController(text: user.batch);
-    _branchController = TextEditingController(text: user.branch);
-    _classController = TextEditingController(text: user.className);
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
+    final userProfileAsync = ref.watch(userProfileProvider);
+
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -101,125 +116,124 @@ class _ProfilePageState extends State<ProfilePage>
       ),
       child: Scaffold(
         backgroundColor: AppPallete.transperantColor,
-        body: Stack(
-          children: [
-            NotificationListener<ScrollNotification>(
-              onNotification: (notification) {
-                if (notification is OverscrollIndicatorNotification) {
-                  (notification as OverscrollIndicatorNotification).disallowIndicator();
-                }
-                return false;
-              },
-              child: CustomScrollView(
-                controller: _scrollController,
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
-                ),
-                slivers: [
-                  SliverAppBar(
-                    floating: false,
-                    pinned: true,
-                    expandedHeight: 60,
-                    backgroundColor: AppPallete.transperantColor,
-                    elevation: 0,
-                    title: const Text(
-                      'WEFT',
-                      style: TextStyle(
-                        color: AppPallete.textPrimaryDark,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
-                      ),
+        body: userProfileAsync.when(
+          data: (user) {
+            if (user == null) {
+              return const Center(child: Text('No profile data found'));
+            }
+            _updateControllers(user);
+            return Stack(
+              children: [
+                NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification is OverscrollIndicatorNotification) {
+                      (notification as OverscrollIndicatorNotification).disallowIndicator();
+                    }
+                    return false;
+                  },
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
                     ),
-                    centerTitle: true,
-                    actions: [
-                      IconButton(
-                        icon: const Icon(Icons.settings, color: AppPallete.textPrimaryDark),
-                        onPressed: () => Navigator.of(context).pushNamed('/settings'),
-                      ),
-                    ],
-                  ),
-                  
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: RepaintBoundary(
-                        key: _profileCardKey,
-                        child: _buildOptimizedProfileCard(),
-                      ),
-                    ),
-                  ),
-                  
-                  SliverPersistentHeader(
-                    pinned: true,
-                    delegate: _SliverAppBarDelegate(
-                      minHeight: 60,
-                      maxHeight: 60,
-                      child: Container(
-                        color: AppPallete.transperantColor,
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                        child: const Text(
-                          'Your Wefts',
+                    slivers: [
+                      SliverAppBar(
+                        floating: false,
+                        pinned: true,
+                        expandedHeight: 60,
+                        backgroundColor: AppPallete.transperantColor,
+                        elevation: 0,
+                        title: const Text(
+                          'WEFT',
                           style: TextStyle(
                             color: AppPallete.textPrimaryDark,
-                            fontSize: 24,
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        centerTitle: true,
+                        actions: [
+                          IconButton(
+                            icon: const Icon(Icons.settings, color: AppPallete.textPrimaryDark),
+                            onPressed: () => Navigator.of(context).pushNamed('/settings'),
+                          ),
+                        ],
+                      ),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: RepaintBoundary(
+                            key: _profileCardKey,
+                            child: _buildOptimizedProfileCard(user),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          if (index >= _profileService.userWefts.length) {
-                            return const SizedBox(height: 100);
-                          }
-                          
-                          final weft = _profileService.userWefts[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: RepaintBoundary(
-                              child: WeftItemWidget(
-                                key: ValueKey('weft_${weft.id}'),
-                                weft: weft,
-                                onLike: () => _likeWeft(weft.id),
-                                onComment: () => _commentWeft(weft.id),
+                      SliverPersistentHeader(
+                        pinned: true,
+                        delegate: _SliverAppBarDelegate(
+                          minHeight: 60,
+                          maxHeight: 60,
+                          child: Container(
+                            color: AppPallete.transperantColor,
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                            child: const Text(
+                              'Your Wefts',
+                              style: TextStyle(
+                                color: AppPallete.textPrimaryDark,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          );
-                        },
-                        childCount: _profileService.userWefts.length + 1,
-                        addAutomaticKeepAlives: true,
-                        addRepaintBoundaries: true,
+                          ),
+                        ),
+                      ),
+                      // TODO: Replace with backend wefts/posts fetching
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              // TODO: Fetch wefts from backend
+                              return const SizedBox(height: 100);
+                            },
+                            childCount: 1,
+                            addAutomaticKeepAlives: true,
+                            addRepaintBoundaries: true,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (_isLoading)
+                  Container(
+                    color: Colors.black26,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(AppPallete.textPrimaryDark),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            
-            if (_profileService.isLoading)
-              Container(
-                color: Colors.black26,
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(AppPallete.textPrimaryDark),
+                if (_errorMessage != null)
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      color: Colors.red.withOpacity(0.8),
+                      child: Text(_errorMessage!, style: const TextStyle(color: Colors.white)),
+                    ),
                   ),
-                ),
-              ),
-          ],
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, st) => Center(child: Text('Error: $e')),
         ),
       ),
     );
   }
 
-  Widget _buildOptimizedProfileCard() {
-    final user = _profileService.currentUser;
-    
+  Widget _buildOptimizedProfileCard(UserModel user) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOutCubic,
@@ -241,7 +255,7 @@ class _ProfilePageState extends State<ProfilePage>
           const SizedBox(height: 16),
           _buildAcademicDetails(),
           const SizedBox(height: 16),
-          _buildActionButtons(),
+          _buildActionButtons(user),
         ],
       ),
     );
@@ -253,37 +267,36 @@ class _ProfilePageState extends State<ProfilePage>
         Hero(
           tag: 'profile_image',
           child: GestureDetector(
-            onTap: _isEditing ? _showImagePicker : null,
+            onTap: _isEditing ? () => _showImagePicker(user) : null,
             child: Container(
               width: 70,
               height: 70,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppPallete.cardColorDark.withOpacity(0.4),
-                border: _isEditing 
-                  ? Border.all(color: AppPallete.textPrimaryDark, width: 2)
-                  : Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.3)),
+                border: _isEditing
+                    ? Border.all(color: AppPallete.textPrimaryDark, width: 2)
+                    : Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.3)),
               ),
               child: ClipOval(
                 child: _isEditing
-                  ? Icon(Icons.camera_alt, color: AppPallete.textPrimaryDark, size: 28)
-                  : Image.asset(
-                      user.profileImagePath ?? 'lib/core/assets/profile_photo.jpeg',
-                      fit: BoxFit.cover,
-                      cacheWidth: 200,
-                      cacheHeight: 200,
-                      errorBuilder: (_, __, ___) => Icon(
-                        Icons.person,
-                        color: AppPallete.textPrimaryDark.withOpacity(0.6),
-                        size: 35,
+                    ? Icon(Icons.camera_alt, color: AppPallete.textPrimaryDark, size: 28)
+                    : Image.asset(
+                        user.profileImagePath ?? 'lib/core/assets/profile_photo.jpeg',
+                        fit: BoxFit.cover,
+                        cacheWidth: 200,
+                        cacheHeight: 200,
+                        errorBuilder: (_, __, ___) => Icon(
+                          Icons.person,
+                          color: AppPallete.textPrimaryDark.withOpacity(0.6),
+                          size: 35,
+                        ),
                       ),
-                    ),
               ),
             ),
           ),
         ),
         const SizedBox(width: 16),
-        
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,30 +304,30 @@ class _ProfilePageState extends State<ProfilePage>
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 child: _isEditing
-                  ? _buildEditableField(_nameController, 22, FontWeight.bold)
-                  : Text(
-                      user.name,
-                      key: const ValueKey('name_text'),
-                      style: TextStyle(
-                        color: AppPallete.textPrimaryDark,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                    ? _buildEditableField(_nameController, 22, FontWeight.bold)
+                    : Text(
+                        user.name,
+                        key: const ValueKey('name_text'),
+                        style: TextStyle(
+                          color: AppPallete.textPrimaryDark,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
               ),
               const SizedBox(height: 4),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 child: _isEditing
-                  ? _buildEditableField(_usernameController, 16, FontWeight.normal, prefix: '@')
-                  : Text(
-                      '@${user.username}',
-                      key: const ValueKey('username_text'),
-                      style: TextStyle(
-                        color: AppPallete.textPrimaryDark.withOpacity(0.7),
-                        fontSize: 16,
+                    ? _buildEditableField(_usernameController, 16, FontWeight.normal, prefix: '@')
+                    : Text(
+                        '@${user.username}',
+                        key: const ValueKey('username_text'),
+                        style: TextStyle(
+                          color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
               ),
             ],
           ),
@@ -385,18 +398,18 @@ class _ProfilePageState extends State<ProfilePage>
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
           child: _isEditing
-            ? SizedBox(
-                width: 60,
-                child: _buildEditableField(controller, 16, FontWeight.w600),
-              )
-            : Text(
-                controller.text,
-                style: TextStyle(
-                  color: AppPallete.textPrimaryDark,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+              ? SizedBox(
+                  width: 60,
+                  child: _buildEditableField(controller, 16, FontWeight.w600),
+                )
+              : Text(
+                  controller.text,
+                  style: TextStyle(
+                    color: AppPallete.textPrimaryDark,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
         ),
       ],
     );
@@ -410,7 +423,7 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(UserModel user) {
     return Row(
       children: [
         Expanded(
@@ -418,7 +431,7 @@ class _ProfilePageState extends State<ProfilePage>
             _isEditing ? 'Save' : 'Edit Profile',
             AppPallete.cardColorDark.withOpacity(0.4),
             AppPallete.textPrimaryDark,
-            _toggleEdit,
+            () => _toggleEdit(user),
           ),
         ),
         const SizedBox(width: 12),
@@ -435,9 +448,9 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Widget _buildActionButton(
-    String text, 
-    Color backgroundColor, 
-    Color textColor, 
+    String text,
+    Color backgroundColor,
+    Color textColor,
     VoidCallback onPressed,
   ) {
     return Material(
@@ -464,28 +477,35 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  void _toggleEdit() async {
+  Future<void> _toggleEdit(UserModel user) async {
     if (_isEditing) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
       try {
-        final updatedUser = _profileService.currentUser.copyWith(
+        final updatedUser = user.copyWith(
           name: _nameController.text,
           username: _usernameController.text,
           batch: _batchController.text,
           branch: _branchController.text,
           className: _classController.text,
         );
-        
-        await _profileService.updateUser(updatedUser);
-        
-        if (mounted) {
+        final api = ref.read(profileApiServiceProvider);
+        final success = await api.updateUserProfile(updatedUser.toJson());
+        if (success) {
+          // Refresh the user profile provider
+          ref.invalidate(userProfileProvider);
           setState(() => _isEditing = false);
           HapticFeedback.lightImpact();
           ProfileDialogs.showSnackBar(context, 'Profile updated!');
+        } else {
+          setState(() => _errorMessage = 'Update failed');
         }
       } catch (e) {
-        if (mounted) {
-          ProfileDialogs.showSnackBar(context, 'Update failed');
-        }
+        setState(() => _errorMessage = 'Update failed: $e');
+      } finally {
+        setState(() => _isLoading = false);
       }
     } else {
       setState(() => _isEditing = true);
@@ -493,39 +513,43 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  void _shareProfile() async {
+  Future<void> _shareProfile() async {
     HapticFeedback.mediumImpact();
-    try {
-      final message = await _profileService.shareProfile();
-      if (mounted) {
-        ProfileDialogs.showSnackBar(context, message);
-      }
-    } catch (e) {
-      if (mounted) {
-        ProfileDialogs.showSnackBar(context, 'Share failed');
-      }
-    }
+    // TODO: Implement real share logic or use Share package
+    ProfileDialogs.showSnackBar(context, 'Share feature coming soon!');
   }
 
-  void _showImagePicker() {
+  void _showImagePicker(UserModel user) {
     HapticFeedback.selectionClick();
     ProfileDialogs.showImagePicker(context);
+    // TODO: Implement image picking and call _uploadProfileImage
   }
 
-  void _likeWeft(String weftId) async {
-    HapticFeedback.lightImpact();
+  Future<void> _uploadProfileImage(String imagePath, UserModel user) async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
     try {
-      await _profileService.likeWeft(weftId);
-      if (mounted) setState(() {});
-    } catch (_) {}
-  }
-
-  void _commentWeft(String weftId) async {
-    HapticFeedback.selectionClick();
-    try {
-      await _profileService.addComment(weftId);
-      if (mounted) setState(() {});
-    } catch (_) {}
+      final api = ref.read(profileApiServiceProvider);
+      final imageUrl = await api.uploadProfileImage(imagePath);
+      if (imageUrl != null) {
+        final updatedUser = user.copyWith(profileImagePath: imageUrl);
+        final success = await api.updateUserProfile(updatedUser.toJson());
+        if (success) {
+          ref.invalidate(userProfileProvider);
+          ProfileDialogs.showSnackBar(context, 'Profile image updated!');
+        } else {
+          setState(() => _errorMessage = 'Failed to update profile image');
+        }
+      } else {
+        setState(() => _errorMessage = 'Failed to upload image');
+      }
+    } catch (e) {
+      setState(() => _errorMessage = 'Image upload failed: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override

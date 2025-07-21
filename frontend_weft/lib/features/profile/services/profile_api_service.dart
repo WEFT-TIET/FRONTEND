@@ -18,7 +18,7 @@ class ProfileApiService {
   /// Get user profile - automatically includes AccessToken as Cookie
   Future<UserModel?> getUserProfile() async {
     try {
-      final url = Uri.parse('$baseUrl/profile/view');
+      final url = Uri.parse('$baseUrl/profile');
       final response = await _httpClient.get(url);
 
       print("🔵 GET Profile URL: $url");
