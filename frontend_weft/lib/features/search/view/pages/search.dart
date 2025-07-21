@@ -598,6 +598,8 @@ class _WEFTerPageState extends ConsumerState<WEFTerPage> {
         client: appHttpClient,
       );
 
+      print('🤣Raw API response: $result');
+
       // Hide loading dialog
       Navigator.of(context, rootNavigator: true).pop();
 
