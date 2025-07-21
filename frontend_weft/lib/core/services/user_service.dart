@@ -1,33 +1,39 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../http_client.dart';
 
 class UserService {
   static Future<Map<String, dynamic>> searchUsers({
     String? name,
-    String? year,  
+    String? year,
     String? branch,
+    AppHttpClient? client, 
   }) async {
     try {
       
+      if (client == null) {
+        throw ArgumentError('AppHttpClient must be provided');
+      }
+      final appClient = client;
+
       Map<String, String> queryParams = {};
       if (name != null && name.isNotEmpty) queryParams['name'] = name;
       if (year != null && year.isNotEmpty) queryParams['year'] = year;
       if (branch != null && branch.isNotEmpty) queryParams['branch'] = branch;
 
-      
       Uri uri = Uri.parse(ApiConfig.searchUsersUrl).replace(
         queryParameters: queryParams,
       );
 
-      // API call
-      final response = await http.get(
+      // API call using AppHttpClient
+      final response = await appClient.get(
         uri,
-        headers: ApiConfig.defaultHeaders,
       ).timeout(ApiConfig.requestTimeout);
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final data = json.decode(response.body);
         return {
           'success': true,
           'data': data,
@@ -35,7 +41,7 @@ class UserService {
       } else {
         return {
           'success': false,
-          'error': 'Server error: ${response.statusCode}',
+          'error': 'Server error:  {response.statusCode}',
         };
       }
     } catch (e) {

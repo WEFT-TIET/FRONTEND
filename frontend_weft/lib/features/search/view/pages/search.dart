@@ -4,8 +4,10 @@ import 'package:frontend_weft/features/search/view/pages/register_milan.dart';
 import 'package:frontend_weft/core/config/api_config.dart';
 import 'package:frontend_weft/core/services/user_service.dart';
 import 'milan.dart';
-import 'package:http/http.dart' as http;
+//import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_weft/core/http_client.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -316,21 +318,25 @@ class RecentSearchItem extends StatelessWidget {
 
 
 // WEFTer Page Class
-class WEFTerPage extends StatefulWidget {
+class WEFTerPage extends ConsumerStatefulWidget {
   const WEFTerPage({super.key});
 
   @override
-  _WEFTerPageState createState() => _WEFTerPageState();
+  ConsumerState<WEFTerPage> createState() => _WEFTerPageState();
 }
 
-class _WEFTerPageState extends State<WEFTerPage> {
+class _WEFTerPageState extends ConsumerState<WEFTerPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _yearController = TextEditingController();  // Changed from batch to year
   final TextEditingController _branchController = TextEditingController();
 
+  // Add a GlobalKey for the widget to access context for Riverpod
+  final _wefterPageKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _wefterPageKey,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -583,20 +589,20 @@ class _WEFTerPageState extends State<WEFTerPage> {
     );
 
     try {
-      // Use UserService to search users
+      // Use AppHttpClient from provider
+      final appHttpClient = ref.read(httpClientProvider);
       final result = await UserService.searchUsers(
         name: name.isNotEmpty ? name : null,
         year: year.isNotEmpty ? year : null,
         branch: branch.isNotEmpty ? branch : null,
+        client: appHttpClient,
       );
 
       // Hide loading dialog
       Navigator.of(context, rootNavigator: true).pop();
 
       if (result['success']) {
-        final data = result['data'];
-        List<dynamic> users = data['users'] ?? [];
-        
+        final users = result['data'] as List<dynamic>? ?? [];
         if (users.isEmpty) {
           _showNoResultsDialog();
         } else {
