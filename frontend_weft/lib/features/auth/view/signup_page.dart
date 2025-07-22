@@ -12,10 +12,10 @@ class SignupPage extends ConsumerStatefulWidget {
 class _SignupPageState extends ConsumerState<SignupPage> {
   final _formKey = GlobalKey<FormState>();
 
+  final usernameController = TextEditingController();
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final classIdController = TextEditingController();
   final yearController = TextEditingController();
   final branchController = TextEditingController();
 
@@ -57,6 +57,10 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                       ),
                       child: Column(
                         children: [
+                          _buildLabel("Username"),
+                          _buildInput(usernameController, "Enter your username"),
+                          const SizedBox(height: 16),
+                          
                           _buildLabel("Full Name"),
                           _buildInput(nameController, "Enter your full name"),
                           const SizedBox(height: 16),
@@ -76,10 +80,6 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                           _buildLabel("Year"),
                           _buildInput(yearController, "e.g. 2025"),
                           const SizedBox(height: 16),
-          
-                          _buildLabel("Class ID"),
-                          _buildInput(classIdController, "e.g. 1A15, 1A62, 1B84"),
-                          const SizedBox(height: 24),
           
                           SizedBox(
                             width: double.infinity,
@@ -164,11 +164,11 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     setState(() => isLoading = true);
 
     final success = await ref.read(authViewModelProvider.notifier).signup(
+          username: usernameController.text.trim(),
           name: nameController.text.trim(),
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
           year: yearController.text.trim(),
-          classId: classIdController.text.trim(),
           branch: branchController.text.trim(),
           context: context,
         );
@@ -178,5 +178,16 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     if (success) {
       Navigator.pushReplacementNamed(context, '/home');
     }
+  }
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    yearController.dispose();
+    branchController.dispose();
+    super.dispose();
   }
 }

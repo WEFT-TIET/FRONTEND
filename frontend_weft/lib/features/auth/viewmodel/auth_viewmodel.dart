@@ -17,21 +17,21 @@ class AuthViewModel extends StateNotifier<User?> {
 
   /// Sign up returns a user and saves it
   Future<bool> signup({
+    required String username,
     required String name,
     required String email,
     required String password,
     required String year,
-    required String classId,
     required String branch,
     required BuildContext context,
   }) async {
     try {
       final user = await ref.read(authServiceProvider).signup({
+        "username": username,
         "name": name,
         "email": email,
         "password": password,
         "year": year,
-        "class_id": classId,
         "branch": branch,
       });
 
