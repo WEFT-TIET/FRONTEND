@@ -1,5 +1,6 @@
 class ApiConfig {
-  static const String baseUrl = 'http://ec2-3-7-223-144.ap-south-1.compute.amazonaws.com:8080';
+  // static const String baseUrl = 'http://ec2-3-7-223-144.ap-south-1.compute.amazonaws.com:8080';
+  static const String baseUrl = 'http://ec2-3-7-223-144.ap-south-1.compute.amazonaws.com:4040';
   
   // API Endpoints
   static const String searchUsers = '/search-users';
