@@ -65,6 +65,8 @@
 	<string>Need microphone access</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Need photo library access</string>
 
 </dict>
 </plist>
