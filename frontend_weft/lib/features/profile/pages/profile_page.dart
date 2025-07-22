@@ -42,10 +42,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Filter state
-  String _selectedFilter = 'Newest';
-  final List<String> _filters = ['Newest', 'Oldest', 'Popular'];
-
   @override
   bool get wantKeepAlive => true;
 
@@ -174,33 +170,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                           ),
                         ),
                       ),
-                      // Filter bar above 'Your Wefts'
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                          child: Row(
-                            children: _filters.map((filter) {
-                              final isSelected = _selectedFilter == filter;
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: ChoiceChip(
-                                  label: Text(filter),
-                                  selected: isSelected,
-                                  onSelected: (selected) {
-                                    if (selected) setState(() => _selectedFilter = filter);
-                                  },
-                                  selectedColor: AppPallete.gradient2,
-                                  backgroundColor: AppPallete.cardColorDark.withOpacity(0.2),
-                                  labelStyle: TextStyle(
-                                    color: isSelected ? Colors.white : AppPallete.textPrimaryDark,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
                       SliverPersistentHeader(
                         pinned: true,
                         delegate: _SliverAppBarDelegate(
@@ -258,22 +227,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                             : SliverList(
                                 delegate: SliverChildBuilderDelegate(
                                   (context, index) {
-                                    List sortedPosts = List.of(user.posts);
-                                    if (_selectedFilter == 'Newest') {
-                                      sortedPosts.sort((a, b) {
+                                    final sortedPosts = List.of(user.posts)
+                                      ..sort((a, b) {
                                         final aDate = DateTime.tryParse(a.createdAt) ?? DateTime(1970);
                                         final bDate = DateTime.tryParse(b.createdAt) ?? DateTime(1970);
                                         return bDate.compareTo(aDate);
                                       });
-                                    } else if (_selectedFilter == 'Oldest') {
-                                      sortedPosts.sort((a, b) {
-                                        final aDate = DateTime.tryParse(a.createdAt) ?? DateTime(1970);
-                                        final bDate = DateTime.tryParse(b.createdAt) ?? DateTime(1970);
-                                        return aDate.compareTo(bDate);
-                                      });
-                                    } else if (_selectedFilter == 'Popular') {
-                                      sortedPosts.sort((a, b) => b.likesCount.compareTo(a.likesCount));
-                                    }
                                     final post = sortedPosts[index];
                                     return PostCard(
                                       postId: post.id,
