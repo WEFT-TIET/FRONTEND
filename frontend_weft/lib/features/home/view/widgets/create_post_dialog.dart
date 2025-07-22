@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:frontend_weft/features/profile/pages/profile_page.dart';
 
 class CreatePostDialog extends StatefulWidget {
   final WidgetRef ref;
@@ -97,14 +98,17 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
           ),
         ),
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if (_titleController.text.isNotEmpty &&
                 _contentController.text.isNotEmpty) {
-              widget.ref.read(postViewModelProvider.notifier).createPost(
-                    title: _titleController.text,
-                    content: _contentController.text,
-                  );
-              Navigator.pop(context);
+              final success = await widget.ref.read(postViewModelProvider.notifier).createPost(
+                title: _titleController.text,
+                content: _contentController.text,
+              );
+              if (success) {
+                widget.ref.invalidate(userProfileProvider);
+                Navigator.pop(context);
+              }
             }
           },
           style: ElevatedButton.styleFrom(

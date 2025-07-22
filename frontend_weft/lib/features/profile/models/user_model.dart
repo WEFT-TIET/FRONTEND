@@ -1,4 +1,6 @@
 // lib/models/user_model.dart
+import 'package:frontend_weft/features/post/model/post_model.dart';
+
 class UserModel {
   final String name;
   final String username;
@@ -6,6 +8,7 @@ class UserModel {
   final String branch;
   final String className;
   final String? profileImagePath;
+  final List<Post> posts;
 
   UserModel({
     required this.name,
@@ -14,6 +17,7 @@ class UserModel {
     required this.branch,
     required this.className,
     this.profileImagePath,
+    this.posts = const [],
   });
 
   UserModel copyWith({
@@ -23,6 +27,7 @@ class UserModel {
     String? branch,
     String? className,
     String? profileImagePath,
+    List<Post>? posts,
   }) {
     return UserModel(
       name: name ?? this.name,
@@ -31,6 +36,7 @@ class UserModel {
       branch: branch ?? this.branch,
       className: className ?? this.className,
       profileImagePath: profileImagePath ?? this.profileImagePath,
+      posts: posts ?? this.posts,
     );
   }
 
@@ -42,6 +48,7 @@ class UserModel {
       'branch': branch,
       'className': className,
       'profileImagePath': profileImagePath,
+      'posts': posts.map((post) => post.toJson()).toList(),
     };
   }
 
@@ -51,8 +58,11 @@ class UserModel {
       username: json['username'] ?? '',
       batch: json['batch'] ?? '',
       branch: json['branch'] ?? '',
-      className: json['className'] ?? '',
+      className: json['className'] ?? json['class_id'] ?? '',
       profileImagePath: json['profileImagePath'],
+      posts: (json['posts'] as List<dynamic>? ?? [])
+          .map((e) => Post.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }

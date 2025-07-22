@@ -6,6 +6,7 @@ import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/weft_item_widget.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
+import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 
 final userProfileProvider = FutureProvider<UserModel?>((ref) async {
   final api = ref.read(profileApiServiceProvider);
@@ -40,6 +41,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
 
   bool _isLoading = false;
   String? _errorMessage;
+
+  // Filter state
+  String _selectedFilter = 'Newest';
+  final List<String> _filters = ['Newest', 'Oldest', 'Popular'];
 
   @override
   bool get wantKeepAlive => true;
@@ -169,6 +174,33 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                           ),
                         ),
                       ),
+                      // Filter bar above 'Your Wefts'
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                          child: Row(
+                            children: _filters.map((filter) {
+                              final isSelected = _selectedFilter == filter;
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: ChoiceChip(
+                                  label: Text(filter),
+                                  selected: isSelected,
+                                  onSelected: (selected) {
+                                    if (selected) setState(() => _selectedFilter = filter);
+                                  },
+                                  selectedColor: AppPallete.gradient2,
+                                  backgroundColor: AppPallete.cardColorDark.withOpacity(0.2),
+                                  labelStyle: TextStyle(
+                                    color: isSelected ? Colors.white : AppPallete.textPrimaryDark,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
                       SliverPersistentHeader(
                         pinned: true,
                         delegate: _SliverAppBarDelegate(
@@ -177,31 +209,88 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                           child: Container(
                             color: AppPallete.transperantColor,
                             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                            child: const Text(
-                              'Your Wefts',
-                              style: TextStyle(
-                                color: AppPallete.textPrimaryDark,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Your Wefts',
+                                  style: TextStyle(
+                                    color: AppPallete.textPrimaryDark,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.refresh, color: AppPallete.textPrimaryDark),
+                                  tooltip: 'Refresh',
+                                  onPressed: () {
+                                    setState(() => _isLoading = true);
+                                    ref.invalidate(userProfileProvider);
+                                    // Optionally, you can wait for the provider to reload and then set _isLoading = false
+                                    Future.delayed(const Duration(milliseconds: 800), () {
+                                      if (mounted) setState(() => _isLoading = false);
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
                       // TODO: Replace with backend wefts/posts fetching
                       SliverPadding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              // TODO: Fetch wefts from backend
-                              return const SizedBox(height: 100);
-                            },
-                            childCount: 1,
-                            addAutomaticKeepAlives: true,
-                            addRepaintBoundaries: true,
-                          ),
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
+                        sliver: user.posts.isEmpty
+                            ? SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 32.0),
+                                  child: Center(
+                                    child: Text(
+                                      'No wefts yet.',
+                                      style: TextStyle(
+                                        color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    List sortedPosts = List.of(user.posts);
+                                    if (_selectedFilter == 'Newest') {
+                                      sortedPosts.sort((a, b) {
+                                        final aDate = DateTime.tryParse(a.createdAt) ?? DateTime(1970);
+                                        final bDate = DateTime.tryParse(b.createdAt) ?? DateTime(1970);
+                                        return bDate.compareTo(aDate);
+                                      });
+                                    } else if (_selectedFilter == 'Oldest') {
+                                      sortedPosts.sort((a, b) {
+                                        final aDate = DateTime.tryParse(a.createdAt) ?? DateTime(1970);
+                                        final bDate = DateTime.tryParse(b.createdAt) ?? DateTime(1970);
+                                        return aDate.compareTo(bDate);
+                                      });
+                                    } else if (_selectedFilter == 'Popular') {
+                                      sortedPosts.sort((a, b) => b.likesCount.compareTo(a.likesCount));
+                                    }
+                                    final post = sortedPosts[index];
+                                    return PostCard(
+                                      postId: post.id,
+                                      name: post.userName.isNotEmpty ? post.userName : user.name,
+                                      tag: post.title,
+                                      timeAgo: _formatTimeAgo(post.createdAt),
+                                      content: post.content,
+                                      stars: post.likesCount,
+                                      comments: post.commentsCount,
+                                      showMenu: false,
+                                    );
+                                  },
+                                  childCount: user.posts.length,
+                                  addAutomaticKeepAlives: true,
+                                  addRepaintBoundaries: true,
+                                ),
+                              ),
                       ),
                     ],
                   ),
@@ -550,6 +639,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+  String _formatTimeAgo(String isoDate) {
+    final date = DateTime.tryParse(isoDate);
+    if (date == null) return '';
+    final now = DateTime.now();
+    final diff = now.difference(date);
+    if (diff.inSeconds < 60) return '${diff.inSeconds}s ago';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   @override

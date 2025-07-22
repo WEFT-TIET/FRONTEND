@@ -11,6 +11,7 @@ class PostCard extends ConsumerWidget {
   final String content;
   final int stars;
   final int comments;
+  final bool showMenu;
 
   const PostCard({
     super.key,
@@ -21,6 +22,7 @@ class PostCard extends ConsumerWidget {
     required this.content,
     this.stars = 0,
     this.comments = 0,
+    this.showMenu = true,
   });
 
   @override
@@ -72,63 +74,64 @@ class PostCard extends ConsumerWidget {
                   ],
                 ),
               ),
-              PopupMenuButton<String>(
-                icon: Icon(
-                  Icons.more_vert,
-                  color: AppPallete.textPrimaryDark,
-                ),
-                color: AppPallete.glassWhite20,
-                onSelected: (value) {
-                  switch (value) {
-                    case 'report':
-                      _showReportDialog(context, ref);
-                      break;
-                    case 'block':
-                      _showBlockDialog(context, ref);
-                      break;
-                  }
-                },
-                itemBuilder: (BuildContext context) => [
-                  PopupMenuItem<String>(
-                    value: 'report',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.report_outlined,
-                          color: AppPallete.textPrimaryDark,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Report Post',
-                          style: TextStyle(
+              if (showMenu)
+                PopupMenuButton<String>(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: AppPallete.textPrimaryDark,
+                  ),
+                  color: AppPallete.glassWhite20,
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'report':
+                        _showReportDialog(context, ref);
+                        break;
+                      case 'block':
+                        _showBlockDialog(context, ref);
+                        break;
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    PopupMenuItem<String>(
+                      value: 'report',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.report_outlined,
                             color: AppPallete.textPrimaryDark,
+                            size: 20,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            'Report Post',
+                            style: TextStyle(
+                              color: AppPallete.textPrimaryDark,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'block',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.block_outlined,
-                          color: AppPallete.red,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Block User',
-                          style: TextStyle(
+                    PopupMenuItem<String>(
+                      value: 'block',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.block_outlined,
                             color: AppPallete.red,
+                            size: 20,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            'Block User',
+                            style: TextStyle(
+                              color: AppPallete.red,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
             ],
           ),
           const SizedBox(height: 12),
