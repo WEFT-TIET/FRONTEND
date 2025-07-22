@@ -54,7 +54,6 @@ dependencies:
   cloud_firestore: ^4.5.0
   js: ^0.6.7
   flutter_card_swiper: ^3.0.0
-  image_picker: ^0.8.6+3  # For image picking functionality
   http: ^1.2.0
   jwt_decode: ^0.3.1
 

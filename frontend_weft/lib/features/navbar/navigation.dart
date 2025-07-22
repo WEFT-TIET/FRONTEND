@@ -3,7 +3,7 @@ import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/pages/home_page.dart';
 import 'package:frontend_weft/features/messages/view/pages/message.dart';
 import 'package:frontend_weft/features/profile/pages/profile_page.dart';
-import 'package:frontend_weft/features/search/view/pages/search.dart';
+// import 'package:frontend_weft/features/search/view/pages/search.dart';
 import 'package:frontend_weft/features/navbar/gradient_icon.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -23,7 +23,7 @@ class _BottomNavBarState extends State<BottomNavBar>
   // Static pages list - fully const for maximum optimization
   static const List<Widget> _pages = [
     HomePage(),
-    SearchPage(),
+    // SearchPage(),
     MessagePage(),
     ProfilePage(),
   ];
