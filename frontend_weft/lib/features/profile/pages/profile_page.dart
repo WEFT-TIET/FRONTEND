@@ -7,6 +7,8 @@ import 'package:frontend_weft/features/profile/services/profile_api_service.dart
 import 'package:frontend_weft/features/profile/widgets/weft_item_widget.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
 
 final userProfileProvider = FutureProvider<UserModel?>((ref) async {
   final api = ref.read(profileApiServiceProvider);
@@ -41,6 +43,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
 
   bool _isLoading = false;
   String? _errorMessage;
+
+  // Add your Cloudinary details here
+  static const String _cloudName = 'durjlrhaz';
+  static const String _uploadPreset = 'ml_default';
 
   @override
   bool get wantKeepAlive => true;
@@ -329,17 +335,27 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               child: ClipOval(
                 child: _isEditing
                     ? Icon(Icons.camera_alt, color: AppPallete.textPrimaryDark, size: 28)
-                    : Image.asset(
-                        user.profileImagePath ?? 'lib/core/assets/profile_photo.jpeg',
-                        fit: BoxFit.cover,
-                        cacheWidth: 200,
-                        cacheHeight: 200,
-                        errorBuilder: (_, __, ___) => Icon(
-                          Icons.person,
-                          color: AppPallete.textPrimaryDark.withOpacity(0.6),
-                          size: 35,
-                        ),
-                      ),
+                    : (user.image_url != null && user.image_url!.startsWith('http'))
+                        ? Image.network(
+                            user.image_url!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Icon(
+                              Icons.person,
+                              color: AppPallete.textPrimaryDark.withOpacity(0.6),
+                              size: 35,
+                            ),
+                          )
+                        : Image.asset(
+                            user.image_url ?? 'lib/core/assets/profile_photo.jpeg',
+                            fit: BoxFit.cover,
+                            cacheWidth: 200,
+                            cacheHeight: 200,
+                            errorBuilder: (_, __, ___) => Icon(
+                              Icons.person,
+                              color: AppPallete.textPrimaryDark.withOpacity(0.6),
+                              size: 35,
+                            ),
+                          ),
               ),
             ),
           ),
@@ -567,22 +583,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     ProfileDialogs.showSnackBar(context, 'Share feature coming soon!');
   }
 
-  void _showImagePicker(UserModel user) {
+  void _showImagePicker(UserModel user) async {
     HapticFeedback.selectionClick();
-    ProfileDialogs.showImagePicker(context);
-    // TODO: Implement image picking and call _uploadProfileImage
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      await _uploadProfileImageToCloudinary(pickedFile.path, user);
+    }
   }
 
-  Future<void> _uploadProfileImage(String imagePath, UserModel user) async {
+  Future<void> _uploadProfileImageToCloudinary(String filePath, UserModel user) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
     try {
+      final cloudinary = CloudinaryPublic(_cloudName, _uploadPreset, cache: false);
+      CloudinaryResponse response = await cloudinary.uploadFile(
+        CloudinaryFile.fromFile(filePath, resourceType: CloudinaryResourceType.Image),
+      );
+      final image_url = response.secureUrl;
       final api = ref.read(profileApiServiceProvider);
-      final imageUrl = await api.uploadProfileImage(imagePath);
-      if (imageUrl != null) {
-        final updatedUser = user.copyWith(profileImagePath: imageUrl);
+      final backendImageUrl = await api.uploadProfileImage(image_url);
+      if (backendImageUrl != null) {
+        final updatedUser = user.copyWith(image_url: backendImageUrl);
         final success = await api.updateUserProfile(updatedUser.toJson());
         if (success) {
           ref.invalidate(userProfileProvider);
@@ -591,7 +615,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           setState(() => _errorMessage = 'Failed to update profile image');
         }
       } else {
-        setState(() => _errorMessage = 'Failed to upload image');
+        setState(() => _errorMessage = 'Failed to upload image to backend');
       }
     } catch (e) {
       setState(() => _errorMessage = 'Image upload failed: $e');

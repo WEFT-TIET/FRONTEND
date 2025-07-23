@@ -43,7 +43,7 @@ class ProfileApiService {
       final url = Uri.parse('$baseUrl/profile/update');
       final body = jsonEncode(profileData);
 
-      final response = await _httpClient.put(url, body: body);
+      final response = await _httpClient.post(url, body: body);
 
       print("🔵 PUT Profile Update URL: $url");
       print("📦 Request Body: $body");
@@ -57,22 +57,18 @@ class ProfileApiService {
   }
 
   /// Upload profile image - automatically includes AccessToken as Cookie
-  Future<String?> uploadProfileImage(String imagePath) async {
+  Future<String?> uploadProfileImage(String image_url) async {
     try {
-      final url = Uri.parse('$baseUrl/profile/upload-image');
-      
-      // For file uploads, you might need to use multipart/form-data
-      // This is a simplified example
-      final body = jsonEncode({'imagePath': imagePath});
+      final url = Uri.parse('$baseUrl/profile/image');
+      final body = jsonEncode({'image_url': image_url});
 
       final response = await _httpClient.post(url, body: body);
 
       print("🔵 POST Profile Image Upload URL: $url");
-      print("📬 Response (${response.statusCode}): ${response.body}");
+      print("📬 Response ( [33m${response.statusCode} [0m): ${response.body}");
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['imageUrl'];
+      if (response.statusCode == 201) {
+        return image_url;
       } else {
         print("❌ Failed to upload image: ${response.statusCode} - ${response.body}");
         return null;

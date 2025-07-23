@@ -7,7 +7,7 @@ class UserModel {
   final String batch;
   final String branch;
   final String className;
-  final String? profileImagePath;
+  final String? image_url;
   final List<Post> posts;
 
   UserModel({
@@ -16,7 +16,7 @@ class UserModel {
     required this.batch,
     required this.branch,
     required this.className,
-    this.profileImagePath,
+    this.image_url,
     this.posts = const [],
   });
 
@@ -26,7 +26,7 @@ class UserModel {
     String? batch,
     String? branch,
     String? className,
-    String? profileImagePath,
+    String? image_url,
     List<Post>? posts,
   }) {
     return UserModel(
@@ -35,7 +35,7 @@ class UserModel {
       batch: batch ?? this.batch,
       branch: branch ?? this.branch,
       className: className ?? this.className,
-      profileImagePath: profileImagePath ?? this.profileImagePath,
+      image_url: image_url ?? this.image_url,
       posts: posts ?? this.posts,
     );
   }
@@ -47,7 +47,7 @@ class UserModel {
       'batch': batch,
       'branch': branch,
       'className': className,
-      'profileImagePath': profileImagePath,
+      'image_url': image_url,
       'posts': posts.map((post) => post.toJson()).toList(),
     };
   }
@@ -59,7 +59,7 @@ class UserModel {
       batch: json['batch'] ?? '',
       branch: json['branch'] ?? '',
       className: json['className'] ?? json['class_id'] ?? '',
-      profileImagePath: json['profileImagePath'],
+      image_url: json['image_url'],
       posts: (json['posts'] as List<dynamic>? ?? [])
           .map((e) => Post.fromJson(e as Map<String, dynamic>))
           .toList(),
