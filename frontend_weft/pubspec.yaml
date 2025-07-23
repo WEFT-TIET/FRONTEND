@@ -32,12 +32,13 @@ dependencies:
     sdk: flutter
   flutter_svg: ^2.0.7  # For SVG map rendering
   xml: ^6.3.0
-  geolocator: ^10.1.0
-  intl: ^0.18.0
-  excel: ^2.0.0  # For reading Excel files
+  geolocator: ^14.0.2
+  intl: ^0.20.2
+  excel: ^4.0.6  # For reading Excel files
   #mailer: ^6.4.1
   #email_validator: ^3.0.0
   #fluttertoast: ^8.2.8
+  socket_io_client: ^3.1.2
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -48,14 +49,16 @@ dependencies:
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
   shared_preferences: ^2.0.15
-  firebase_core: ^2.25.4
-  firebase_storage: ^11.6.6
-  firebase_storage_web: ^3.7.0
-  cloud_firestore: ^4.5.0
-  js: ^0.6.7
-  flutter_card_swiper: ^3.0.0
-  image_picker: ^0.8.6+3  # For image picking functionality
   cloudinary_public: ^0.23.1
+
+  firebase_core: ^3.15.2
+  firebase_storage: ^12.0.2 
+  firebase_storage_web: ^3.10.17
+  cloud_firestore: ^5.6.12
+  js: ^0.7.2
+  flutter_card_swiper: ^7.0.2
+  image_picker: ^1.1.2  # For image picking functionality
+
   http: ^1.2.0
   jwt_decode: ^0.3.1
 
@@ -68,11 +71,11 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   riverpod_lint: ^2.6.5
   riverpod_generator: ^2.6.5
-  build_runner: 2.4.14
-  flutter_launcher_icons: ^0.13.1
+  build_runner: ^2.5.4
+  flutter_launcher_icons: ^0.14.4
 flutter_launcher_icons:
     android: "launcher_icon"
     ios: true

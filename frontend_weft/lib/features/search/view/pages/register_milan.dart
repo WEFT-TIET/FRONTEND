@@ -708,10 +708,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
       Navigator.of(context, rootNavigator: true).pop(); // ✅ Hide loading
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => Milan()),
-      );
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (_) => Milan()),
+      // );
     } catch (e) {
       Navigator.of(context, rootNavigator: true).pop(); // ⛔ Hide on error
       ScaffoldMessenger.of(context).showSnackBar(

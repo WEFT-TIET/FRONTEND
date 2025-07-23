@@ -37,16 +37,16 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  final List<Widget> pages = [
-    Milan(),
-  ];
+  // final List<Widget> pages = [
+  //   Milan(),
+  // ];
 
-  void _navigateToPages(int index) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => pages[index]),
-    );
-  }
+  // void _navigateToPages(int index) {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => pages[index]),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +129,7 @@ class _SearchPageState extends State<SearchPage> {
                           return SocietyCard(
                             society: popularSocieties[index],
                             onTap: () {
-                              _navigateToPages(index);
+                              // _navigateToPages(index);
                             },
                           );
                         },
