@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -735,4 +735,4 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _hobbiesController.dispose();
     super.dispose();
   }
-}
+}*/

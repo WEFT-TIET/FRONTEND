@@ -1,52 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
-import 'package:frontend_weft/features/search/view/pages/register_milan.dart';
-import 'package:frontend_weft/features/search/view/pages/wefter_results_page.dart'; // Add this import
-import 'package:frontend_weft/core/config/api_config.dart';
+import 'package:frontend_weft/features/search/view/pages/wefter_results_page.dart';
 import 'package:frontend_weft/core/services/user_service.dart';
-import 'milan.dart';
-import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/http_client.dart';
 
-class SearchPage extends StatefulWidget {
+class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
 
   @override
-  _SearchPageState createState() => _SearchPageState();
+  ConsumerState<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
-  final TextEditingController _searchController = TextEditingController();
-
-  final List<Society> popularSocieties = [
-    Society(
-      name: 'MILAN',
-      icon: Icons.people,
-      memberCount: '2.4k members',
-      isHot: true,
-    ),
-  ];
-
-  final List<String> recentSearches = ['Tech Fest', 'Drama Workshop'];
-
-  void _navigateToWEFTerPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => WEFTerPage()),
-    );
-  }
-
-  // final List<Widget> pages = [
-  //   Milan(),
-  // ];
-
-  // void _navigateToPages(int index) {
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => pages[index]),
-  //   );
-  // }
+class _SearchPageState extends ConsumerState<SearchPage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _yearController = TextEditingController();
+  final TextEditingController _branchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -64,418 +34,155 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(16),
+          child: Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(24),
+              child: Container(
+                constraints: BoxConstraints(maxWidth: 400),
+                decoration: BoxDecoration(
+                  color: Color(0xFF3A3E7A).withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 25,
+                      offset: Offset(0, 15),
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(32),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: _navigateToWEFTerPage,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Color(0xFF2d2d4a),
-                            borderRadius: BorderRadius.circular(25),
-                            border: Border.all(
-                              color: Color(0xFF3d3d5a),
-                              width: 1,
-                            ),
-                          ),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 16,
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.search, color: Colors.grey[400]),
-                                SizedBox(width: 12),
-                                Text(
-                                  'Search students, societies, events...',
-                                  style: TextStyle(
-                                    color: Colors.grey[400],
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 32),
                       Text(
-                        'Societies',
+                        'Who\'s the WEFTer?',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(height: 20),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.85,
+                      SizedBox(height: 8),
+                      Text(
+                        'Enter the details below to find your WEFTer.',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 16,
                         ),
-                        itemCount: popularSocieties.length,
-                        itemBuilder: (context, index) {
-                          return SocietyCard(
-                            society: popularSocieties[index],
+                        textAlign: TextAlign.center,
+                      ),
+
+                      SizedBox(height: 32),
+
+                      _buildInputField(
+                        controller: _nameController,
+                        label: 'Name',
+                        placeholder: 'Ex: John Doe',
+                      ),
+
+                      SizedBox(height: 20),
+
+                      _buildInputField(
+                        controller: _usernameController,
+                        label: 'Username',
+                        placeholder: 'Ex: jon_doe ',
+                      ),
+
+                      SizedBox(height: 20),
+
+                      _buildInputField(
+                        controller: _yearController,
+                        label: 'Year',
+                        placeholder: 'Ex: 1, 2, 3, 4',
+                      ),
+
+                      SizedBox(height: 20),
+
+                      _buildInputField(
+                        controller: _branchController,
+                        label: 'Branch',
+                        placeholder: 'Ex: COE, COPC, ENC',
+                      ),
+
+                      SizedBox(height: 32),
+
+                      Container(
+                        width: double.infinity,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF6366F1),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0xFF6366F1).withOpacity(0.25),
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 12,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(14),
+                            splashColor: Colors.white.withOpacity(0.1),
+                            highlightColor: Colors.white.withOpacity(0.05),
                             onTap: () {
-                              // _navigateToPages(index);
+                              _findWEFTer();
                             },
-                          );
-                        },
-                      ),
-                      SizedBox(height: 32),
-                      Text(
-                        'Recent Searches',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.15),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.search,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Find the WEFTer',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 16),
-                      ...recentSearches.map(
-                        (search) => RecentSearchItem(
-                          searchText: search,
-                          onTap: () {
-                            _navigateToWEFTerPage();
-                          },
-                        ),
-                      ),
-                      SizedBox(height: 100),
                     ],
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class Society {
-  final String name;
-  final IconData icon;
-  final String memberCount;
-  final bool isHot;
-
-  Society({
-    required this.name,
-    required this.icon,
-    required this.memberCount,
-    required this.isHot,
-  });
-}
-
-class SocietyCard extends StatelessWidget {
-  final Society society;
-  final VoidCallback onTap;
-
-  const SocietyCard({super.key, required this.society, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppPallete.glassWhite05,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppPallete.glassWhite20, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 10,
-              offset: Offset(0, 5),
             ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Color(0xFF6366f1), Color(0xFF8b5cf6)],
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0xFF6366f1).withOpacity(0.4),
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(society.icon, color: Colors.white, size: 28),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    society.name,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    society.memberCount,
-                    style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-            if (society.isHot)
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFFf97316), Color(0xFFea580c)],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    'HOT',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class RecentSearchItem extends StatelessWidget {
-  final String searchText;
-  final VoidCallback onTap;
-
-  const RecentSearchItem({
-    super.key,
-    required this.searchText,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: EdgeInsets.only(bottom: 12),
-        child: Row(
-          children: [
-            Icon(Icons.search, color: Colors.grey[400], size: 20),
-            SizedBox(width: 16),
-            Text(
-              searchText,
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// WEFTer Page Class - Keep this but update the navigation
-class WEFTerPage extends ConsumerStatefulWidget {
-  const WEFTerPage({super.key});
-
-  @override
-  ConsumerState<WEFTerPage> createState() => _WEFTerPageState();
-}
-
-class _WEFTerPageState extends ConsumerState<WEFTerPage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _yearController = TextEditingController();
-  final TextEditingController _branchController = TextEditingController();
-
-  final _wefterPageKey = GlobalKey();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _wefterPageKey,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f1419)],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          'WEFT',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 48),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Center(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.all(24),
-                    child: Container(
-                      constraints: BoxConstraints(maxWidth: 400),
-                      decoration: BoxDecoration(
-                        color: Color(0xFF2d2d4a),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Color(0xFF3d3d5a), width: 1),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Who\'s the WEFTer?',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Enter the details below to find your WEFTer.',
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 14,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-
-                            SizedBox(height: 32),
-
-                            _buildInputField(
-                              controller: _nameController,
-                              label: 'Name',
-                              placeholder: 'Ex: Rudra Yadav',
-                            ),
-
-                            SizedBox(height: 20),
-
-                            _buildInputField(
-                              controller: _yearController,
-                              label: 'Year',
-                              placeholder: 'Grad year? Left for your people!',
-                            ),
-
-                            SizedBox(height: 20),
-
-                            _buildInputField(
-                              controller: _branchController,
-                              label: 'Branch',
-                              placeholder: 'Ex: COE, COPC, ENC',
-                            ),
-
-                            SizedBox(height: 32),
-
-                            Container(
-                              width: double.infinity,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [
-                                    Color(0xFF6366f1),
-                                    Color(0xFF8b5cf6),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(25),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Color(0xFF6366f1).withOpacity(0.4),
-                                    blurRadius: 8,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(25),
-                                  onTap: () {
-                                    _findWEFTer();
-                                  },
-                                  child: Center(
-                                    child: Text(
-                                      'Find the WEFTer',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ),
@@ -501,16 +208,15 @@ class _WEFTerPageState extends ConsumerState<WEFTerPage> {
         SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Color(0xFF3d3d5a),
+            color: Colors.white.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Color(0xFF4d4d6a), width: 1),
           ),
           child: TextField(
             controller: controller,
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: placeholder,
-              hintStyle: TextStyle(color: Colors.grey[500]),
+              hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 16,
@@ -525,6 +231,7 @@ class _WEFTerPageState extends ConsumerState<WEFTerPage> {
 
   void _findWEFTer() async {
     String name = _nameController.text.trim();
+    String username = _usernameController.text.trim();
     String year = _yearController.text.trim();
     String branch = _branchController.text.trim();
 
@@ -576,6 +283,7 @@ class _WEFTerPageState extends ConsumerState<WEFTerPage> {
       final appHttpClient = ref.read(httpClientProvider);
       final result = await UserService.searchUsers(
         name: name.isNotEmpty ? name : null,
+        //username: username.isNotEmpty ? username : null,
         year: year.isNotEmpty ? year : null,
         branch: branch.isNotEmpty ? branch : null,
         client: appHttpClient,
@@ -635,6 +343,7 @@ class _WEFTerPageState extends ConsumerState<WEFTerPage> {
   @override
   void dispose() {
     _nameController.dispose();
+    _usernameController.dispose();
     _yearController.dispose();
     _branchController.dispose();
     super.dispose();

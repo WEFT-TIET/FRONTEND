@@ -54,13 +54,16 @@ class WEFTerResultsPage extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppPallete.cardColorDark.withOpacity(0.3),
+                color: Colors.white.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.2), width: 1),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.2),
+                  width: 1,
+                ),
               ),
               child: Icon(
                 Icons.arrow_back_ios_rounded,
-                color: AppPallete.textPrimaryDark,
+                color: Colors.white,
                 size: 20,
               ),
             ),
@@ -71,7 +74,7 @@ class WEFTerResultsPage extends StatelessWidget {
               child: Text(
                 'WEFTer Results',
                 style: TextStyle(
-                  color: AppPallete.textPrimaryDark,
+                  color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -90,21 +93,36 @@ class WEFTerResultsPage extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppPallete.cardColorDark.withOpacity(0.3),
+        color: Color(0xFF3A3E7A).withOpacity(0.6),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.2), width: 1),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.3),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 15,
+            offset: Offset(0, 8),
+          ),
+          BoxShadow(
+            color: Colors.white.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, -2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppPallete.textPrimaryDark.withOpacity(0.1),
+              color: Colors.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               Icons.search_rounded,
-              color: AppPallete.textPrimaryDark,
+              color: Colors.white,
               size: 16,
             ),
           ),
@@ -114,7 +132,7 @@ class WEFTerResultsPage extends StatelessWidget {
           Text(
             '${users.length} WEFTer${users.length == 1 ? '' : 's'} found',
             style: TextStyle(
-              color: AppPallete.textPrimaryDark,
+              color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -133,13 +151,23 @@ class WEFTerResultsPage extends StatelessWidget {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: AppPallete.cardColorDark.withOpacity(0.3),
+              color: Color(0xFF3A3E7A).withOpacity(0.6),
               shape: BoxShape.circle,
-              border: Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.2), width: 1),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 15,
+                  offset: Offset(0, 8),
+                ),
+              ],
             ),
             child: Icon(
               Icons.search_off_rounded,
-              color: AppPallete.textPrimaryDark.withOpacity(0.6),
+              color: Colors.white.withOpacity(0.6),
               size: 50,
             ),
           ),
@@ -149,7 +177,7 @@ class WEFTerResultsPage extends StatelessWidget {
           Text(
             'No WEFTers Found',
             style: TextStyle(
-              color: AppPallete.textPrimaryDark,
+              color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
@@ -160,7 +188,7 @@ class WEFTerResultsPage extends StatelessWidget {
           Text(
             'Try adjusting your search criteria',
             style: TextStyle(
-              color: AppPallete.textPrimaryDark.withOpacity(0.7),
+              color: Colors.white.withOpacity(0.7),
               fontSize: 16,
             ),
           ),
@@ -184,14 +212,22 @@ class WEFTerResultsPage extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppPallete.cardColorDark.withOpacity(0.3),
+        color: Color(0xFF3A3E7A).withOpacity(0.6),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.2), width: 1),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.3),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.15),
             blurRadius: 15,
             offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: Colors.white.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, -2),
           ),
         ],
       ),
@@ -224,15 +260,18 @@ class WEFTerResultsPage extends StatelessWidget {
       width: 60,
       height: 60,
       decoration: BoxDecoration(
-        color: AppPallete.textPrimaryDark.withOpacity(0.1),
+        color: Colors.white.withOpacity(0.1),
         shape: BoxShape.circle,
-        border: Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.3), width: 1),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.3),
+          width: 1,
+        ),
       ),
       child: Center(
         child: Text(
           initials,
           style: TextStyle(
-            color: AppPallete.textPrimaryDark,
+            color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -249,7 +288,7 @@ class WEFTerResultsPage extends StatelessWidget {
         Text(
           user['name'] ?? 'Unknown',
           style: TextStyle(
-            color: AppPallete.textPrimaryDark,
+            color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -262,7 +301,7 @@ class WEFTerResultsPage extends StatelessWidget {
           Text(
             '@${user['username']}',
             style: TextStyle(
-              color: AppPallete.textPrimaryDark.withOpacity(0.8),
+              color: Colors.white.withOpacity(0.8),
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -296,23 +335,26 @@ class WEFTerResultsPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppPallete.textPrimaryDark.withOpacity(0.1),
+        color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.2), width: 1),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             icon,
-            color: AppPallete.textPrimaryDark.withOpacity(0.8),
+            color: Colors.white.withOpacity(0.8),
             size: 12,
           ),
           const SizedBox(width: 4),
           Text(
             text,
             style: TextStyle(
-              color: AppPallete.textPrimaryDark.withOpacity(0.8),
+              color: Colors.white.withOpacity(0.8),
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -329,13 +371,16 @@ class WEFTerResultsPage extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppPallete.textPrimaryDark.withOpacity(0.1),
+          color: Colors.white.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.3), width: 1),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.3),
+            width: 1,
+          ),
         ),
         child: Icon(
           Icons.visibility_rounded,
-          color: AppPallete.textPrimaryDark,
+          color: Colors.white,
           size: 20,
         ),
       ),
@@ -362,16 +407,12 @@ class WEFTerResultsPage extends StatelessWidget {
           child: Container(
             constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppPallete.gradient1,
-                  AppPallete.gradient2,
-                ],
-              ),
+              color: Color(0xFF3A3E7A).withOpacity(0.95),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.2), width: 1),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1.5,
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.3),
@@ -402,7 +443,7 @@ class WEFTerResultsPage extends StatelessWidget {
               Text(
                 'WEFTer Profile',
                 style: TextStyle(
-                  color: AppPallete.textPrimaryDark,
+                  color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -413,12 +454,16 @@ class WEFTerResultsPage extends StatelessWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: AppPallete.cardColorDark.withOpacity(0.3),
+                    color: Colors.white.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.2),
+                      width: 1,
+                    ),
                   ),
                   child: Icon(
                     Icons.close_rounded,
-                    color: AppPallete.textPrimaryDark,
+                    color: Colors.white,
                     size: 18,
                   ),
                 ),
@@ -433,15 +478,18 @@ class WEFTerResultsPage extends StatelessWidget {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: AppPallete.textPrimaryDark.withOpacity(0.1),
+              color: Colors.white.withOpacity(0.1),
               shape: BoxShape.circle,
-              border: Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.3), width: 1),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 2,
+              ),
             ),
             child: Center(
               child: Text(
                 initials,
                 style: TextStyle(
-                  color: AppPallete.textPrimaryDark,
+                  color: Colors.white,
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                 ),
@@ -455,7 +503,7 @@ class WEFTerResultsPage extends StatelessWidget {
           Text(
             user['name'] ?? 'Unknown',
             style: TextStyle(
-              color: AppPallete.textPrimaryDark,
+              color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
@@ -468,7 +516,7 @@ class WEFTerResultsPage extends StatelessWidget {
             Text(
               '@${user['username']}',
               style: TextStyle(
-                color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                color: Colors.white.withOpacity(0.8),
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -482,9 +530,12 @@ class WEFTerResultsPage extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppPallete.cardColorDark.withOpacity(0.3),
+              color: Colors.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.2), width: 1),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
+                width: 1,
+              ),
             ),
             child: Column(
               children: [
@@ -505,20 +556,32 @@ class WEFTerResultsPage extends StatelessWidget {
             width: double.infinity,
             height: 48,
             decoration: BoxDecoration(
-              color: AppPallete.textPrimaryDark.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.3), width: 1),
+              color: Color(0xFF6366F1),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.15),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0xFF6366F1).withOpacity(0.25),
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
+                ),
+              ],
             ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(14),
+                splashColor: Colors.white.withOpacity(0.1),
+                highlightColor: Colors.white.withOpacity(0.05),
                 onTap: () => Navigator.of(context).pop(),
                 child: Center(
                   child: Text(
                     'Got it!',
                     style: TextStyle(
-                      color: AppPallete.textPrimaryDark,
+                      color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -542,7 +605,7 @@ class WEFTerResultsPage extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                color: Colors.white.withOpacity(0.7),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -552,7 +615,7 @@ class WEFTerResultsPage extends StatelessWidget {
             child: Text(
               value,
               style: TextStyle(
-                color: AppPallete.textPrimaryDark,
+                color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
