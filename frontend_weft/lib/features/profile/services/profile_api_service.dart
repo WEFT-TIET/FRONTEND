@@ -59,7 +59,7 @@ class ProfileApiService {
   /// Upload profile image - automatically includes AccessToken as Cookie
   Future<String?> uploadProfileImage(String image_url) async {
     try {
-      final url = Uri.parse('$baseUrl/profile/image');
+      final url = Uri.parse('$baseUrl/profile/update');
       final body = jsonEncode({'image_url': image_url});
 
       final response = await _httpClient.post(url, body: body);
@@ -67,7 +67,7 @@ class ProfileApiService {
       print("🔵 POST Profile Image Upload URL: $url");
       print("📬 Response ( [33m${response.statusCode} [0m): ${response.body}");
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         return image_url;
       } else {
         print("❌ Failed to upload image: ${response.statusCode} - ${response.body}");
