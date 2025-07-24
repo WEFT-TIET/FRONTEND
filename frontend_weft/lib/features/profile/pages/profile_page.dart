@@ -604,18 +604,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       );
       final image_url = response.secureUrl;
       final api = ref.read(profileApiServiceProvider);
-      final backendImageUrl = await api.uploadProfileImage(image_url);
-      if (backendImageUrl != null) {
-        final updatedUser = user.copyWith(image_url: backendImageUrl);
-        final success = await api.updateUserProfile(updatedUser.toJson());
-        if (success) {
-          ref.invalidate(userProfileProvider);
-          ProfileDialogs.showSnackBar(context, 'Profile image updated!');
-        } else {
-          setState(() => _errorMessage = 'Failed to update profile image');
-        }
+      final updatedUser = user.copyWith(image_url: image_url);
+      final success = await api.updateUserProfile(updatedUser.toJson());
+      if (success) {
+        ref.invalidate(userProfileProvider);
+        ProfileDialogs.showSnackBar(context, 'Profile image updated!');
       } else {
-        setState(() => _errorMessage = 'Failed to upload image to backend');
+        setState(() => _errorMessage = 'Failed to update profile image');
       }
     } catch (e) {
       setState(() => _errorMessage = 'Image upload failed: $e');
