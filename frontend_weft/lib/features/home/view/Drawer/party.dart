@@ -27,6 +27,12 @@ class PartyPage extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings, color: AppPallete.textPrimaryDark),
+              onPressed: () => Navigator.of(context).pushNamed('/settings'),
+            ),
+          ],
           centerTitle: false,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.end, // Push content to right
