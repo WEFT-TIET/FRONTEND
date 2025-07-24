@@ -1,5 +1,4 @@
 // lib/widgets/profile_card_widget.dart
-// lib/widgets/weft_item_widget.dart
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/profile/models/weft_model.dart';
