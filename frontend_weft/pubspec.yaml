@@ -59,6 +59,7 @@ dependencies:
   flutter_card_swiper: ^7.0.2
   image_picker: ^1.1.2  # For image picking functionality
 
+
   http: ^1.2.0
   jwt_decode: ^0.3.1
 
