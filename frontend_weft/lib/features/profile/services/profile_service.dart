@@ -16,9 +16,8 @@ class ProfileService {
   UserModel get _currentUserData => UserModel(
     name: 'Rudra Yadav',
     username: 'rudra_yadav',
-    batch: '2025',
+    year: '',
     branch: 'COE',
-    className: '1A62',
     image_url: 'lib/core/assets/profile_photo.jpeg',
   );
 

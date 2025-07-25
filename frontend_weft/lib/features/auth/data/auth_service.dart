@@ -41,7 +41,6 @@ class AuthService {
           name: '',
           email: emailFromToken,
           year: '',
-          classId: '',
           branch: '',
           accessToken: accessToken,
           refreshToken: refreshToken,

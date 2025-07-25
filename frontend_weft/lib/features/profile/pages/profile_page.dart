@@ -34,9 +34,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   // Controllers for editable fields
   late TextEditingController _nameController;
   late TextEditingController _usernameController;
-  late TextEditingController _batchController;
+  late TextEditingController _yearController;
   late TextEditingController _branchController;
-  late TextEditingController _classController;
 
   // Animation controller for smooth transitions
   late AnimationController _animationController;
@@ -72,17 +71,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     // Use empty strings as default if user is null
     _nameController = TextEditingController(text: user?.name ?? '');
     _usernameController = TextEditingController(text: user?.username ?? '');
-    _batchController = TextEditingController(text: user?.batch ?? '');
+    _yearController = TextEditingController(text: user?.year ?? '');
     _branchController = TextEditingController(text: user?.branch ?? '');
-    _classController = TextEditingController(text: user?.className ?? '');
   }
 
   void _updateControllers(UserModel user) {
     _nameController.text = user.name;
     _usernameController.text = user.username;
-    _batchController.text = user.batch;
+    _yearController.text = user.year;
     _branchController.text = user.branch;
-    _classController.text = user.className;
   }
 
   void _calculateProfileCardHeight() {
@@ -438,11 +435,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildDetailColumn('Batch', _batchController),
+          _buildDetailColumn('Year', _yearController),
           _buildDivider(),
           _buildDetailColumn('Branch', _branchController),
-          _buildDivider(),
-          _buildDetailColumn('Class', _classController),
         ],
       ),
     );
@@ -551,9 +546,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         final updatedUser = user.copyWith(
           name: _nameController.text,
           username: _usernameController.text,
-          batch: _batchController.text,
+          year: _yearController.text,
           branch: _branchController.text,
-          className: _classController.text,
         );
         final api = ref.read(profileApiServiceProvider);
         final success = await api.updateUserProfile(updatedUser.toJson());
@@ -600,7 +594,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     try {
       final cloudinary = CloudinaryPublic(_cloudName, _uploadPreset, cache: false);
       CloudinaryResponse response = await cloudinary.uploadFile(
-        CloudinaryFile.fromFile(filePath, resourceType: CloudinaryResourceType.Image),
+        CloudinaryFile.fromFile(
+          filePath,
+          resourceType: CloudinaryResourceType.Image,
+          publicId: 'profile_pictures/user_${user.username}',
+        ),
       );
       final image_url = response.secureUrl;
       final api = ref.read(profileApiServiceProvider);
@@ -637,9 +635,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     _animationController.dispose();
     _nameController.dispose();
     _usernameController.dispose();
-    _batchController.dispose();
+    _yearController.dispose();
     _branchController.dispose();
-    _classController.dispose();
     super.dispose();
   }
 }

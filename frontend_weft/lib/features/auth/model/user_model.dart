@@ -3,7 +3,6 @@ class User {
   final String name;
   final String email;
   final String year;
-  final String classId;
   final String branch;
   final String accessToken;
   final String? refreshToken;
@@ -13,7 +12,6 @@ class User {
     required this.name,
     required this.email,
     required this.year,
-    required this.classId,
     required this.branch,
     required this.accessToken,
     this.refreshToken,
@@ -24,7 +22,6 @@ class User {
     name: json['name'],
     email: json['email'],
     year: json['year'],
-    classId: json['class_id'],
     branch: json['branch'],
     accessToken: json['accessToken'] ?? '',
     refreshToken: json['refreshToken'],
@@ -35,7 +32,6 @@ class User {
     'name': name,
     'email': email,
     'year': year,
-    'class_id': classId,
     'branch': branch,
     'accessToken': accessToken,
     'refreshToken': refreshToken,
