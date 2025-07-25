@@ -6,6 +6,7 @@ import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/weft_item_widget.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
+import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart'; // ADD THIS IMPORT
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
@@ -312,13 +313,27 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     );
   }
 
+  // UPDATED METHOD - This is the main change for Instagram-style viewer
   Widget _buildProfileHeader(UserModel user) {
     return Row(
       children: [
         Hero(
           tag: 'profile_image',
           child: GestureDetector(
-            onTap: _isEditing ? () => _showImagePicker(user) : null,
+            onTap: () {
+              if (_isEditing) {
+                _showImagePicker(user);
+              } else {
+                // Show Instagram-style viewer
+                showProfileImageViewer(
+                  context,
+                  imageUrl: user.image_url,
+                  userName: user.name,
+                  onEditPressed: () => _showImagePicker(user),
+                  isEditing: false,
+                );
+              }
+            },
             child: Container(
               width: 70,
               height: 70,
