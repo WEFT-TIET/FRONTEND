@@ -94,108 +94,87 @@ class _AttendancePageState extends State<AttendancePage> {
     print('Available subgroups: ${jsonMap.keys.toList()}');
     print('Looking for subgroup: $subgroup');
 
-    // Find the year block that contains our subgroup
-    Map<String, dynamic>? targetYearBlock;
-    String? targetYearKey;
-    
-    for (String yearKey in jsonMap.keys) {
-      final yearBlock = jsonMap[yearKey] as Map<String, dynamic>;
-      print('Checking year block: $yearKey, contains keys: ${yearBlock.keys.toList()}');
-      
-      if (yearBlock.containsKey(subgroup)) {
-        targetYearBlock = yearBlock;
-        targetYearKey = yearKey;
-        break;
-      }
-    }
-
-    if (targetYearBlock == null) {
-      print('Subgroup $subgroup not found in any year block');
+    // Check if the subgroup exists directly in the JSON
+    if (!jsonMap.containsKey(subgroup)) {
+      print('Subgroup $subgroup not found in JSON');
       timetableData = {};
       return;
     }
 
-    print('Found subgroup $subgroup in year block: $targetYearKey');
+    print('Found subgroup $subgroup directly in JSON');
 
-    final subgroupData = targetYearBlock[subgroup] as List<dynamic>;
+        final subgroupData = jsonMap[subgroup] as Map<String, dynamic>;
     final Map<String, List<ClassSchedule>> result = {};
 
-    print('Subgroup data type: ${subgroupData.runtimeType}');
-    print('Subgroup data length: ${subgroupData.length}');
+    print('Subgroup data keys: ${subgroupData.keys.toList()}');
 
-    // The data is in matrix format - first row is header with days
-    if (subgroupData.isEmpty) {
-      print('Subgroup data is empty');
-      timetableData = {};
-      return;
-    }
+    // Process each day
+    for (String day in subgroupData.keys) {
+      final dayData = subgroupData[day] as Map<String, dynamic>;
+      final List<ClassSchedule> dayClasses = [];
 
-    final header = subgroupData[0] as List<dynamic>;
-    final weekdays = header
-        .skip(1) // Skip the first column (time)
-        .map((cell) => (cell as Map<String, dynamic>)['course'] as String)
-        .toList();
+      // Process each time slot in the day
+      for (String time in dayData.keys) {
+        final classInfo = dayData[time] as List<dynamic>;
+        
+        print('Processing $day at $time: $classInfo');
+        
+        if (classInfo.length >= 4) {
+          final courseCode = classInfo[0] as String;
+          final venue = classInfo[1] as String;
+          final subjectName = classInfo[2] as String;
+          final classType = classInfo[3] as String;
 
-    print('Weekdays found: $weekdays');
+          // Use subject name directly from JSON, fallback to subjectMap
+          final name = subjectName.isNotEmpty ? subjectName : (subjectMap[courseCode] ?? courseCode);
 
-    // Process each row (time slot)
-    for (int r = 1; r < subgroupData.length; r++) {
-      final row = subgroupData[r] as List<dynamic>;
-      final time = (row[0] as Map<String, dynamic>)['course'] as String;
+          final todayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
 
-      for (int c = 1; c < row.length; c++) {
-        final cell = row[c] as Map<String, dynamic>;
-        final rawCourse = (cell['course'] as String).trim();
-        if (rawCourse.isEmpty) continue;
-
-        final code = rawCourse.split(' ').first;
-        final name = subjectMap[code] ?? code;
-        final day = weekdays[c - 1];
-
-        result.putIfAbsent(day, () => []);
-
-        final todayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
-        final now = DateTime.now();
-        final today = DateTime(now.year, now.month, now.day);
-
-        // Parse classDateTime from selectedDate + time
-        DateTime? classDateTime;
-        try {
-          classDateTime = DateFormat('yyyy-MM-dd HH:mm').parse('$todayStr $time');
-        } catch (_) {
-          classDateTime = null;
-        }
-
-        late final ClassStatus status;
-
-        if (classDateTime == null) {
-          status = ClassStatus.upcoming;
-        } else if (selectedDate.isBefore(today)) {
-          status = ClassStatus.completed;
-        } else if (selectedDate.isAfter(today)) {
-          status = ClassStatus.upcoming;
-        } else {
-          // selectedDate == today, so compare time now
-          final diff = classDateTime.difference(now).inMinutes;
-          if (diff < -10) {
-            status = ClassStatus.completed;
-          } else if (diff >= -10 && diff <= 30) {
-            status = ClassStatus.live;
-          } else {
-            status = ClassStatus.upcoming;
+          // Parse classDateTime from selectedDate + time
+          DateTime? classDateTime;
+          try {
+            classDateTime = DateFormat('yyyy-MM-dd hh:mm a').parse('$todayStr $time');
+          } catch (_) {
+            classDateTime = null;
           }
-        }
 
-        result[day]!.add(ClassSchedule(
-          subject: name,
-          time: time,
-          status: status,
-          present: 0,
-          total: 30,
-          subgroups: [subgroup],
-                 ));
-       }
-     }
+          late final ClassStatus status;
+
+          if (classDateTime == null) {
+            status = ClassStatus.upcoming;
+          } else if (selectedDate.isBefore(today)) {
+            status = ClassStatus.completed;
+          } else if (selectedDate.isAfter(today)) {
+            status = ClassStatus.upcoming;
+          } else {
+            // selectedDate == today, so compare time now
+            final diff = classDateTime.difference(now).inMinutes;
+            if (diff < -10) {
+              status = ClassStatus.completed;
+            } else if (diff >= -10 && diff <= 30) {
+              status = ClassStatus.live;
+            } else {
+              status = ClassStatus.upcoming;
+            }
+          }
+
+          dayClasses.add(ClassSchedule(
+            subject: name,
+            time: time,
+            status: status,
+            present: 0,
+            total: 30,
+            subgroups: [subgroup],
+          ));
+        }
+      }
+
+      if (dayClasses.isNotEmpty) {
+        result[day] = dayClasses;
+      }
+    }
 
     print('Final timetable data: $result');
     timetableData = result;
