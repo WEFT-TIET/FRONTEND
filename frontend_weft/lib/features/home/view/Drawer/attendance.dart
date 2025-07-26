@@ -1,5 +1,4 @@
-/*import 'dart:convert';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -70,7 +69,7 @@ class _AttendancePageState extends State<AttendancePage> {
   }
 
   Future<void> _loadTimetable(String subgroup) async {
-    final raw = await rootBundle.loadString('lib/core/assets/data.json');
+    final raw = await rootBundle.loadString('lib/core/assets/resultsTIMETABLEJULYTODEC25.json');
     final Map<String, dynamic> jsonMap = jsonDecode(raw);
 
     List<dynamic>? matrixRows;
@@ -525,4 +524,3 @@ class _AttendancePageState extends State<AttendancePage> {
         ]),
       );
 }
-*/
