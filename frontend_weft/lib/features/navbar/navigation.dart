@@ -140,7 +140,11 @@ class _BottomNavBarState extends State<BottomNavBar>
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 150),
                 style: isSelected ? _activeTextStyle : _inactiveTextStyle,
-                child: Text(item.label),
+                child: Text(
+                  item.label,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
               ),
             ],
           ),
@@ -151,6 +155,9 @@ class _BottomNavBarState extends State<BottomNavBar>
 
   @override
   Widget build(BuildContext context) {
+    // Get the bottom padding for safe area
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    
     return Scaffold(
       backgroundColor: AppPallete.transperantColor,
       body: IndexedStack(
@@ -171,7 +178,8 @@ class _BottomNavBarState extends State<BottomNavBar>
           ),
           child: ClipRRect(
             child: Container(
-              height: 70,
+              // Dynamic height calculation based on safe area
+              height: 70 + bottomPadding,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -186,14 +194,17 @@ class _BottomNavBarState extends State<BottomNavBar>
                   width: 0.5,
                 ),
               ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Row(
-                    children: List.generate(
-                      _navItems.length,
-                      _buildNavItem,
-                    ),
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 8,
+                  right: 8,
+                  top: 4,
+                  bottom: 4 + bottomPadding, // Add bottom safe area
+                ),
+                child: Row(
+                  children: List.generate(
+                    _navItems.length,
+                    _buildNavItem,
                   ),
                 ),
               ),
