@@ -128,46 +128,46 @@ class _AttendancePageState extends State<AttendancePage> {
           // Use subject name directly from JSON, fallback to subjectMap
           final name = subjectName.isNotEmpty ? subjectName : (subjectMap[courseCode] ?? courseCode);
 
-          final todayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
-          final now = DateTime.now();
-          final today = DateTime(now.year, now.month, now.day);
+        final todayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
 
-          // Parse classDateTime from selectedDate + time
-          DateTime? classDateTime;
-          try {
+        // Parse classDateTime from selectedDate + time
+        DateTime? classDateTime;
+        try {
             classDateTime = DateFormat('yyyy-MM-dd hh:mm a').parse('$todayStr $time');
-          } catch (_) {
-            classDateTime = null;
-          }
+        } catch (_) {
+          classDateTime = null;
+        }
 
-          late final ClassStatus status;
+        late final ClassStatus status;
 
-          if (classDateTime == null) {
-            status = ClassStatus.upcoming;
-          } else if (selectedDate.isBefore(today)) {
+        if (classDateTime == null) {
+          status = ClassStatus.upcoming;
+        } else if (selectedDate.isBefore(today)) {
+          status = ClassStatus.completed;
+        } else if (selectedDate.isAfter(today)) {
+          status = ClassStatus.upcoming;
+        } else {
+          // selectedDate == today, so compare time now
+          final diff = classDateTime.difference(now).inMinutes;
+          if (diff < -10) {
             status = ClassStatus.completed;
-          } else if (selectedDate.isAfter(today)) {
-            status = ClassStatus.upcoming;
+          } else if (diff >= -10 && diff <= 30) {
+            status = ClassStatus.live;
           } else {
-            // selectedDate == today, so compare time now
-            final diff = classDateTime.difference(now).inMinutes;
-            if (diff < -10) {
-              status = ClassStatus.completed;
-            } else if (diff >= -10 && diff <= 30) {
-              status = ClassStatus.live;
-            } else {
-              status = ClassStatus.upcoming;
-            }
+            status = ClassStatus.upcoming;
           }
+        }
 
           dayClasses.add(ClassSchedule(
-            subject: name,
-            time: time,
-            status: status,
-            present: 0,
-            total: 30,
-            subgroups: [subgroup],
-          ));
+          subject: name,
+          time: time,
+          status: status,
+          present: 0,
+          total: 30,
+          subgroups: [subgroup],
+        ));
         }
       }
 
