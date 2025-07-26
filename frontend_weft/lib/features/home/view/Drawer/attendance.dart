@@ -38,14 +38,32 @@ class _AttendancePageState extends State<AttendancePage> {
 
   // List all subgroups you support here
   final List<String> subgroups = [
-    '1A11','1A12','1A13','1A14',
+    '1A11','1A12','1A13','1A14','1A15','1A16','1A17','1A18',
+    '1A21','1A22','1A23','1A24','1A25','1A26','1A27','1A28',
+    '1A31','1A32',
     '1B11','1B12','1B13','1B14','1B15','1B16','1B17','1B18','1B19','1B20',
-    // … up to 1B66
+    '1B21','1B22','1B23','1B24','1B25','1B26','1B27','1B28',
+    '1B31','1B32','1B33','1B34','1B35','1B36','1B37','1B38',
+    '1B41','1B42','1B43','1B44','1B45','1B46','1B47','1B48',
+    '1B51','1B52','1B53','1B54','1B55','1B56','1B57','1B58',
+    '1B61','1B62','1B63','1B64','1B65','1B66','2C65',
+    // Add more as needed
   ];
 
   Map<String, String> subjectMap = {};
   Map<String, List<ClassSchedule>> timetableData = {};
   Map<String, bool> attendanceMap = {}; // key → present/absent
+  
+  // Day name mapping to handle different formats
+  final Map<String, String> dayNameMapping = {
+    'Monday': 'Monday',
+    'Tuesday': 'Tuesday', 
+    'Wednesday': 'Wednesday',
+    'Thursday': 'Thursday',
+    'Friday': 'Friday',
+    'Saturday': 'Saturday',
+    'Sunday': 'Sunday',
+  };
 
   @override
   void initState() {
@@ -69,33 +87,60 @@ class _AttendancePageState extends State<AttendancePage> {
   }
 
   Future<void> _loadTimetable(String subgroup) async {
-    final raw = await rootBundle.loadString('lib/core/assets/resultsTIMETABLEJULYTODEC25.json');
+    final raw = await rootBundle.loadString('lib/core/assets/data.json');
     final Map<String, dynamic> jsonMap = jsonDecode(raw);
 
-    List<dynamic>? matrixRows;
-    for (var yearBlock in jsonMap.values) {
-      if (yearBlock is Map<String, dynamic> &&
-          yearBlock.containsKey(subgroup)) {
-        matrixRows = yearBlock[subgroup] as List<dynamic>;
+    // Debug: Print available subgroups
+    print('Available subgroups: ${jsonMap.keys.toList()}');
+    print('Looking for subgroup: $subgroup');
+
+    // Find the year block that contains our subgroup
+    Map<String, dynamic>? targetYearBlock;
+    String? targetYearKey;
+    
+    for (String yearKey in jsonMap.keys) {
+      final yearBlock = jsonMap[yearKey] as Map<String, dynamic>;
+      print('Checking year block: $yearKey, contains keys: ${yearBlock.keys.toList()}');
+      
+      if (yearBlock.containsKey(subgroup)) {
+        targetYearBlock = yearBlock;
+        targetYearKey = yearKey;
         break;
       }
     }
 
-    if (matrixRows == null || matrixRows.isEmpty) {
+    if (targetYearBlock == null) {
+      print('Subgroup $subgroup not found in any year block');
       timetableData = {};
       return;
     }
 
-    final header = matrixRows[0] as List<dynamic>;
+    print('Found subgroup $subgroup in year block: $targetYearKey');
+
+    final subgroupData = targetYearBlock[subgroup] as List<dynamic>;
+    final Map<String, List<ClassSchedule>> result = {};
+
+    print('Subgroup data type: ${subgroupData.runtimeType}');
+    print('Subgroup data length: ${subgroupData.length}');
+
+    // The data is in matrix format - first row is header with days
+    if (subgroupData.isEmpty) {
+      print('Subgroup data is empty');
+      timetableData = {};
+      return;
+    }
+
+    final header = subgroupData[0] as List<dynamic>;
     final weekdays = header
-        .skip(1)
+        .skip(1) // Skip the first column (time)
         .map((cell) => (cell as Map<String, dynamic>)['course'] as String)
         .toList();
 
-    final Map<String, List<ClassSchedule>> result = {};
+    print('Weekdays found: $weekdays');
 
-    for (int r = 1; r < matrixRows.length; r++) {
-      final row = matrixRows[r] as List<dynamic>;
+    // Process each row (time slot)
+    for (int r = 1; r < subgroupData.length; r++) {
+      final row = subgroupData[r] as List<dynamic>;
       final time = (row[0] as Map<String, dynamic>)['course'] as String;
 
       for (int c = 1; c < row.length; c++) {
@@ -108,10 +153,9 @@ class _AttendancePageState extends State<AttendancePage> {
         final day = weekdays[c - 1];
 
         result.putIfAbsent(day, () => []);
+
         final todayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
         final now = DateTime.now();
-
-        // Normalize today's date to midnight to ignore time
         final today = DateTime(now.year, now.month, now.day);
 
         // Parse classDateTime from selectedDate + time
@@ -142,7 +186,6 @@ class _AttendancePageState extends State<AttendancePage> {
           }
         }
 
-
         result[day]!.add(ClassSchedule(
           subject: name,
           time: time,
@@ -150,12 +193,11 @@ class _AttendancePageState extends State<AttendancePage> {
           present: 0,
           total: 30,
           subgroups: [subgroup],
-        ));
+                 ));
+       }
+     }
 
-
-      }
-    }
-
+    print('Final timetable data: $result');
     timetableData = result;
   }
 
@@ -367,7 +409,21 @@ class _AttendancePageState extends State<AttendancePage> {
   }
 
   Widget _buildClassesList(String dayName) {
-    final classes = timetableData[dayName] ?? [];
+    print('Looking for classes on: $dayName');
+    print('Available days in timetable: ${timetableData.keys.toList()}');
+    
+    // Try to find the correct day name in the timetable data
+    String? actualDayName;
+    for (String key in timetableData.keys) {
+      if (key.toLowerCase() == dayName.toLowerCase()) {
+        actualDayName = key;
+        break;
+      }
+    }
+    
+    print('Actual day name found: $actualDayName');
+    
+    final classes = timetableData[actualDayName ?? dayName] ?? [];
     final filtered =
         classes.where((c) => c.subgroups.contains(selectedSubgroup)).toList();
 

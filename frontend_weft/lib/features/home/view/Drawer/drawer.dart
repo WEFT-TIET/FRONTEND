@@ -53,12 +53,12 @@ class DrawerWidget extends StatelessWidget {
                           title: 'Society Events',
                           page: SocietyPage(),
                         ),
-                        /*_buildMenuItem(
+                        _buildMenuItem(
                           context: context,
                           icon: Icons.calendar_month_rounded,
                           title: 'Attendance',
                           page: AttendancePage(),
-                        ),*/
+                        ),
                         _buildMenuItem(
                           context: context,
                           icon: Icons.map,
