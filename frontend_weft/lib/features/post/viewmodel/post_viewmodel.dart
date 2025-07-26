@@ -111,6 +111,43 @@ class PostViewModel extends StateNotifier<PostState> {
   Future<void> refreshPosts() async {
     await fetchPosts();
   }
+
+  // Block a user
+  Future<bool> blockUser(String userId) async {
+    try {
+      final success = await _postService.blockUser(userId);
+      
+      if (success) {
+        // Remove posts from blocked user from the feed
+        final updatedPosts = state.posts
+            .where((post) => post.userId != userId)
+            .toList();
+        state = state.copyWith(posts: updatedPosts);
+      }
+      
+      return success;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
+  // Unblock a user
+  Future<bool> unblockUser(String userId) async {
+    try {
+      final success = await _postService.unblockUser(userId);
+      
+      if (success) {
+        // Refresh posts to show posts from unblocked user
+        await fetchPosts();
+      }
+      
+      return success;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
 }
 
 // Providers

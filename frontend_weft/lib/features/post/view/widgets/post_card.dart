@@ -5,6 +5,7 @@ import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
 
 class PostCard extends ConsumerWidget {
   final String postId;
+  final String userId;
   final String name;
   final String tag;
   final String timeAgo;
@@ -16,6 +17,7 @@ class PostCard extends ConsumerWidget {
   const PostCard({
     super.key,
     this.postId = '',
+    required this.userId,
     required this.name,
     required this.tag,
     required this.timeAgo,
@@ -286,7 +288,7 @@ class PostCard extends ConsumerWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _blockUser(context);
+                _blockUser(context, userId, ref);
               },
               style: TextButton.styleFrom(
                 foregroundColor: AppPallete.red,
@@ -312,16 +314,24 @@ class PostCard extends ConsumerWidget {
     );
   }
 
-  void _blockUser(BuildContext context) {
-    // TODO: Implement user blocking in backend
-    // ref.read(postViewModelProvider.notifier).blockUser(userId);
-    
-    // Show confirmation snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$name has been blocked'),
-        backgroundColor: AppPallete.gradient2,
-      ),
-    );
+  void _blockUser(BuildContext context, String userId, WidgetRef ref) {
+    // Call the viewmodel to block the user
+    ref.read(postViewModelProvider.notifier).blockUser(userId).then((success) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$name has been blocked'),
+            backgroundColor: AppPallete.gradient2,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to block user'),
+            backgroundColor: AppPallete.red,
+          ),
+        );
+      }
+    });
   }
 }

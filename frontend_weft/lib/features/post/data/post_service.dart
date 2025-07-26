@@ -41,13 +41,45 @@ class PostService {
         }
 
         print("📋 Found ${postsJson.length} posts");
-        return postsJson.map((json) => Post.fromJson(json)).toList();
+        
+        // Get blocked users to filter out their posts
+        final blockedUsers = await _getBlockedUsers();
+        final blockedUserIds = blockedUsers.map((user) => user['id'].toString()).toSet();
+        
+        // Filter out posts from blocked users
+        final filteredPostsJson = postsJson.where((post) {
+          final postUserId = post['user_id']?.toString() ?? post['userId']?.toString() ?? '';
+          return !blockedUserIds.contains(postUserId);
+        }).toList();
+        
+        print("📋 Filtered to ${filteredPostsJson.length} posts (removed ${postsJson.length - filteredPostsJson.length} from blocked users)");
+        
+        return filteredPostsJson.map((json) => Post.fromJson(json)).toList();
       } else {
         print("❌ Failed to fetch posts: ${response.statusCode} - ${response.body}");
         return [];
       }
     } catch (e) {
       print("❌ Error fetching posts: $e");
+      return [];
+    }
+  }
+
+  // Helper method to get blocked users
+  Future<List<Map<String, dynamic>>> _getBlockedUsers() async {
+    try {
+      final url = Uri.parse('$baseUrl/blocklist');
+      final response = await _httpClient.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          return data.cast<Map<String, dynamic>>();
+        }
+      }
+      return [];
+    } catch (e) {
+      print("❌ Error fetching blocked users: $e");
       return [];
     }
   }
@@ -120,6 +152,38 @@ class PostService {
       return response.statusCode == 200 || response.statusCode == 204;
     } catch (e) {
       print("❌ Error deleting post: $e");
+      return false;
+    }
+  }
+
+  // Block a user
+  Future<bool> blockUser(String userId) async {
+    try {
+      final url = Uri.parse('$baseUrl/block/user?id=$userId');
+      final response = await _httpClient.post(url);
+
+      print("🔵 POST Block User URL: $url");
+      print("📬 Response (${response.statusCode}): ${response.body}");
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print("❌ Error blocking user: $e");
+      return false;
+    }
+  }
+
+  // Unblock a user
+  Future<bool> unblockUser(String userId) async {
+    try {
+      final url = Uri.parse('$baseUrl/unblock/user?id=$userId');
+      final response = await _httpClient.post(url);
+
+      print("🔵 POST Unblock User URL: $url");
+      print("📬 Response (${response.statusCode}): ${response.body}");
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print("❌ Error unblocking user: $e");
       return false;
     }
   }

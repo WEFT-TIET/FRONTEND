@@ -1,5 +1,6 @@
 class Post {
   final String id;
+  final String userId;
   final String title;
   final String content;
   final String userName;
@@ -10,6 +11,7 @@ class Post {
 
   const Post({
     required this.id,
+    required this.userId,
     required this.title,
     required this.content,
     required this.userName,
@@ -22,6 +24,7 @@ class Post {
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       id: json['id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? json['userId']?.toString() ?? '',
       title: json['title'] ?? '',
       content: json['content'] ?? '',
       userName: json['userName'] ?? json['user_name'] ?? 'Anonymous',
@@ -37,6 +40,7 @@ class Post {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'user_id': userId,
       'title': title,
       'content': content,
       'userName': userName,
@@ -49,6 +53,7 @@ class Post {
 
   Post copyWith({
     String? id,
+    String? userId,
     String? title,
     String? content,
     String? userName,
@@ -59,6 +64,7 @@ class Post {
   }) {
     return Post(
       id: id ?? this.id,
+      userId: userId ?? this.userId,
       title: title ?? this.title,
       content: content ?? this.content,
       userName: userName ?? this.userName,

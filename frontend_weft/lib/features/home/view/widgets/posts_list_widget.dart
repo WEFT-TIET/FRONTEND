@@ -44,6 +44,7 @@ class PostsListWidget extends ConsumerWidget {
                 child: PostCard(
                   key: ValueKey('post_${post.id}'),
                   postId: post.id,
+                  userId: post.userId,
                   name: post.userName,
                   tag: post.title,
                   timeAgo: _formatTimeAgo(post.createdAt),

@@ -240,6 +240,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                     final post = sortedPosts[index];
                                     return PostCard(
                                       postId: post.id,
+                                      userId: post.userId,
                                       name: post.userName.isNotEmpty ? post.userName : user.name,
                                       tag: post.title,
                                       timeAgo: _formatTimeAgo(post.createdAt),
