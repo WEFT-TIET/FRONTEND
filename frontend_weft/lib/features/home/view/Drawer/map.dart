@@ -5,11 +5,12 @@ import 'package:xml/xml.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
-import 'dart:math' as math;
 
 void main() => runApp(ThaparApp());
 
 class ThaparApp extends StatelessWidget {
+  const ThaparApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -32,6 +33,8 @@ class ThaparApp extends StatelessWidget {
 }
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1058,7 +1061,7 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
                 animation: _animation,
                 builder: (context, child) {
                   return ClipRect(
-                    child: Container(
+                    child: SizedBox(
                       height: _animation.value * 400,
                       child: _animation.value > 0
                           ? Container(

@@ -1,6 +1,5 @@
 // pages/message_page.dart
 import 'package:flutter/material.dart';
-import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/messages/models/chat.dart';
 import 'package:frontend_weft/features/messages/widgets/chat_tile.dart';
 import 'chat_detail_page.dart';

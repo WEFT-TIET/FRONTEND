@@ -1,6 +1,5 @@
 // widgets/message_input.dart
 import 'package:flutter/material.dart';
-import 'package:frontend_weft/core/theme/app_pallete.dart';
 
 class MessageInput extends StatefulWidget {
   final Function(String) onSendMessage;

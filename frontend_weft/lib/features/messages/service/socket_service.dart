@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../models/message.dart';
@@ -158,12 +157,6 @@ class SocketService {
   final _onlineStatusStreamController = StreamController<Map<String, dynamic>>.broadcast();
 
   // Initialize streams
-  void _initializeStreams() {
-    _messageStream = _messageStreamController.stream;
-    _chatUpdateStream = _chatUpdateStreamController.stream;
-    _typingStream = _typingStreamController.stream;
-    _onlineStatusStream = _onlineStatusStreamController.stream;
-  }
 
   // Send message
   void sendMessage({
