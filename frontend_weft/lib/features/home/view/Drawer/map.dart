@@ -5,6 +5,7 @@ import 'package:xml/xml.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
+import 'dart:math' as math;
 
 void main() => runApp(ThaparApp());
 
