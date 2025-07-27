@@ -43,6 +43,11 @@ class _AttendancePageState extends State<AttendancePage> {
   Map<String, List<ClassSchedule>> timetableData = {};
   Map<String, bool> attendanceMap = {}; // key → present/absent
   
+  // Searchable dropdown state
+  bool isDropdownOpen = false;
+  String searchQuery = '';
+  final TextEditingController searchController = TextEditingController();
+  
   // Day name mapping to handle different formats
   final Map<String, String> dayNameMapping = {
     'Monday': 'Monday',
@@ -58,6 +63,12 @@ class _AttendancePageState extends State<AttendancePage> {
   void initState() {
     super.initState();
     _loadAllData();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadAllData() async {
@@ -267,7 +278,7 @@ class _AttendancePageState extends State<AttendancePage> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // Subgroup dropdown
+                // Subgroup searchable dropdown
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Container(
@@ -277,21 +288,7 @@ class _AttendancePageState extends State<AttendancePage> {
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: selectedSubgroup,
-                        dropdownColor: const Color(0xFF6B73FF),
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 16),
-                        icon: const Icon(Icons.arrow_drop_down,
-                            color: Colors.white),
-                        items: subgroups
-                            .map((s) =>
-                                DropdownMenuItem(value: s, child: Text(s)))
-                            .toList(),
-                        onChanged: _onSubgroupChanged,
-                      ),
-                    ),
+                    child: _buildSearchableDropdown(),
                   ),
                 ),
 
@@ -566,4 +563,114 @@ class _AttendancePageState extends State<AttendancePage> {
                   color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500)),
         ]),
       );
+
+  Widget _buildSearchableDropdown() {
+    // Filter subgroups based on search query
+    final filteredSubgroups = subgroups
+        .where((subgroup) => subgroup.toLowerCase().contains(searchQuery.toLowerCase()))
+        .toList();
+
+    return Column(
+      children: [
+        // Selected subgroup display
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              isDropdownOpen = !isDropdownOpen;
+              if (isDropdownOpen) {
+                searchController.text = '';
+                searchQuery = '';
+              }
+            });
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                selectedSubgroup,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              Icon(
+                isDropdownOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                color: Colors.white,
+              ),
+            ],
+          ),
+        ),
+        
+        // Dropdown content
+        if (isDropdownOpen) ...[
+          const SizedBox(height: 8),
+          
+          // Search input
+          TextField(
+            controller: searchController,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
+            decoration: InputDecoration(
+              hintText: 'Search subgroups...',
+              hintStyle: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
+              prefixIcon: const Icon(Icons.search, color: Colors.white, size: 20),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.white),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+            onChanged: (value) {
+              setState(() {
+                searchQuery = value;
+              });
+            },
+          ),
+          
+          const SizedBox(height: 8),
+          
+          // Subgroups list
+          Container(
+            constraints: const BoxConstraints(maxHeight: 200),
+            decoration: BoxDecoration(
+              color: const Color(0xFF6B73FF),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: filteredSubgroups.length,
+              itemBuilder: (context, index) {
+                final subgroup = filteredSubgroups[index];
+                final isSelected = subgroup == selectedSubgroup;
+                
+                return ListTile(
+                  dense: true,
+                  title: Text(
+                    subgroup,
+                    style: TextStyle(
+                      color: isSelected ? Colors.yellow : Colors.white,
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  onTap: () {
+                    _onSubgroupChanged(subgroup);
+                    setState(() {
+                      isDropdownOpen = false;
+                      searchQuery = '';
+                      searchController.clear();
+                    });
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ],
+    );
+  }
 }
