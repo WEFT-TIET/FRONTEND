@@ -386,90 +386,285 @@ const Map<String, String> nameToSvgId = {
   'Road': 'road',
 };
 
+// Helper class to calculate building center positions
+class BuildingCenterCalculator {
+  static Map<String, Offset>? _buildingCenters;
+  
+  static Future<Map<String, Offset>> getBuildingCenters() async {
+    if (_buildingCenters != null) return _buildingCenters!;
+    
+    try {
+      final rawSvg = await rootBundle.loadString('lib/core/assets/thapar_map.svg');
+      final doc = XmlDocument.parse(rawSvg);
+      final centers = <String, Offset>{};
+      
+      // Process all elements with IDs
+      final allElements = doc.descendants.whereType<XmlElement>();
+      
+      for (final element in allElements) {
+        final id = element.getAttribute('id');
+        if (id != null && id.isNotEmpty) {
+          final center = _calculateElementCenter(element);
+          if (center != null) {
+            centers[id] = center;
+            print('Calculated center for $id: ${center.dx}, ${center.dy}');
+          } else {
+            print('Could not calculate center for $id');
+          }
+        }
+      }
+      
+      print('Total building centers calculated: ${centers.length}');
+      _buildingCenters = centers;
+      return centers;
+    } catch (e) {
+      print('Error calculating building centers: $e');
+      return {};
+    }
+  }
+  
+  static Offset? _calculateElementCenter(XmlElement element) {
+    final tagName = element.name.local;
+    
+    switch (tagName) {
+      case 'rect':
+        return _calculateRectCenter(element);
+      case 'path':
+        return _calculatePathCenter(element);
+      case 'ellipse':
+        return _calculateEllipseCenter(element);
+      case 'g':
+        return _calculateGroupCenter(element);
+      default:
+        return null;
+    }
+  }
+  
+  static Offset? _calculateRectCenter(XmlElement element) {
+    final x = double.tryParse(element.getAttribute('x') ?? '0') ?? 0;
+    final y = double.tryParse(element.getAttribute('y') ?? '0') ?? 0;
+    final width = double.tryParse(element.getAttribute('width') ?? '0') ?? 0;
+    final height = double.tryParse(element.getAttribute('height') ?? '0') ?? 0;
+    
+    if (width <= 0 || height <= 0) return null;
+    
+    return Offset(x + width / 2, y + height / 2);
+  }
+  
+  static Offset? _calculateEllipseCenter(XmlElement element) {
+    final cx = double.tryParse(element.getAttribute('cx') ?? '0') ?? 0;
+    final cy = double.tryParse(element.getAttribute('cy') ?? '0') ?? 0;
+    
+    return Offset(cx, cy);
+  }
+  
+  static Offset? _calculatePathCenter(XmlElement element) {
+    // For path elements, we'll use a more sophisticated approach
+    final d = element.getAttribute('d') ?? '';
+    if (d.isEmpty) return null;
+    
+    // Extract all coordinates from the path
+    final numbers = _extractNumbersFromPath(d);
+    if (numbers.length < 2) return null;
+    
+    // For paths, we'll calculate the bounding box and use its center
+    double minX = double.infinity;
+    double maxX = -double.infinity;
+    double minY = double.infinity;
+    double maxY = -double.infinity;
+    
+    // Process coordinates in pairs (x, y)
+    for (int i = 0; i < numbers.length - 1; i += 2) {
+      final x = numbers[i];
+      final y = numbers[i + 1];
+      
+      minX = math.min(minX, x);
+      maxX = math.max(maxX, x);
+      minY = math.min(minY, y);
+      maxY = math.max(maxY, y);
+    }
+    
+    if (minX == double.infinity || maxX == -double.infinity) {
+      // Fallback to first coordinate if bounding box calculation fails
+      return Offset(numbers[0], numbers[1]);
+    }
+    
+    return Offset((minX + maxX) / 2, (minY + maxY) / 2);
+  }
+  
+  static Offset? _calculateGroupCenter(XmlElement element) {
+    // For groups, calculate the center of all child elements
+    final children = element.children.whereType<XmlElement>();
+    if (children.isEmpty) return null;
+    
+    double totalX = 0;
+    double totalY = 0;
+    int count = 0;
+    
+    for (final child in children) {
+      final center = _calculateElementCenter(child);
+      if (center != null) {
+        totalX += center.dx;
+        totalY += center.dy;
+        count++;
+      }
+    }
+    
+    if (count == 0) return null;
+    return Offset(totalX / count, totalY / count);
+  }
+  
+  static List<double> _extractNumbersFromPath(String pathData) {
+    final numbers = <double>[];
+    final regex = RegExp(r'[-+]?\d*\.?\d+');
+    final matches = regex.allMatches(pathData);
+    
+    for (final match in matches) {
+      final number = double.tryParse(match.group(0) ?? '');
+      if (number != null) {
+        numbers.add(number);
+      }
+    }
+    
+    return numbers;
+  }
+}
+
+// Function to add Pikachu image to SVG
+XmlElement _createPikachuImageElement(Offset position) {
+  final imageElement = XmlElement(XmlName('image'));
+  
+  // Set image attributes - position Pikachu above the building center
+  imageElement.setAttribute('x', (position.dx - 30).toString()); // Center the image
+  imageElement.setAttribute('y', (position.dy - 60).toString()); // Position above the building
+  imageElement.setAttribute('width', '60');
+  imageElement.setAttribute('height', '60');
+  imageElement.setAttribute('href', 'lib/core/assets/pikachu.png');
+  imageElement.setAttribute('id', 'pikachu_marker');
+  
+  // Add some styling to make it stand out
+  imageElement.setAttribute('opacity', '0.95');
+  
+  // Add a subtle drop shadow effect
+  imageElement.setAttribute('filter', 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))');
+  
+  // Add a subtle glow effect to make it more visible
+  imageElement.setAttribute('style', 'filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6)) drop-shadow(2px 2px 4px rgba(0,0,0,0.3));');
+  
+  // Add a title for accessibility
+  imageElement.setAttribute('title', 'Pikachu found this building!');
+  
+  // Add a subtle animation effect
+  imageElement.setAttribute('transform', 'translate(0, -2)');
+  
+  return imageElement;
+}
+
+// Function to create a text label for Pikachu
+XmlElement _createPikachuLabel(Offset position, String buildingId) {
+  final textElement = XmlElement(XmlName('text'));
+  
+  // Find the building name from the mapping
+  String buildingName = buildingId;
+  for (final entry in nameToSvgId.entries) {
+    if (entry.value == buildingId) {
+      buildingName = entry.key;
+      break;
+    }
+  }
+  
+  // Set text attributes
+  textElement.setAttribute('x', position.dx.toString());
+  textElement.setAttribute('y', (position.dy + 40).toString()); // Position below Pikachu
+  textElement.setAttribute('text-anchor', 'middle');
+  textElement.setAttribute('font-family', 'Arial, sans-serif');
+  textElement.setAttribute('font-size', '14');
+  textElement.setAttribute('font-weight', 'bold');
+  textElement.setAttribute('fill', '#FFD700');
+  textElement.setAttribute('stroke', '#000000');
+  textElement.setAttribute('stroke-width', '0.5');
+  textElement.setAttribute('id', 'pikachu_label');
+  
+  // Add the text content
+  textElement.children.add(XmlText(buildingName));
+  
+  return textElement;
+}
+
 Future<String> highlightSvg(String assetPath, String? highlightId, {Offset? userLocation}) async {
   final rawSvg = await rootBundle.loadString(assetPath);
   final doc = XmlDocument.parse(rawSvg);
 
-  // Add Pikachu pointer for selected building
   if (highlightId != null) {
     final allElements = doc.descendants.whereType<XmlElement>();
     final matches = allElements.where((node) => node.getAttribute('id') == highlightId);
 
     if (matches.isNotEmpty) {
       final node = matches.first;
+      node.setAttribute('fill', '#FFD700');
+      node.setAttribute('stroke', '#FF8C00');
+      node.setAttribute('stroke-width', '4');
       
-      // Get the bounding box of the selected element to position Pikachu
-      String? x, y, width, height;
-      
-      // Try to get position from different element types
-      if (node.getAttribute('x') != null && node.getAttribute('y') != null) {
-        // For rect elements - position Pikachu at the center-top of the rectangle
-        double rectX = double.parse(node.getAttribute('x')!);
-        double rectY = double.parse(node.getAttribute('y')!);
-        double rectWidth = double.parse(node.getAttribute('width') ?? '30');
-        double rectHeight = double.parse(node.getAttribute('height') ?? '60');
+      // Add Pikachu image above the highlighted building
+      try {
+        final buildingCenters = await BuildingCenterCalculator.getBuildingCenters();
+        final buildingCenter = buildingCenters[highlightId];
         
-        x = (rectX + rectWidth / 2 - 15).toString(); // Center horizontally, offset for 30px wide image
-        y = (rectY - 60).toString(); // Position above the building
-        width = '30';
-        height = '60';
-      } else if (node.getAttribute('cx') != null && node.getAttribute('cy') != null) {
-        // For circle/ellipse elements
-        double cx = double.parse(node.getAttribute('cx')!);
-        double cy = double.parse(node.getAttribute('cy')!);
-        
-        x = (cx - 15).toString(); // Center horizontally, offset for 30px wide image
-        y = (cy - 60).toString(); // Position above the building
-        width = '30';
-        height = '60';
-      } else {
-        // For path elements, try to extract coordinates from the path data
-        String? pathData = node.getAttribute('d');
-        if (pathData != null && pathData.isNotEmpty) {
-          // Simple approach: find the first set of coordinates in the path
-          RegExp coordRegex = RegExp(r'[ML]\s*([0-9.-]+)\s+([0-9.-]+)');
-          Match? match = coordRegex.firstMatch(pathData);
-          if (match != null) {
-            double pathX = double.parse(match.group(1)!);
-            double pathY = double.parse(match.group(2)!);
-            
-            x = (pathX - 15).toString();
-            y = (pathY - 60).toString();
-            width = '30';
-            height = '60';
-          } else {
-            // Fallback for complex paths
-            x = '100';
-            y = '100';
-            width = '30';
-            height = '60';
+        if (buildingCenter != null) {
+          print('Adding Pikachu at position: ${buildingCenter.dx}, ${buildingCenter.dy} for building: $highlightId');
+          
+          // Remove any existing Pikachu marker
+          final existingPikachu = doc.descendants.whereType<XmlElement>()
+              .where((element) => element.getAttribute('id') == 'pikachu_marker');
+          
+          for (final element in existingPikachu) {
+            element.remove();
           }
+          
+                  // Add new Pikachu marker
+        final pikachuElement = _createPikachuImageElement(buildingCenter);
+        doc.rootElement.children.add(pikachuElement);
+        print('Added Pikachu element to SVG');
+        
+        // Add a text label below Pikachu
+        final textElement = _createPikachuLabel(buildingCenter, highlightId);
+        doc.rootElement.children.add(textElement);
+        print('Added Pikachu label to SVG');
         } else {
-          // Default position if no path data
-          x = '100';
-          y = '100';
-          width = '30';
-          height = '60';
+          print('Warning: Could not find center position for building: $highlightId');
         }
+      } catch (e) {
+        print('Error adding Pikachu marker: $e');
       }
-      
-      // Create image element for Pikachu
-      final imageElement = XmlElement(XmlName('image'));
-      imageElement.setAttribute('x', x);
-      imageElement.setAttribute('y', y);
-      imageElement.setAttribute('width', width);
-      imageElement.setAttribute('height', height);
-      imageElement.setAttribute('href', 'lib/core/assets/pikachu.png');
-      imageElement.setAttribute('id', 'pikachu_pointer');
-      
-      // Add Pikachu image to SVG
-      doc.rootElement.children.add(imageElement);
+    }
+  } else {
+    // Remove Pikachu marker and label when no building is highlighted
+    final existingPikachu = doc.descendants.whereType<XmlElement>()
+        .where((element) => element.getAttribute('id') == 'pikachu_marker');
+    
+    for (final element in existingPikachu) {
+      element.remove();
+    }
+    
+    final existingLabel = doc.descendants.whereType<XmlElement>()
+        .where((element) => element.getAttribute('id') == 'pikachu_label');
+    
+    for (final element in existingLabel) {
+      element.remove();
     }
   }
 
   // Add user location marker if provided
   if (userLocation != null) {
     final svgElement = doc.rootElement;
+    
+    // Remove any existing user location marker
+    final existingUserMarker = doc.descendants.whereType<XmlElement>()
+        .where((element) => element.getAttribute('id') == 'user_location_marker');
+    
+    for (final element in existingUserMarker) {
+      element.remove();
+    }
     
     // Create a group for the user location marker
     final markerGroup = XmlElement(XmlName('g'));
