@@ -31,7 +31,7 @@ class AttendancePage extends StatefulWidget {
   State<AttendancePage> createState() => _AttendancePageState();
 }
 
-class _AttendancePageState extends State<AttendancePage> {
+class _AttendancePageState extends State<AttendancePage> with TickerProviderStateMixin {
   DateTime selectedDate = DateTime.now();
   String selectedSubgroup = '1A11';
   bool loading = true;
@@ -47,6 +47,9 @@ class _AttendancePageState extends State<AttendancePage> {
   bool isDropdownOpen = false;
   String searchQuery = '';
   final TextEditingController searchController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
+  late AnimationController _animationController;
+  late Animation<double> _animation;
   
   // Day name mapping to handle different formats
   final Map<String, String> dayNameMapping = {
@@ -62,12 +65,22 @@ class _AttendancePageState extends State<AttendancePage> {
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
     _loadAllData();
   }
 
   @override
   void dispose() {
+    _animationController.dispose();
     searchController.dispose();
+    searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -123,7 +136,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
     print('Found subgroup $subgroup directly in JSON');
 
-        final subgroupData = jsonMap[subgroup] as Map<String, dynamic>;
+    final subgroupData = jsonMap[subgroup] as Map<String, dynamic>;
     final Map<String, List<ClassSchedule>> result = {};
 
     print('Subgroup data keys: ${subgroupData.keys.toList()}');
@@ -148,74 +161,74 @@ class _AttendancePageState extends State<AttendancePage> {
           // Use subject name directly from JSON, fallback to subjectMap
           final name = subjectName.isNotEmpty ? subjectName : (subjectMap[courseCode] ?? courseCode);
 
-        // Get current device date and time
-        final now = DateTime.now();
-        final currentDate = DateTime(now.year, now.month, now.day);
-        final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+          // Get current device date and time
+          final now = DateTime.now();
+          final currentDate = DateTime(now.year, now.month, now.day);
+          final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
 
-        // Debug prints to understand the date comparison
-        print('DEBUG: Current date: $currentDate');
-        print('DEBUG: Selected date: $selectedDateOnly');
-        print('DEBUG: Is selected before current: ${selectedDateOnly.isBefore(currentDate)}');
-        print('DEBUG: Is selected after current: ${selectedDateOnly.isAfter(currentDate)}');
-        print('DEBUG: Is selected same as current: ${selectedDateOnly.isAtSameMomentAs(currentDate)}');
+          // Debug prints to understand the date comparison
+          print('DEBUG: Current date: $currentDate');
+          print('DEBUG: Selected date: $selectedDateOnly');
+          print('DEBUG: Is selected before current: ${selectedDateOnly.isBefore(currentDate)}');
+          print('DEBUG: Is selected after current: ${selectedDateOnly.isAfter(currentDate)}');
+          print('DEBUG: Is selected same as current: ${selectedDateOnly.isAtSameMomentAs(currentDate)}');
 
-        // Parse classDateTime from selectedDate + time
-        DateTime? classDateTime;
-        try {
-            final todayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
-            classDateTime = DateFormat('yyyy-MM-dd hh:mm a').parse('$todayStr $time');
-            print('DEBUG: Parsed classDateTime: $classDateTime');
-        } catch (e) {
-          print('DEBUG: Error parsing time: $e');
-          classDateTime = null;
-        }
+          // Parse classDateTime from selectedDate + time
+          DateTime? classDateTime;
+          try {
+              final todayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+              classDateTime = DateFormat('yyyy-MM-dd hh:mm a').parse('$todayStr $time');
+              print('DEBUG: Parsed classDateTime: $classDateTime');
+          } catch (e) {
+            print('DEBUG: Error parsing time: $e');
+            classDateTime = null;
+          }
 
-        late final ClassStatus status;
+          late final ClassStatus status;
 
-        if (classDateTime == null) {
-          // If we can't parse the time, default to upcoming
-          status = ClassStatus.upcoming;
-          print('DEBUG: Status set to upcoming (parsing failed)');
-        } else {
-          // FIRST: Compare the selected date with current date
-          if (selectedDateOnly.isBefore(currentDate)) {
-            // Past date - all classes are completed
-            status = ClassStatus.completed;
-            print('DEBUG: Status set to completed (past date)');
-          } else if (selectedDateOnly.isAfter(currentDate)) {
-            // Future date - all classes are upcoming
+          if (classDateTime == null) {
+            // If we can't parse the time, default to upcoming
             status = ClassStatus.upcoming;
-            print('DEBUG: Status set to upcoming (future date)');
+            print('DEBUG: Status set to upcoming (parsing failed)');
           } else {
-            // Same date (today) - use time-based logic
-            final timeDifference = classDateTime.difference(now).inMinutes;
-            print('DEBUG: Time difference in minutes: $timeDifference');
-            
-            if (timeDifference < -10) {
-              // Class ended more than 10 minutes ago
+            // FIRST: Compare the selected date with current date
+            if (selectedDateOnly.isBefore(currentDate)) {
+              // Past date - all classes are completed
               status = ClassStatus.completed;
-              print('DEBUG: Status set to completed (time-based)');
-            } else if (timeDifference >= -10 && timeDifference <= 30) {
-              // Class is live (10 minutes before start to 30 minutes after start)
-              status = ClassStatus.live;
-              print('DEBUG: Status set to live');
-            } else {
-              // Class is more than 30 minutes in the future
+              print('DEBUG: Status set to completed (past date)');
+            } else if (selectedDateOnly.isAfter(currentDate)) {
+              // Future date - all classes are upcoming
               status = ClassStatus.upcoming;
-              print('DEBUG: Status set to upcoming (time-based)');
+              print('DEBUG: Status set to upcoming (future date)');
+            } else {
+              // Same date (today) - use time-based logic
+              final timeDifference = classDateTime.difference(now).inMinutes;
+              print('DEBUG: Time difference in minutes: $timeDifference');
+              
+              if (timeDifference < -10) {
+                // Class ended more than 10 minutes ago
+                status = ClassStatus.completed;
+                print('DEBUG: Status set to completed (time-based)');
+              } else if (timeDifference >= -10 && timeDifference <= 30) {
+                // Class is live (10 minutes before start to 30 minutes after start)
+                status = ClassStatus.live;
+                print('DEBUG: Status set to live');
+              } else {
+                // Class is more than 30 minutes in the future
+                status = ClassStatus.upcoming;
+                print('DEBUG: Status set to upcoming (time-based)');
+              }
             }
           }
-        }
 
           dayClasses.add(ClassSchedule(
-          subject: name,
-          time: time,
-          status: status,
-          present: 0,
-          total: 30,
-          subgroups: [subgroup],
-        ));
+            subject: name,
+            time: time,
+            status: status,
+            present: 0,
+            total: 30,
+            subgroups: [subgroup],
+          ));
         }
       }
 
@@ -268,97 +281,168 @@ class _AttendancePageState extends State<AttendancePage> {
   }
 
   void _markAttendance(ClassSchedule cls, bool present) async {
-  final key = _attendanceKey(cls);
-  final current = attendanceMap[key];
+    final key = _attendanceKey(cls);
+    final current = attendanceMap[key];
 
-  setState(() {
-    // If same button clicked again, remove the attendance entry
-    if (current == present) {
-      attendanceMap.remove(key);
+    setState(() {
+      // If same button clicked again, remove the attendance entry
+      if (current == present) {
+        attendanceMap.remove(key);
+      } else {
+        attendanceMap[key] = present;
+      }
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('attendance', jsonEncode(attendanceMap));
+
+    final message = attendanceMap.containsKey(key)
+        ? (present ? 'Marked Present for ${cls.subject}' : 'Marked Absent for ${cls.subject}')
+        : 'Cleared attendance for ${cls.subject}';
+
+    final color = attendanceMap.containsKey(key)
+        ? (present ? Colors.green : Colors.red)
+        : Colors.grey;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+      ),
+    );
+  }
+
+  void _toggleDropdown() {
+    setState(() {
+      isDropdownOpen = !isDropdownOpen;
+      if (isDropdownOpen) {
+        searchFocusNode.requestFocus();
+      } else {
+        searchController.clear();
+        searchQuery = '';
+      }
+    });
+    if (isDropdownOpen) {
+      _animationController.forward();
     } else {
-      attendanceMap[key] = present;
+      _animationController.reverse();
     }
-  });
-
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('attendance', jsonEncode(attendanceMap));
-
-  final message = attendanceMap.containsKey(key)
-      ? (present ? 'Marked Present for ${cls.subject}' : 'Marked Absent for ${cls.subject}')
-      : 'Cleared attendance for ${cls.subject}';
-
-  final color = attendanceMap.containsKey(key)
-      ? (present ? Colors.green : Colors.red)
-      : Colors.grey;
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-      backgroundColor: color,
-    ),
-  );
-}
-
+  }
 
   @override
   Widget build(BuildContext context) {
     final dayName = DateFormat('EEEE').format(selectedDate);
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text('Attendance - TIET'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: loading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                // Subgroup searchable dropdown
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: _buildSearchableDropdown(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF2A2D5A),
+              Color(0xFF4A4E8A),
+              Color(0xFF3A3E7A),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: loading
+              ? Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
-                ),
-
-                // Date selector
-                _buildDateSelector(),
-
-                const SizedBox(height: 24),
-
-                // Classes list
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                )
+              : Column(
+                  children: [
+                    // Header with back button
+                    Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: IconButton(
+                              icon: Icon(Icons.arrow_back, color: Colors.white),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Text(
+                            'Attendance - TIET',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Today's Classes",
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+
+                    // Subgroup searchable dropdown
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _buildSearchableDropdown(),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Date selector
+                    _buildDateSelector(),
+
+                    const SizedBox(height: 24),
+
+                    // Classes list
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.4),
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 20,
+                              offset: Offset(0, 10),
+                            ),
+                            BoxShadow(
+                              color: Colors.white.withOpacity(0.2),
+                              blurRadius: 15,
+                              offset: Offset(0, -5),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 20),
-                        Expanded(child: _buildClassesList(dayName)),
-                      ],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Today's Classes",
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 20),
+                            Expanded(child: _buildClassesList(dayName)),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+        ),
+      ),
     );
   }
 
@@ -367,20 +451,35 @@ class _AttendancePageState extends State<AttendancePage> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Color(0xFF3A3E7A).withOpacity(0.6),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.3),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 15,
+            offset: Offset(0, 8),
+          ),
+          BoxShadow(
+            color: Colors.white.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, -2),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Text(
             DateFormat('EEEE').format(selectedDate),
-            style: const TextStyle(color: Colors.white, fontSize: 24),
+            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             DateFormat('MMMM dd, yyyy').format(selectedDate),
-            style:
-                TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+            style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
           ),
           const SizedBox(height: 16),
           Row(
@@ -388,38 +487,48 @@ class _AttendancePageState extends State<AttendancePage> {
             children: [
               GestureDetector(
                 onTap: () => _changeDate(-1),
-                child: Row(
-                  children: [
-                    const Icon(Icons.arrow_back_ios,
-                        color: Colors.white, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      DateFormat('EEEE')
-                          .format(selectedDate.subtract(const Duration(days: 1))),
-                      style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 14),
-                    ),
-                  ],
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.arrow_back_ios, color: Colors.white, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        DateFormat('EEE').format(selectedDate.subtract(const Duration(days: 1))),
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 14),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const Text('Swipe to navigate',
-                  style: TextStyle(color: Colors.white, fontSize: 12)),
+              Text('Swipe to navigate',
+                  style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)),
               GestureDetector(
                 onTap: () => _changeDate(1),
-                child: Row(
-                  children: [
-                    Text(
-                      DateFormat('EEEE')
-                          .format(selectedDate.add(const Duration(days: 1))),
-                      style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 14),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.arrow_forward_ios,
-                        color: Colors.white, size: 16),
-                  ],
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        DateFormat('EEE').format(selectedDate.add(const Duration(days: 1))),
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 14),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -483,12 +592,12 @@ class _AttendancePageState extends State<AttendancePage> {
         statusChip = _statusChip('Completed', Colors.grey[200]!, Colors.grey[600]!);
         break;
       case ClassStatus.live:
-        borderColor = Colors.green;
+        borderColor = Color(0xFF10B981);
         statusChip = _liveChip();
         break;
       default:
-        borderColor = Colors.orange;
-        statusChip = _statusChip('Upcoming', Colors.orange, Colors.white);
+        borderColor = Color(0xFFF59E0B);
+        statusChip = _statusChip('Upcoming', Color(0xFFFEF3C7), Color(0xFFF59E0B));
     }
 
     return Container(
@@ -498,7 +607,7 @@ class _AttendancePageState extends State<AttendancePage> {
         border: Border.all(color: borderColor, width: 2),
         borderRadius: BorderRadius.circular(12),
         color: cls.status == ClassStatus.live
-            ? Colors.green.withOpacity(0.05)
+            ? Color(0xFF10B981).withOpacity(0.05)
             : Colors.transparent,
       ),
       child: Column(
@@ -535,12 +644,11 @@ class _AttendancePageState extends State<AttendancePage> {
                         ? () => _markAttendance(cls, true)
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: recorded == true ? Color(0xFF10B981) : Color(0xFF10B981).withOpacity(0.9),
                       foregroundColor: Colors.white,
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      elevation: recorded == true ? 0 : 2,
                     ),
                     child: recorded == true
                         ? const Icon(Icons.check, size: 16)
@@ -551,14 +659,12 @@ class _AttendancePageState extends State<AttendancePage> {
                     onPressed: cls.status != ClassStatus.upcoming
                         ? () => _markAttendance(cls, false)
                         : null,
-
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: recorded == false ? Color(0xFFEF4444) : Color(0xFFEF4444).withOpacity(0.9),
                       foregroundColor: Colors.white,
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      elevation: recorded == false ? 0 : 2,
                     ),
                     child: recorded == false
                         ? const Icon(Icons.close, size: 16)
@@ -567,11 +673,20 @@ class _AttendancePageState extends State<AttendancePage> {
                 ],
               ),
               if (recorded != null)
-                Text(
-                  recorded ? 'You were Present' : 'You were Absent',
-                  style: TextStyle(
-                      color: recorded ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: recorded ? Color(0xFF10B981).withOpacity(0.1) : Color(0xFFEF4444).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    recorded ? 'Present' : 'Absent',
+                    style: TextStyle(
+                      color: recorded ? Color(0xFF10B981) : Color(0xFFEF4444),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -582,17 +697,20 @@ class _AttendancePageState extends State<AttendancePage> {
 
   Widget _statusChip(String text, Color bg, Color fg) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration:
-            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
         child: Text(text,
             style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w500)),
       );
 
   Widget _liveChip() => Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration:
-            BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(12)),
-        child: Row(mainAxisSize: MainAxisSize.min, children: const [
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF10B981), Color(0xFF059669)],
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.circle, size: 6, color: Colors.white),
           SizedBox(width: 4),
           Text('Live Now',
@@ -611,102 +729,215 @@ class _AttendancePageState extends State<AttendancePage> {
       children: [
         // Selected subgroup display
         GestureDetector(
-          onTap: () {
-            setState(() {
-              isDropdownOpen = !isDropdownOpen;
-              if (isDropdownOpen) {
-                searchController.text = '';
-                searchQuery = '';
-              }
-            });
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                selectedSubgroup,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
+          onTap: _toggleDropdown,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              color: Color(0xFF3A3E7A).withOpacity(0.6),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1.5,
               ),
-              Icon(
-                isDropdownOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                color: Colors.white,
-              ),
-            ],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 15,
+                  offset: Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.group,
+                  color: Color(0xFF6366F1),
+                  size: 24,
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    selectedSubgroup,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                AnimatedRotation(
+                  turns: isDropdownOpen ? 0.5 : 0,
+                  duration: Duration(milliseconds: 300),
+                  child: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         
-        // Dropdown content
-        if (isDropdownOpen) ...[
-          const SizedBox(height: 8),
-          
-          // Search input
-          TextField(
-            controller: searchController,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
-            decoration: InputDecoration(
-              hintText: 'Search subgroups...',
-              hintStyle: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
-              prefixIcon: const Icon(Icons.search, color: Colors.white, size: 20),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+        // Dropdown content with animation
+        AnimatedBuilder(
+          animation: _animation,
+          builder: (context, child) {
+            // Calculate available height to prevent overflow
+            final screenHeight = MediaQuery.of(context).size.height;
+            final maxDropdownHeight = screenHeight * 0.4; // Use 40% of screen height
+            
+            return ClipRect(
+              child: Container(
+                height: _animation.value * maxDropdownHeight,
+                child: _animation.value > 0
+                    ? Container(
+                        margin: EdgeInsets.only(top: 8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF3A3E7A).withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 20,
+                              offset: Offset(0, 10),
+                            ),
+                            BoxShadow(
+                              color: Colors.white.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: Offset(0, -5),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            // Search Bar
+                            Padding(
+                              padding: EdgeInsets.all(12),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: TextField(
+                                  controller: searchController,
+                                  focusNode: searchFocusNode,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      searchQuery = value;
+                                    });
+                                  },
+                                  style: TextStyle(color: Colors.white),
+                                  decoration: InputDecoration(
+                                    hintText: 'Search subgroups...',
+                                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                                    prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.6)),
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 14),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            
+                            // Subgroups list with constrained height
+                            Flexible(
+                              child: filteredSubgroups.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                        'No subgroups found',
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.6),
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    )
+                                  : ListView.builder(
+                                      padding: EdgeInsets.only(bottom: 8),
+                                      itemCount: filteredSubgroups.length,
+                                      itemBuilder: (context, index) {
+                                        final subgroup = filteredSubgroups[index];
+                                        final isSelected = subgroup == selectedSubgroup;
+                                        
+                                        return GestureDetector(
+                                          onTap: () {
+                                            _onSubgroupChanged(subgroup);
+                                            setState(() {
+                                              isDropdownOpen = false;
+                                              searchQuery = '';
+                                              searchController.clear();
+                                            });
+                                            _animationController.reverse();
+                                          },
+                                          child: Container(
+                                            margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                            decoration: BoxDecoration(
+                                              color: isSelected 
+                                                  ? Color(0xFF6366F1).withOpacity(0.2)
+                                                  : Colors.transparent,
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: isSelected
+                                                  ? Border.all(color: Color(0xFF6366F1).withOpacity(0.5))
+                                                  : null,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 8,
+                                                  height: 8,
+                                                  decoration: BoxDecoration(
+                                                    color: isSelected 
+                                                        ? Color(0xFF6366F1)
+                                                        : Colors.white.withOpacity(0.4),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Text(
+                                                    subgroup,
+                                                    style: TextStyle(
+                                                      fontSize: 15,
+                                                      color: isSelected 
+                                                          ? Colors.white
+                                                          : Colors.white.withOpacity(0.8),
+                                                      fontWeight: isSelected 
+                                                          ? FontWeight.w600
+                                                          : FontWeight.w400,
+                                                    ),
+                                                  ),
+                                                ),
+                                                if (isSelected)
+                                                  Icon(
+                                                    Icons.check,
+                                                    color: Color(0xFF6366F1),
+                                                    size: 18,
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : SizedBox.shrink(),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.white),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-            onChanged: (value) {
-              setState(() {
-                searchQuery = value;
-              });
-            },
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // Subgroups list
-          Container(
-            constraints: const BoxConstraints(maxHeight: 200),
-            decoration: BoxDecoration(
-              color: const Color(0xFF6B73FF),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: filteredSubgroups.length,
-              itemBuilder: (context, index) {
-                final subgroup = filteredSubgroups[index];
-                final isSelected = subgroup == selectedSubgroup;
-                
-                return ListTile(
-                  dense: true,
-                  title: Text(
-                    subgroup,
-                    style: TextStyle(
-                      color: isSelected ? Colors.yellow : Colors.white,
-                      fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                  onTap: () {
-                    _onSubgroupChanged(subgroup);
-                    setState(() {
-                      isDropdownOpen = false;
-                      searchQuery = '';
-                      searchController.clear();
-                    });
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ],
     );
   }

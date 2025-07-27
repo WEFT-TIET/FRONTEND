@@ -31,16 +31,17 @@ class PostCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     return Container(
-      margin: const EdgeInsets.all(12),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppPallete.glassWhite05, // Dark background
+        color: AppPallete.glassWhite05, // Original dark background
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppPallete.glassWhite20, width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header Row
           Row(
             children: [
               CircleAvatar(
@@ -245,7 +246,6 @@ class PostCard extends ConsumerWidget {
     return Builder(
       builder: (context) => InkWell(
         onTap: () {
-          // Handle report submission
           Navigator.of(context).pop();
           _submitReport(context, reason);
         },
@@ -302,10 +302,6 @@ class PostCard extends ConsumerWidget {
   }
 
   void _submitReport(BuildContext context, String reason) {
-    // TODO: Implement report submission to backend
-    // ref.read(postViewModelProvider.notifier).reportPost(postId, reason);
-    
-    // Show confirmation snackbar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Post reported for: $reason'),
@@ -315,7 +311,6 @@ class PostCard extends ConsumerWidget {
   }
 
   void _blockUser(BuildContext context, String userId, WidgetRef ref) {
-    // Call the viewmodel to block the user
     ref.read(postViewModelProvider.notifier).blockUser(userId).then((success) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(

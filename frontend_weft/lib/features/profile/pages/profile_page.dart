@@ -6,7 +6,7 @@ import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/weft_item_widget.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
-import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart'; // ADD THIS IMPORT
+import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
@@ -143,8 +143,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     ),
                     slivers: [
                       SliverAppBar(
-                        floating: false,
-                        pinned: true,
+                        floating: true,
+                        pinned: false,
                         expandedHeight: 60,
                         backgroundColor: AppPallete.transperantColor,
                         elevation: 0,
@@ -175,7 +175,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         ),
                       ),
                       SliverPersistentHeader(
-                        pinned: true,
+                        pinned: false,
+                        floating: true,
                         delegate: _SliverAppBarDelegate(
                           minHeight: 60,
                           maxHeight: 60,
@@ -199,7 +200,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                   onPressed: () {
                                     setState(() => _isLoading = true);
                                     ref.invalidate(userProfileProvider);
-                                    // Optionally, you can wait for the provider to reload and then set _isLoading = false
                                     Future.delayed(const Duration(milliseconds: 800), () {
                                       if (mounted) setState(() => _isLoading = false);
                                     });
@@ -210,7 +210,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                           ),
                         ),
                       ),
-                      // TODO: Replace with backend wefts/posts fetching
                       SliverPadding(
                         padding: const EdgeInsets.symmetric(horizontal: 0),
                         sliver: user.posts.isEmpty
@@ -286,35 +285,46 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     );
   }
 
+  // ENHANCED PROFILE CARD WITH MAP THEME
   Widget _buildOptimizedProfileCard(UserModel user) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOutCubic,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: AppPallete.cardColorDark.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(20),
+        // Darker glassmorphism effect
+        color: const Color(0xFF2A2D5A).withOpacity(0.8),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 25,
+            offset: const Offset(0, 15),
+          ),
+          BoxShadow(
+            color: Colors.white.withOpacity(0.05),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: const Offset(0, -5),
           ),
         ],
       ),
       child: Column(
         children: [
           _buildProfileHeader(user),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildAcademicDetails(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildActionButtons(user),
         ],
       ),
     );
   }
 
-  // UPDATED METHOD - This is the main change for Instagram-style viewer
+  // ENHANCED PROFILE HEADER
   Widget _buildProfileHeader(UserModel user) {
     return Row(
       children: [
@@ -325,7 +335,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               if (_isEditing) {
                 _showImagePicker(user);
               } else {
-                // Show Instagram-style viewer
                 showProfileImageViewer(
                   context,
                   imageUrl: user.image_url,
@@ -336,44 +345,60 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               }
             },
             child: Container(
-              width: 70,
-              height: 70,
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppPallete.cardColorDark.withOpacity(0.4),
+                // Enhanced glassmorphism for profile image
+                color: Colors.white.withOpacity(0.1),
                 border: _isEditing
-                    ? Border.all(color: AppPallete.textPrimaryDark, width: 2)
-                    : Border.all(color: AppPallete.textPrimaryDark.withOpacity(0.3)),
+                    ? Border.all(color: const Color(0xFF6366F1), width: 3)
+                    : Border.all(color: Colors.white.withOpacity(0.4), width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
               ),
               child: ClipOval(
                 child: _isEditing
-                    ? Icon(Icons.camera_alt, color: AppPallete.textPrimaryDark, size: 28)
+                    ? Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt, 
+                          color: Colors.white, 
+                          size: 32
+                        ),
+                      )
                     : (user.image_url != null && user.image_url!.startsWith('http'))
                         ? Image.network(
                             user.image_url!,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Icon(
-                              Icons.person,
-                              color: AppPallete.textPrimaryDark.withOpacity(0.6),
-                              size: 35,
-                            ),
+                            errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
                           )
                         : Image.asset(
                             user.image_url ?? 'lib/core/assets/profile_photo.jpeg',
                             fit: BoxFit.cover,
                             cacheWidth: 200,
                             cacheHeight: 200,
-                            errorBuilder: (_, __, ___) => Icon(
-                              Icons.person,
-                              color: AppPallete.textPrimaryDark.withOpacity(0.6),
-                              size: 35,
-                            ),
+                            errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
                           ),
               ),
             ),
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 20),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,28 +406,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 child: _isEditing
-                    ? _buildEditableField(_nameController, 22, FontWeight.bold)
+                    ? _buildEditableField(_nameController, 24, FontWeight.bold)
                     : Text(
                         user.name,
                         key: const ValueKey('name_text'),
-                        style: TextStyle(
-                          color: AppPallete.textPrimaryDark,
-                          fontSize: 22,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
                         ),
                       ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 child: _isEditing
-                    ? _buildEditableField(_usernameController, 16, FontWeight.normal, prefix: '@')
+                    ? _buildEditableField(_usernameController, 16, FontWeight.w500, prefix: '@')
                     : Text(
                         '@${user.username}',
                         key: const ValueKey('username_text'),
                         style: TextStyle(
-                          color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                          color: Colors.white.withOpacity(0.8),
                           fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
               ),
@@ -413,60 +440,116 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     );
   }
 
+  // Helper method for default avatar
+  Widget _buildDefaultAvatar() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [const Color(0xFF6366F1).withOpacity(0.3), const Color(0xFF8B5CF6).withOpacity(0.3)],
+        ),
+      ),
+      child: Icon(
+        Icons.person,
+        color: Colors.white.withOpacity(0.8),
+        size: 40,
+      ),
+    );
+  }
+
+  // ENHANCED EDITABLE FIELD
   Widget _buildEditableField(
     TextEditingController controller,
     double fontSize,
     FontWeight fontWeight, {
     String? prefix,
   }) {
-    return TextFormField(
-      controller: controller,
-      style: TextStyle(
-        color: AppPallete.textPrimaryDark,
-        fontSize: fontSize,
-        fontWeight: fontWeight,
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1D3A).withOpacity(0.8),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
-      decoration: InputDecoration(
-        isDense: true,
-        prefixText: prefix,
-        prefixStyle: TextStyle(color: AppPallete.textPrimaryDark.withOpacity(0.7)),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: AppPallete.textPrimaryDark.withOpacity(0.3)),
+      child: TextFormField(
+        controller: controller,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
         ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: AppPallete.textPrimaryDark),
+        decoration: InputDecoration(
+          isDense: true,
+          prefixText: prefix,
+          prefixStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          filled: true,
+          fillColor: Colors.transparent,
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 4),
       ),
     );
   }
 
+  // ENHANCED ACADEMIC DETAILS
   Widget _buildAcademicDetails() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppPallete.cardColorDark.withOpacity(0.2),
+        color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildDetailColumn('Year', _yearController),
-          _buildDivider(),
-          _buildDetailColumn('Branch', _branchController),
+          Expanded(child: _buildDetailColumn('Year', _yearController)),
+          Container(
+            width: 1,
+            height: 32,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.white.withOpacity(0.3),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+          Expanded(child: _buildDetailColumn('Branch', _branchController)),
         ],
       ),
     );
   }
 
+  // ENHANCED DETAIL COLUMN
   Widget _buildDetailColumn(String title, TextEditingController controller) {
     return Column(
       children: [
         Text(
           title,
           style: TextStyle(
-            color: AppPallete.textPrimaryDark.withOpacity(0.6),
+            color: Colors.white.withOpacity(0.7),
             fontSize: 12,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
           ),
         ),
         const SizedBox(height: 4),
@@ -474,15 +557,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           duration: const Duration(milliseconds: 200),
           child: _isEditing
               ? SizedBox(
-                  width: 60,
+                  width: title == 'Branch' ? 100 : 60,
                   child: _buildEditableField(controller, 16, FontWeight.w600),
                 )
               : Text(
                   controller.text,
-                  style: TextStyle(
-                    color: AppPallete.textPrimaryDark,
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
                   ),
                 ),
         ),
@@ -490,61 +574,85 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     );
   }
 
-  Widget _buildDivider() {
-    return Container(
-      height: 30,
-      width: 1,
-      color: AppPallete.textPrimaryDark.withOpacity(0.1),
-    );
-  }
-
+  // ENHANCED ACTION BUTTONS
   Widget _buildActionButtons(UserModel user) {
     return Row(
       children: [
         Expanded(
           child: _buildActionButton(
-            _isEditing ? 'Save' : 'Edit Profile',
-            AppPallete.cardColorDark.withOpacity(0.4),
-            AppPallete.textPrimaryDark,
+            _isEditing ? 'Save' : 'Edit',
+            Colors.white.withOpacity(0.15),
+            Colors.white,
             () => _toggleEdit(user),
+            icon: _isEditing ? Icons.save : Icons.edit,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildActionButton(
             'Share',
-            const Color.fromARGB(255, 124, 185, 242).withOpacity(0.8),
+            Colors.white.withOpacity(0.15),
             Colors.white,
             _shareProfile,
+            icon: Icons.share,
           ),
         ),
       ],
     );
   }
 
+  // ENHANCED ACTION BUTTON
   Widget _buildActionButton(
     String text,
     Color backgroundColor,
     Color textColor,
-    VoidCallback onPressed,
-  ) {
-    return Material(
-      color: backgroundColor,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(8),
-        splashColor: Colors.white.withOpacity(0.1),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Center(
-            child: Text(
-              text,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+    VoidCallback onPressed, {
+    IconData? icon,
+  }) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1D3A).withOpacity(0.8),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.15),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(12),
+          splashColor: Colors.white.withOpacity(0.1),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, color: textColor, size: 18),
+                  const SizedBox(width: 6),
+                ],
+                Flexible(
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -568,7 +676,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         final api = ref.read(profileApiServiceProvider);
         final success = await api.updateUserProfile(updatedUser.toJson());
         if (success) {
-          // Refresh the user profile provider
           ref.invalidate(userProfileProvider);
           setState(() => _isEditing = false);
           HapticFeedback.lightImpact();
@@ -589,7 +696,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
 
   Future<void> _shareProfile() async {
     HapticFeedback.mediumImpact();
-    // TODO: Implement real share logic or use Share package
     ProfileDialogs.showSnackBar(context, 'Share feature coming soon!');
   }
 
