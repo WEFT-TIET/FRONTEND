@@ -217,19 +217,14 @@ class ThaparMapScreen extends StatelessWidget {
 
 // Campus boundary coordinates
 class CampusBounds {
-  // For testing: bounding box around user's current location
-  static const double centerLat = 31.638027;
-  static const double centerLng = 74.806716;
-  static const double delta = 0.001; // ~110m latitude, ~90m longitude
-
-  static const double bottomLeftLat = centerLat - delta;
-  static const double bottomLeftLng = centerLng - delta;
-  static const double topRightLat = centerLat + delta;
-  static const double topRightLng = centerLng + delta;
-  static const double bottomRightLat = centerLat - delta;
-  static const double bottomRightLng = centerLng + delta;
-  static const double topLeftLat = centerLat + delta;
-  static const double topLeftLng = centerLng - delta;
+  static const double bottomLeftLat = 30.3531022;
+  static const double bottomLeftLng = 76.3590561;
+  static const double topRightLat = 30.3585832;
+  static const double topRightLng = 76.3731977;
+  static const double bottomRightLat = 30.3513122;
+  static const double bottomRightLng = 76.3740141;
+  static const double topLeftLat = 30.3569345;
+  static const double topLeftLng = 76.3585424;
 }
 
 class LocationService {
@@ -1012,25 +1007,6 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFF3B82F6),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Your Location',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
                               ),
                             ),
                           ),
