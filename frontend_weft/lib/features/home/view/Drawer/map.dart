@@ -390,15 +390,80 @@ Future<String> highlightSvg(String assetPath, String? highlightId, {Offset? user
   final rawSvg = await rootBundle.loadString(assetPath);
   final doc = XmlDocument.parse(rawSvg);
 
+  // Add Pikachu pointer for selected building
   if (highlightId != null) {
     final allElements = doc.descendants.whereType<XmlElement>();
     final matches = allElements.where((node) => node.getAttribute('id') == highlightId);
 
     if (matches.isNotEmpty) {
       final node = matches.first;
-      node.setAttribute('fill', '#FFD700');
-      node.setAttribute('stroke', '#FF8C00');
-      node.setAttribute('stroke-width', '4');
+      
+      // Get the bounding box of the selected element to position Pikachu
+      String? x, y, width, height;
+      
+      // Try to get position from different element types
+      if (node.getAttribute('x') != null && node.getAttribute('y') != null) {
+        // For rect elements - position Pikachu at the center-top of the rectangle
+        double rectX = double.parse(node.getAttribute('x')!);
+        double rectY = double.parse(node.getAttribute('y')!);
+        double rectWidth = double.parse(node.getAttribute('width') ?? '30');
+        double rectHeight = double.parse(node.getAttribute('height') ?? '60');
+        
+        x = (rectX + rectWidth / 2 - 15).toString(); // Center horizontally, offset for 30px wide image
+        y = (rectY - 60).toString(); // Position above the building
+        width = '30';
+        height = '60';
+      } else if (node.getAttribute('cx') != null && node.getAttribute('cy') != null) {
+        // For circle/ellipse elements
+        double cx = double.parse(node.getAttribute('cx')!);
+        double cy = double.parse(node.getAttribute('cy')!);
+        
+        x = (cx - 15).toString(); // Center horizontally, offset for 30px wide image
+        y = (cy - 60).toString(); // Position above the building
+        width = '30';
+        height = '60';
+      } else {
+        // For path elements, try to extract coordinates from the path data
+        String? pathData = node.getAttribute('d');
+        if (pathData != null && pathData.isNotEmpty) {
+          // Simple approach: find the first set of coordinates in the path
+          RegExp coordRegex = RegExp(r'[ML]\s*([0-9.-]+)\s+([0-9.-]+)');
+          Match? match = coordRegex.firstMatch(pathData);
+          if (match != null) {
+            double pathX = double.parse(match.group(1)!);
+            double pathY = double.parse(match.group(2)!);
+            
+            x = (pathX - 15).toString();
+            y = (pathY - 60).toString();
+            width = '30';
+            height = '60';
+          } else {
+            // Fallback for complex paths
+            x = '100';
+            y = '100';
+            width = '30';
+            height = '60';
+          }
+        } else {
+          // Default position if no path data
+          x = '100';
+          y = '100';
+          width = '30';
+          height = '60';
+        }
+      }
+      
+      // Create image element for Pikachu
+      final imageElement = XmlElement(XmlName('image'));
+      imageElement.setAttribute('x', x);
+      imageElement.setAttribute('y', y);
+      imageElement.setAttribute('width', width);
+      imageElement.setAttribute('height', height);
+      imageElement.setAttribute('href', 'lib/core/assets/pikachu.png');
+      imageElement.setAttribute('id', 'pikachu_pointer');
+      
+      // Add Pikachu image to SVG
+      doc.rootElement.children.add(imageElement);
     }
   }
 
@@ -434,7 +499,7 @@ Future<String> highlightSvg(String assetPath, String? highlightId, {Offset? user
     centerDot.setAttribute('cx', userLocation.dx.toString());
     centerDot.setAttribute('cy', userLocation.dy.toString());
     centerDot.setAttribute('r', '3');
-    centerDot.setAttribute('fill', '#FF000');
+    centerDot.setAttribute('fill', '#FF0000');
     
     markerGroup.children.add(outerCircle);
     markerGroup.children.add(innerCircle);

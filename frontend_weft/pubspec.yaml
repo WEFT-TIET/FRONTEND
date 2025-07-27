@@ -98,6 +98,7 @@ flutter:
     - lib/core/assets/profile_photo.jpeg
     - lib/core/assets/sanni_dancer.png
     - lib/core/assets/neeraj_pepsu.png
+    - lib/core/assets/pikachu.png
     - lib/core/assets/thapar_map.svg
     - lib/core/assets/Time_Table.xlsx
     - lib/core/assets/subjects.json
