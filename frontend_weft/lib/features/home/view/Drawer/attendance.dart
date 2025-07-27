@@ -106,6 +106,7 @@ class _AttendancePageState extends State<AttendancePage> {
   }
 
   Future<void> _loadTimetable(String subgroup) async {
+    print('DEBUG: Loading timetable for subgroup: $subgroup, selectedDate: $selectedDate');
     final raw = await rootBundle.loadString('lib/core/assets/data.json');
     final Map<String, dynamic> jsonMap = jsonDecode(raw);
 
@@ -147,35 +148,63 @@ class _AttendancePageState extends State<AttendancePage> {
           // Use subject name directly from JSON, fallback to subjectMap
           final name = subjectName.isNotEmpty ? subjectName : (subjectMap[courseCode] ?? courseCode);
 
-        final todayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+        // Get current device date and time
         final now = DateTime.now();
-        final today = DateTime(now.year, now.month, now.day);
+        final currentDate = DateTime(now.year, now.month, now.day);
+        final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+
+        // Debug prints to understand the date comparison
+        print('DEBUG: Current date: $currentDate');
+        print('DEBUG: Selected date: $selectedDateOnly');
+        print('DEBUG: Is selected before current: ${selectedDateOnly.isBefore(currentDate)}');
+        print('DEBUG: Is selected after current: ${selectedDateOnly.isAfter(currentDate)}');
+        print('DEBUG: Is selected same as current: ${selectedDateOnly.isAtSameMomentAs(currentDate)}');
 
         // Parse classDateTime from selectedDate + time
         DateTime? classDateTime;
         try {
+            final todayStr = DateFormat('yyyy-MM-dd').format(selectedDate);
             classDateTime = DateFormat('yyyy-MM-dd hh:mm a').parse('$todayStr $time');
-        } catch (_) {
+            print('DEBUG: Parsed classDateTime: $classDateTime');
+        } catch (e) {
+          print('DEBUG: Error parsing time: $e');
           classDateTime = null;
         }
 
         late final ClassStatus status;
 
         if (classDateTime == null) {
+          // If we can't parse the time, default to upcoming
           status = ClassStatus.upcoming;
-        } else if (selectedDate.isBefore(today)) {
-          status = ClassStatus.completed;
-        } else if (selectedDate.isAfter(today)) {
-          status = ClassStatus.upcoming;
+          print('DEBUG: Status set to upcoming (parsing failed)');
         } else {
-          // selectedDate == today, so compare time now
-          final diff = classDateTime.difference(now).inMinutes;
-          if (diff < -10) {
+          // FIRST: Compare the selected date with current date
+          if (selectedDateOnly.isBefore(currentDate)) {
+            // Past date - all classes are completed
             status = ClassStatus.completed;
-          } else if (diff >= -10 && diff <= 30) {
-            status = ClassStatus.live;
-          } else {
+            print('DEBUG: Status set to completed (past date)');
+          } else if (selectedDateOnly.isAfter(currentDate)) {
+            // Future date - all classes are upcoming
             status = ClassStatus.upcoming;
+            print('DEBUG: Status set to upcoming (future date)');
+          } else {
+            // Same date (today) - use time-based logic
+            final timeDifference = classDateTime.difference(now).inMinutes;
+            print('DEBUG: Time difference in minutes: $timeDifference');
+            
+            if (timeDifference < -10) {
+              // Class ended more than 10 minutes ago
+              status = ClassStatus.completed;
+              print('DEBUG: Status set to completed (time-based)');
+            } else if (timeDifference >= -10 && timeDifference <= 30) {
+              // Class is live (10 minutes before start to 30 minutes after start)
+              status = ClassStatus.live;
+              print('DEBUG: Status set to live');
+            } else {
+              // Class is more than 30 minutes in the future
+              status = ClassStatus.upcoming;
+              print('DEBUG: Status set to upcoming (time-based)');
+            }
           }
         }
 
@@ -209,6 +238,14 @@ class _AttendancePageState extends State<AttendancePage> {
   void _changeDate(int days) {
     setState(() {
       selectedDate = selectedDate.add(Duration(days: days));
+      loading = true;
+    });
+    print('DEBUG: Date changed to: $selectedDate');
+    // Reload timetable data when date changes
+    _loadTimetable(selectedSubgroup).then((_) {
+      _loadAttendanceMap().then((_) {
+        setState(() => loading = false);
+      });
     });
   }
 
