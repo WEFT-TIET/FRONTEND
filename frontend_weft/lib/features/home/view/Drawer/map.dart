@@ -217,14 +217,19 @@ class ThaparMapScreen extends StatelessWidget {
 
 // Campus boundary coordinates
 class CampusBounds {
-  static const double bottomLeftLat = 30.3531022;
-  static const double bottomLeftLng = 76.3590561;
-  static const double topRightLat = 30.3585832;
-  static const double topRightLng = 76.3731977;
-  static const double bottomRightLat = 30.3513122;
-  static const double bottomRightLng = 76.3740141;
-  static const double topLeftLat = 30.3569345;
-  static const double topLeftLng = 76.3585424;
+  // For testing: bounding box around user's current location
+  static const double centerLat = 31.638027;
+  static const double centerLng = 74.806716;
+  static const double delta = 0.001; // ~110m latitude, ~90m longitude
+
+  static const double bottomLeftLat = centerLat - delta;
+  static const double bottomLeftLng = centerLng - delta;
+  static const double topRightLat = centerLat + delta;
+  static const double topRightLng = centerLng + delta;
+  static const double bottomRightLat = centerLat - delta;
+  static const double bottomRightLng = centerLng + delta;
+  static const double topLeftLat = centerLat + delta;
+  static const double topLeftLng = centerLng - delta;
 }
 
 class LocationService {
@@ -267,12 +272,19 @@ class LocationService {
   }
 
   static bool isWithinCampus(double lat, double lng) {
-    // Check if the coordinates are within the campus boundaries
-    // Using a simple bounding box approach
-    return lat >= CampusBounds.bottomRightLat &&
-           lat <= CampusBounds.topRightLat &&
-           lng >= CampusBounds.topLeftLng &&
-           lng <= CampusBounds.bottomRightLng;
+    const double margin = 0.0008; // ~90 meters, adjust as needed
+    final bool within = lat >= (CampusBounds.bottomRightLat - margin) &&
+                        lat <= (CampusBounds.topRightLat + margin) &&
+                        lng >= (CampusBounds.topLeftLng - margin) &&
+                        lng <= (CampusBounds.bottomRightLng + margin);
+
+    print('Checking campus bounds:');
+    print('User location: lat=$lat, lng=$lng');
+    print('Bounds: lat [${CampusBounds.bottomRightLat - margin}, ${CampusBounds.topRightLat + margin}], '
+          'lng [${CampusBounds.topLeftLng - margin}, ${CampusBounds.bottomRightLng + margin}]');
+    print('Is within campus: $within');
+
+    return within;
   }
 
   // Convert GPS coordinates to SVG coordinates
@@ -408,9 +420,9 @@ Future<String> highlightSvg(String assetPath, String? highlightId, {Offset? user
     outerCircle.setAttribute('cx', userLocation.dx.toString());
     outerCircle.setAttribute('cy', userLocation.dy.toString());
     outerCircle.setAttribute('r', '20');
-    outerCircle.setAttribute('fill', '#3B82F6');
+    outerCircle.setAttribute('fill', '#FF0000');
     outerCircle.setAttribute('fill-opacity', '0.3');
-    outerCircle.setAttribute('stroke', '#3B82F6');
+    outerCircle.setAttribute('stroke', '#FF0000');
     outerCircle.setAttribute('stroke-width', '2');
     
     // Inner circle (solid)
@@ -418,8 +430,8 @@ Future<String> highlightSvg(String assetPath, String? highlightId, {Offset? user
     innerCircle.setAttribute('cx', userLocation.dx.toString());
     innerCircle.setAttribute('cy', userLocation.dy.toString());
     innerCircle.setAttribute('r', '8');
-    innerCircle.setAttribute('fill', '#3B82F6');
-    innerCircle.setAttribute('stroke', '#FFFFFF');
+    innerCircle.setAttribute('fill', '#FF0000');
+    innerCircle.setAttribute('stroke', '#FF0000');
     innerCircle.setAttribute('stroke-width', '3');
     
     // Center dot
@@ -427,7 +439,7 @@ Future<String> highlightSvg(String assetPath, String? highlightId, {Offset? user
     centerDot.setAttribute('cx', userLocation.dx.toString());
     centerDot.setAttribute('cy', userLocation.dy.toString());
     centerDot.setAttribute('r', '3');
-    centerDot.setAttribute('fill', '#FFFFFF');
+    centerDot.setAttribute('fill', '#FF000');
     
     markerGroup.children.add(outerCircle);
     markerGroup.children.add(innerCircle);
@@ -976,11 +988,16 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
                     )
                   : Stack(
                       children: [
-                        RotatedBox(
-                          quarterTurns: 1,
-                          child: SvgPicture.string(
-                            _svgString!,
-                            fit: BoxFit.contain,
+                        InteractiveViewer(
+                          minScale: 0.5,
+                          maxScale: 4.0,
+                          boundaryMargin: EdgeInsets.all(80),
+                          child: RotatedBox(
+                            quarterTurns: 1,
+                            child: SvgPicture.string(
+                              _svgString!,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                         if (_isLocationEnabled && _userLocationOnMap != null)
