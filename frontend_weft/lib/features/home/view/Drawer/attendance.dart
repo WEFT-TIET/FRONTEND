@@ -33,22 +33,11 @@ class AttendancePage extends StatefulWidget {
 
 class _AttendancePageState extends State<AttendancePage> {
   DateTime selectedDate = DateTime.now();
-  String selectedSubgroup = '1B11';
+  String selectedSubgroup = '1A11';
   bool loading = true;
 
-  // List all subgroups you support here
-  final List<String> subgroups = [
-    '1A11','1A12','1A13','1A14','1A15','1A16','1A17','1A18',
-    '1A21','1A22','1A23','1A24','1A25','1A26','1A27','1A28',
-    '1A31','1A32',
-    '1B11','1B12','1B13','1B14','1B15','1B16','1B17','1B18','1B19','1B20',
-    '1B21','1B22','1B23','1B24','1B25','1B26','1B27','1B28',
-    '1B31','1B32','1B33','1B34','1B35','1B36','1B37','1B38',
-    '1B41','1B42','1B43','1B44','1B45','1B46','1B47','1B48',
-    '1B51','1B52','1B53','1B54','1B55','1B56','1B57','1B58',
-    '1B61','1B62','1B63','1B64','1B65','1B66','2C65',
-    // Add more as needed
-  ];
+  // Dynamic subgroups list - will be populated from JSON
+  List<String> subgroups = [];
 
   Map<String, String> subjectMap = {};
   Map<String, List<ClassSchedule>> timetableData = {};
@@ -73,6 +62,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
   Future<void> _loadAllData() async {
     await _loadSubjectMap();
+    await _loadSubgroups();
     await _loadTimetable(selectedSubgroup);
     await _loadAttendanceMap();
     setState(() => loading = false);
@@ -84,6 +74,24 @@ class _AttendancePageState extends State<AttendancePage> {
     subjectMap = {
       for (var code in jsonMap.keys) code: jsonMap[code]['name'] as String
     };
+  }
+
+  Future<void> _loadSubgroups() async {
+    final raw = await rootBundle.loadString('lib/core/assets/data.json');
+    final Map<String, dynamic> jsonMap = jsonDecode(raw);
+    
+    // Extract all subgroup keys from the JSON
+    subgroups = jsonMap.keys.toList();
+    
+    // Sort the subgroups for better organization
+    subgroups.sort();
+    
+    print('Loaded ${subgroups.length} subgroups: ${subgroups.take(10).toList()}...');
+    
+    // Set default subgroup if current one is not in the list
+    if (!subgroups.contains(selectedSubgroup) && subgroups.isNotEmpty) {
+      selectedSubgroup = subgroups.first;
+    }
   }
 
   Future<void> _loadTimetable(String subgroup) async {
