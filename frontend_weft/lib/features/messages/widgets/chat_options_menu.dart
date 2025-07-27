@@ -1,6 +1,5 @@
 // widgets/chat_options_menu.dart
 import 'package:flutter/material.dart';
-import 'package:frontend_weft/core/theme/app_pallete.dart';
 import '../models/user_action.dart';
 
 class ChatOptionsMenu extends StatelessWidget {

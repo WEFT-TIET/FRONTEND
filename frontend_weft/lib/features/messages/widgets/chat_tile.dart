@@ -1,6 +1,5 @@
 // widgets/chat_tile.dart
 import 'package:flutter/material.dart';
-import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/messages/models/chat.dart';
 
 class ChatTile extends StatelessWidget {

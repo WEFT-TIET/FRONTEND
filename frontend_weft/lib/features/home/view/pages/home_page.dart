@@ -179,7 +179,7 @@ class _HomePageState extends ConsumerState<HomePage>
 
   Widget _buildSectionHeader() {
     return Text(
-      "STUDENTS' WEF'S",
+      "All Wefs",
       style: GoogleFonts.getFont(
         'Oswald',
         fontSize: 24,

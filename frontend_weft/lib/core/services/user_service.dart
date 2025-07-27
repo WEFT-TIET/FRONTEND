@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../http_client.dart';
 
 class UserService {

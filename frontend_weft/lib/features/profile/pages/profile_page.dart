@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
-import 'package:frontend_weft/features/profile/widgets/weft_item_widget.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
@@ -17,7 +16,7 @@ final userProfileProvider = FutureProvider<UserModel?>((ref) async {
 });
 
 class ProfilePage extends ConsumerStatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
@@ -187,7 +186,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  'Your Wefts',
+                                  'Your Wefs',
                                   style: TextStyle(
                                     color: AppPallete.textPrimaryDark,
                                     fontSize: 24,
