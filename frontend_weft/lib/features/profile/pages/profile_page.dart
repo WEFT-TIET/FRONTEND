@@ -44,8 +44,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   String? _errorMessage;
 
   // Add your Cloudinary details here
-  static const String _cloudName = 'durjlrhaz';
-  static const String _uploadPreset = 'ml_default';
+  static const String _cloudName = 'CLOUDINARY_CLOUD_NAME';
+  static const String _uploadPreset = 'CLOUDINARY_UPLOAD_PRESET';
 
   @override
   bool get wantKeepAlive => true;
