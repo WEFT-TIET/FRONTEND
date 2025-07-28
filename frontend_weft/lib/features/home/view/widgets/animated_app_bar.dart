@@ -6,6 +6,8 @@ import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
+import 'package:frontend_weft/features/notifications/viewmodel/notification_viewmodel.dart';
+import 'package:frontend_weft/features/notifications/pages/notifications_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Provider to get user profile data
@@ -141,36 +143,46 @@ class AnimatedAppBar extends ConsumerWidget implements PreferredSizeWidget {
   }
 
   Widget _buildNotificationBadge() {
-    return Positioned(
-      right: 11,
-      top: 11,
-      child: Container(
-        padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          color: AppPallete.gradient1,
-          borderRadius: BorderRadius.circular(6),
-          boxShadow: [
-            BoxShadow(
-              color: AppPallete.gradient1.withOpacity(0.3),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+    return Consumer(
+      builder: (context, ref, child) {
+        final unreadCount = ref.watch(unreadNotificationCountProvider);
+        
+        if (unreadCount == 0) {
+          return const SizedBox.shrink();
+        }
+        
+        return Positioned(
+          right: 11,
+          top: 11,
+          child: Container(
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: AppPallete.gradient1,
+              borderRadius: BorderRadius.circular(6),
+              boxShadow: [
+                BoxShadow(
+                  color: AppPallete.gradient1.withOpacity(0.3),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ],
-        ),
-        constraints: const BoxConstraints(
-          minWidth: 14,
-          minHeight: 14,
-        ),
-        child: const Text(
-          '3',
-          style: TextStyle(
-            color: AppPallete.whiteColor,
-            fontSize: 8,
-            fontWeight: FontWeight.bold,
+            constraints: const BoxConstraints(
+              minWidth: 14,
+              minHeight: 14,
+            ),
+            child: Text(
+              unreadCount > 99 ? '99+' : unreadCount.toString(),
+              style: const TextStyle(
+                color: AppPallete.whiteColor,
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
-          textAlign: TextAlign.center,
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -194,11 +206,10 @@ class AnimatedAppBar extends ConsumerWidget implements PreferredSizeWidget {
   }
 
   void _handleNotificationTap(BuildContext context) {
-    _showSnackBar(
-      context, 
-      'No new notifications', 
-      AppPallete.greyColor,
-      duration: const Duration(seconds: 2),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const NotificationsPage(),
+      ),
     );
   }
 
