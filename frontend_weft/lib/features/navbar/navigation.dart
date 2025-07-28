@@ -6,6 +6,7 @@ import 'package:frontend_weft/features/profile/pages/profile_page.dart';
 import 'package:frontend_weft/features/search/view/pages/search.dart';
 import 'package:frontend_weft/features/navbar/gradient_icon.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:math' as math;
 
 class BottomNavBar extends StatefulWidget {
   final VoidCallback? onThemeToggle;
@@ -16,11 +17,17 @@ class BottomNavBar extends StatefulWidget {
 }
 
 class _BottomNavBarState extends State<BottomNavBar>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   int _selectedIndex = 0;
-  late AnimationController _animationController;
+  late AnimationController _expandController;
+  late Animation<double> _expandAnimation;
+  
+  bool _isExpanded = false;
+  double _dialRotation = 0.0;
+  double _lastPanAngle = 0.0;
+  bool _isDragging = false;
 
-  // Static pages list - fully const for maximum optimization
+  // Static pages list
   static const List<Widget> _pages = [
     HomePage(),
     SearchPage(),
@@ -28,40 +35,7 @@ class _BottomNavBarState extends State<BottomNavBar>
     ProfilePage(),
   ];
 
-  // Pre-computed static decorations to avoid recreation
-  static final BoxDecoration _activeDecoration = BoxDecoration(
-    shape: BoxShape.circle,
-    gradient: LinearGradient(colors: [
-      AppPallete.gradient2.withOpacity(0.3),
-      AppPallete.gradient3.withOpacity(0.3),
-    ]),
-  );
-
-  static const BoxDecoration _inactiveDecoration = BoxDecoration(
-    shape: BoxShape.circle,
-    color: Colors.transparent,
-  );
-
-  // Cached gradient
-  static const LinearGradient _iconGradient = LinearGradient(colors: [
-    AppPallete.gradient1,
-    AppPallete.gradient2,
-    AppPallete.gradient3,
-  ]);
-
-  // Pre-computed text styles as static
-  static final TextStyle _activeTextStyle = GoogleFonts.oswald(
-    color: AppPallete.gradient2,
-    fontSize: 10,
-    fontWeight: FontWeight.w500,
-  );
-
-  static final TextStyle _inactiveTextStyle = GoogleFonts.oswald(
-    color: AppPallete.greyColor,
-    fontSize: 8,
-  );
-
-  // Navigation items with const constructor
+  // Navigation items data
   static const List<_NavItemData> _navItems = [
     _NavItemData(Icons.home_outlined, Icons.home_filled, 'Home'),
     _NavItemData(Icons.search_outlined, Icons.search, 'Search'),
@@ -69,154 +43,388 @@ class _BottomNavBarState extends State<BottomNavBar>
     _NavItemData(Icons.person_outline, Icons.person, 'Profile'),
   ];
 
-  // Pre-built inactive icons to avoid recreation
-  late final List<Widget> _inactiveIcons;
-  late final List<Widget> _activeIcons;
-
   @override
   void initState() {
     super.initState();
     
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+    _expandController = AnimationController(
+      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
-    // Pre-build all icon widgets to avoid recreation
-    _inactiveIcons = List.generate(_navItems.length, (index) {
-      return Icon(
-        _navItems[index].icon,
-        size: 24,
-        color: AppPallete.greyColor,
-        key: ValueKey('inactive_$index'),
-      );
-    });
-
-    _activeIcons = List.generate(_navItems.length, (index) {
-      return GradientIcon(
-        icon: _navItems[index].activeIcon,
-        gradient: _iconGradient,
-        size: 24,
-        key: ValueKey('active_$index'),
-      );
-    });
+    _expandAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(
+      parent: _expandController,
+      curve: Curves.easeInOut,
+    ));
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _expandController.dispose();
     super.dispose();
   }
 
-  void _onItemTapped(int index) {
-    if (_selectedIndex != index) {
-      setState(() => _selectedIndex = index);
-      _animationController.forward().then((_) {
-        _animationController.reset();
+  void _toggleDial() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+    });
+    
+    if (_isExpanded) {
+      _expandController.forward();
+    } else {
+      _expandController.reverse();
+    }
+  }
+
+  void _updateSelectedIndex() {
+    // Calculate which section is currently selected based on rotation
+    double normalizedRotation = (_dialRotation % (2 * math.pi)) / (2 * math.pi);
+    if (normalizedRotation < 0) normalizedRotation += 1;
+    
+    int newIndex = ((normalizedRotation * _navItems.length) + 0.5).floor() % _navItems.length;
+    
+    if (newIndex != _selectedIndex) {
+      setState(() {
+        _selectedIndex = newIndex;
       });
     }
   }
 
-  Widget _buildNavItem(int index) {
-    final item = _navItems[index];
-    final isSelected = _selectedIndex == index;
+  void _onPanStart(DragStartDetails details) {
+    if (!_isExpanded) return;
     
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _onItemTapped(index),
-        behavior: HitTestBehavior.opaque,
-        child: RepaintBoundary( // Isolate repaints
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeInOut,
-                padding: const EdgeInsets.all(6),
-                decoration: isSelected ? _activeDecoration : _inactiveDecoration,
-                child: isSelected ? _activeIcons[index] : _inactiveIcons[index],
-              ),
-              const SizedBox(height: 4),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 150),
-                style: isSelected ? _activeTextStyle : _inactiveTextStyle,
-                child: Text(
-                  item.label,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    setState(() {
+      _isDragging = true;
+    });
+    
+    final center = Offset(75, 75); // Center of the dial
+    final offset = details.localPosition - center;
+    _lastPanAngle = math.atan2(offset.dy, offset.dx);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // Get the bottom padding for safe area
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
+  void _onPanUpdate(DragUpdateDetails details) {
+    if (!_isExpanded) return;
+
+    final center = Offset(75, 75);
+    final offset = details.localPosition - center;
+    final angle = math.atan2(offset.dy, offset.dx);
     
-    return Scaffold(
-      backgroundColor: AppPallete.transperantColor,
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
-      ),
-      bottomNavigationBar: RepaintBoundary( // Isolate bottom nav repaints
-        child: Container(
-          decoration: const BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Color.fromRGBO(0, 0, 0, 0.3),
-                blurRadius: 10,
-                spreadRadius: 2,
-                offset: Offset(0, 5),
-              ),
-            ],
+    double deltaAngle = angle - _lastPanAngle;
+    
+    // Handle angle wrapping
+    if (deltaAngle > math.pi) {
+      deltaAngle -= 2 * math.pi;
+    } else if (deltaAngle < -math.pi) {
+      deltaAngle += 2 * math.pi;
+    }
+    
+    setState(() {
+      _dialRotation += deltaAngle;
+    });
+    
+    _lastPanAngle = angle;
+    _updateSelectedIndex();
+  }
+
+  void _onPanEnd(DragEndDetails details) {
+    setState(() {
+      _isDragging = false;
+    });
+  }
+
+  Widget _buildCollapsedDial() {
+    return Container(
+      width: 65,
+      height: 65,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          colors: [
+            Colors.white.withOpacity(0.9),
+            Colors.white.withOpacity(0.8),
+            Colors.white.withOpacity(0.7),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(
+          color: AppPallete.gradient2.withOpacity(0.3),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
-          child: ClipRRect(
-            child: Container(
-              // Dynamic height calculation based on safe area
-              height: 70 + bottomPadding,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppPallete.blackColor.withOpacity(0.9),
-                    AppPallete.blackColor.withOpacity(0.95),
-                  ],
-                ),
-                border: Border.all(
-                  color: AppPallete.greyColor.withOpacity(0.2),
-                  width: 0.5,
-                ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(32.5),
+          onTap: _toggleDial,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white.withOpacity(0.2),
+                  Colors.white.withOpacity(0.1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 8,
-                  right: 8,
-                  top: 4,
-                  bottom: 4 + bottomPadding, // Add bottom safe area
-                ),
-                child: Row(
-                  children: List.generate(
-                    _navItems.length,
-                    _buildNavItem,
-                  ),
-                ),
-              ),
+            ),
+            child: Icon(
+              Icons.menu,
+              color: AppPallete.gradient2,
+              size: 28,
             ),
           ),
         ),
       ),
     );
   }
+
+  Widget _buildExpandedDial() {
+    return AnimatedBuilder(
+      animation: _expandAnimation,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _expandAnimation.value,
+          child: GestureDetector(
+            onPanStart: _onPanStart,
+            onPanUpdate: _onPanUpdate,
+            onPanEnd: _onPanEnd,
+            onTap: _toggleDial,
+            child: SizedBox(
+              width: 160,
+              height: 160,
+              child: Stack(
+                children: [
+                  // Outer dial ring
+                  Container(
+                    width: 160,
+                    height: 160,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.2),
+                          Colors.white.withOpacity(0.1),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Rotatable inner dial
+                  Center(
+                    child: Transform.rotate(
+                      angle: _dialRotation,
+                      child: Container(
+                        width: 130,
+                        height: 130,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.white.withOpacity(0.9),
+                              Colors.white.withOpacity(0.8),
+                              Colors.white.withOpacity(0.7),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          border: Border.all(
+                            color: AppPallete.gradient2.withOpacity(0.3),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: _navItems.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final item = entry.value;
+                            final angle = (index * 2 * math.pi) / _navItems.length - math.pi / 2;
+                            final radius = 38.0;
+                            
+                            return Positioned(
+                              left: 65 + math.cos(angle) * radius - 18,
+                              top: 65 + math.sin(angle) * radius - 18,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: _selectedIndex == index 
+                                      ? const LinearGradient(
+                                          colors: [
+                                            AppPallete.gradient1,
+                                            AppPallete.gradient2,
+                                            AppPallete.gradient3,
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
+                                      : LinearGradient(
+                                          colors: [
+                                            Colors.white.withOpacity(0.5),
+                                            Colors.white.withOpacity(0.3),
+                                          ],
+                                        ),
+                                  border: Border.all(
+                                    color: _selectedIndex == index 
+                                        ? Colors.white.withOpacity(0.8)
+                                        : AppPallete.greyColor.withOpacity(0.3),
+                                    width: _selectedIndex == index ? 2 : 1,
+                                  ),
+                                ),
+                                child: _selectedIndex == index
+                                    ? Icon(
+                                        item.activeIcon,
+                                        size: 20,
+                                        color: Colors.white,
+                                      )
+                                    : Icon(
+                                        item.icon,
+                                        size: 18,
+                                        color: AppPallete.greyColor.withOpacity(0.7),
+                                      ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  // Center indicator dot
+                  Center(
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                          colors: [
+                            AppPallete.gradient1,
+                            AppPallete.gradient2,
+                          ],
+                        ),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  // Selection indicator line
+                  Center(
+                    child: Transform.rotate(
+                      angle: -math.pi / 2,
+                      child: Container(
+                        width: 3,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              AppPallete.gradient1,
+                              AppPallete.gradient2,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  // Rotation hint
+                  if (_isDragging) ...[
+                    Positioned(
+                      top: 10,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Text(
+                            'Rotate to navigate',
+                            style: GoogleFonts.oswald(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppPallete.transperantColor,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppPallete.gradient1,
+              AppPallete.gradient2,
+              AppPallete.gradient3,
+            ],
+          ),
+        ),
+        child: IndexedStack(
+          index: _selectedIndex,
+          children: _pages,
+        ),
+      ),
+      floatingActionButton: _isExpanded ? _buildExpandedDial() : _buildCollapsedDial(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+    );
+  }
 }
 
-// Immutable data class with const constructor
+// Immutable data class
 @immutable
 class _NavItemData {
   final IconData icon;
