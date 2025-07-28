@@ -217,14 +217,18 @@ class ThaparMapScreen extends StatelessWidget {
 
 // Campus boundary coordinates
 class CampusBounds {
-  static const double bottomLeftLat = 30.3531022;
-  static const double bottomLeftLng = 76.3590561;
-  static const double topRightLat = 30.3585832;
-  static const double topRightLng = 76.3731977;
-  static const double bottomRightLat = 30.3513122;
-  static const double bottomRightLng = 76.3740141;
-  static const double topLeftLat = 30.3569345;
-  static const double topLeftLng = 76.3585424;
+  // Updated coordinates for Thapar University campus
+  static const double minLat = 30.3513122;  // Bottom
+  static const double maxLat = 30.3585832;  // Top
+  static const double minLng = 76.3585424;  // Left
+  static const double maxLng = 76.3740141;  // Right
+  
+  // For debugging - print actual campus bounds
+  static void printBounds() {
+    print('Campus Bounds:');
+    print('Latitude: ${minLat} to ${maxLat}');
+    print('Longitude: ${minLng} to ${maxLng}');
+  }
 }
 
 class LocationService {
@@ -267,16 +271,16 @@ class LocationService {
   }
 
   static bool isWithinCampus(double lat, double lng) {
-    const double margin = 0.0008; // ~90 meters, adjust as needed
-    final bool within = lat >= (CampusBounds.bottomRightLat - margin) &&
-                        lat <= (CampusBounds.topRightLat + margin) &&
-                        lng >= (CampusBounds.topLeftLng - margin) &&
-                        lng <= (CampusBounds.bottomRightLng + margin);
+    const double margin = 0.001; // ~110 meters margin
+    final bool within = lat >= (CampusBounds.minLat - margin) &&
+                        lat <= (CampusBounds.maxLat + margin) &&
+                        lng >= (CampusBounds.minLng - margin) &&
+                        lng <= (CampusBounds.maxLng + margin);
 
     print('Checking campus bounds:');
     print('User location: lat=$lat, lng=$lng');
-    print('Bounds: lat [${CampusBounds.bottomRightLat - margin}, ${CampusBounds.topRightLat + margin}], '
-          'lng [${CampusBounds.topLeftLng - margin}, ${CampusBounds.bottomRightLng + margin}]');
+    print('Bounds: lat [${CampusBounds.minLat - margin}, ${CampusBounds.maxLat + margin}], '
+          'lng [${CampusBounds.minLng - margin}, ${CampusBounds.maxLng + margin}]');
     print('Is within campus: $within');
 
     return within;
@@ -287,15 +291,22 @@ class LocationService {
     if (!isWithinCampus(lat, lng)) return null;
 
     // Calculate relative position within campus bounds
-    double latRange = CampusBounds.topRightLat - CampusBounds.bottomRightLat;
-    double lngRange = CampusBounds.bottomRightLng - CampusBounds.topLeftLng;
+    double latRange = CampusBounds.maxLat - CampusBounds.minLat;
+    double lngRange = CampusBounds.maxLng - CampusBounds.minLng;
 
-    double relativeX = (lng - CampusBounds.topLeftLng) / lngRange;
-    double relativeY = 1.0 - ((lat - CampusBounds.bottomRightLat) / latRange);
+    // Normalize coordinates (0-1 range)
+    double relativeLat = (lat - CampusBounds.minLat) / latRange;
+    double relativeLng = (lng - CampusBounds.minLng) / lngRange;
 
-    // Convert to SVG coordinates
-    double svgX = relativeX * svgSize.width;
-    double svgY = relativeY * svgSize.height;
+    // Since the SVG is rotated 90 degrees, we need to swap coordinates
+    // and adjust for the rotation
+    double svgX = relativeLng * svgSize.width;
+    double svgY = (1.0 - relativeLat) * svgSize.height;
+
+    print('GPS to SVG conversion:');
+    print('GPS: lat=$lat, lng=$lng');
+    print('Relative: lat=${relativeLat.toStringAsFixed(4)}, lng=${relativeLng.toStringAsFixed(4)}');
+    print('SVG: x=${svgX.toStringAsFixed(2)}, y=${svgY.toStringAsFixed(2)}');
 
     return Offset(svgX, svgY);
   }
@@ -414,11 +425,21 @@ Future<String> highlightSvg(String assetPath, String? highlightId, {Offset? user
     final outerCircle = XmlElement(XmlName('circle'));
     outerCircle.setAttribute('cx', userLocation.dx.toString());
     outerCircle.setAttribute('cy', userLocation.dy.toString());
-    outerCircle.setAttribute('r', '20');
+    outerCircle.setAttribute('r', '25');
     outerCircle.setAttribute('fill', '#FF0000');
-    outerCircle.setAttribute('fill-opacity', '0.3');
+    outerCircle.setAttribute('fill-opacity', '0.2');
     outerCircle.setAttribute('stroke', '#FF0000');
-    outerCircle.setAttribute('stroke-width', '2');
+    outerCircle.setAttribute('stroke-width', '3');
+    
+    // Middle circle
+    final middleCircle = XmlElement(XmlName('circle'));
+    middleCircle.setAttribute('cx', userLocation.dx.toString());
+    middleCircle.setAttribute('cy', userLocation.dy.toString());
+    middleCircle.setAttribute('r', '15');
+    middleCircle.setAttribute('fill', '#FF0000');
+    middleCircle.setAttribute('fill-opacity', '0.4');
+    middleCircle.setAttribute('stroke', '#FF0000');
+    middleCircle.setAttribute('stroke-width', '2');
     
     // Inner circle (solid)
     final innerCircle = XmlElement(XmlName('circle'));
@@ -426,17 +447,18 @@ Future<String> highlightSvg(String assetPath, String? highlightId, {Offset? user
     innerCircle.setAttribute('cy', userLocation.dy.toString());
     innerCircle.setAttribute('r', '8');
     innerCircle.setAttribute('fill', '#FF0000');
-    innerCircle.setAttribute('stroke', '#FF0000');
-    innerCircle.setAttribute('stroke-width', '3');
+    innerCircle.setAttribute('stroke', '#FFFFFF');
+    innerCircle.setAttribute('stroke-width', '2');
     
     // Center dot
     final centerDot = XmlElement(XmlName('circle'));
     centerDot.setAttribute('cx', userLocation.dx.toString());
     centerDot.setAttribute('cy', userLocation.dy.toString());
     centerDot.setAttribute('r', '3');
-    centerDot.setAttribute('fill', '#FF000');
+    centerDot.setAttribute('fill', '#FFFFFF');
     
     markerGroup.children.add(outerCircle);
+    markerGroup.children.add(middleCircle);
     markerGroup.children.add(innerCircle);
     markerGroup.children.add(centerDot);
     
@@ -502,6 +524,9 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
   Future<void> _initializeLocation() async {
     setState(() => _isLoadingLocation = true);
     
+    // Print campus bounds for debugging
+    CampusBounds.printBounds();
+    
     bool hasPermission = await LocationService.checkLocationPermission();
     if (hasPermission) {
       await _getCurrentLocation();
@@ -537,8 +562,8 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
 
   Future<void> _updateMapWithLocation() async {
     if (_currentPosition != null && _isLocationEnabled) {
-      // Assume SVG size (you might want to get this dynamically)
-      Size svgSize = Size(800, 600); // Adjust based on your SVG
+      // Use actual SVG dimensions from the file
+      Size svgSize = Size(1408, 746); // Actual SVG dimensions
       
       _userLocationOnMap = LocationService.gpsToSvgCoordinates(
         _currentPosition!.latitude,
@@ -1002,11 +1027,29 @@ class _CampusMapWithDropdownState extends State<CampusMapWithDropdown>
                             child: Container(
                               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.7),
+                                color: Colors.black.withOpacity(0.8),
                                 borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.white.withOpacity(0.3)),
                               ),
-                              child: Row(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'GPS: ${_currentPosition!.latitude.toStringAsFixed(6)}, ${_currentPosition!.longitude.toStringAsFixed(6)}',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.8),
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                  Text(
+                                    'SVG: ${_userLocationOnMap!.dx.toStringAsFixed(1)}, ${_userLocationOnMap!.dy.toStringAsFixed(1)}',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.8),
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
