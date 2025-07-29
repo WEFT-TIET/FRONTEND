@@ -8,7 +8,6 @@ import 'package:frontend_weft/features/home/view/widgets/welcome_card.dart';
 import 'package:frontend_weft/features/home/view/widgets/search_bar_widget.dart';
 import 'package:frontend_weft/features/home/view/widgets/filter_chips_widget.dart';
 import 'package:frontend_weft/features/home/view/widgets/posts_list_widget.dart';
-import 'package:frontend_weft/features/home/view/widgets/create_post_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -75,31 +74,12 @@ class _HomePageState extends ConsumerState<HomePage>
         backgroundColor: AppPallete.transperantColor,
         appBar: AnimatedAppBar(animation: _animation),
         drawer: const DrawerWidget(),
-        floatingActionButton: _buildFloatingActionButton(),
         body: _buildOptimizedBody(),
       ),
     );
   }
 
-  Widget _buildFloatingActionButton() {
-    return RepaintBoundary(
-      child: FloatingActionButton.extended(
-        onPressed: () => _showCreatePostDialog(context, ref),
-        backgroundColor: AppPallete.gradient2,
-        icon: const Icon(Icons.add, color: AppPallete.whiteColor),
-        label: Text(
-          'Create Wef',
-          style: GoogleFonts.getFont(
-            'Oswald',
-            color: AppPallete.whiteColor,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        elevation: 8,
-        heroTag: "createPost",
-      ),
-    );
-  }
+
 
   Widget _buildOptimizedBody() {
     return CustomScrollView(
@@ -230,10 +210,5 @@ class _HomePageState extends ConsumerState<HomePage>
     }
   }
 
-  void _showCreatePostDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => CreatePostDialog(ref: ref),
-    );
-  }
+
 }

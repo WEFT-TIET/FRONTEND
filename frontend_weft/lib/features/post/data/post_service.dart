@@ -46,13 +46,16 @@ class PostService {
         final blockedUsers = await _getBlockedUsers();
         final blockedUserIds = blockedUsers.map((user) => user['id'].toString()).toSet();
         
-        // Filter out posts from blocked users
+        // Get current user ID to filter out their own posts from main feed
+        final currentUserId = await _getCurrentUserId();
+        
+        // Filter out posts from blocked users and current user's own posts
         final filteredPostsJson = postsJson.where((post) {
           final postUserId = post['user_id']?.toString() ?? post['userId']?.toString() ?? '';
-          return !blockedUserIds.contains(postUserId);
+          return !blockedUserIds.contains(postUserId) && postUserId != currentUserId;
         }).toList();
         
-        print("📋 Filtered to ${filteredPostsJson.length} posts (removed ${postsJson.length - filteredPostsJson.length} from blocked users)");
+        print("📋 Filtered to ${filteredPostsJson.length} posts (removed ${postsJson.length - filteredPostsJson.length} from blocked users and current user's own posts)");
         
         return filteredPostsJson.map((json) => Post.fromJson(json)).toList();
       } else {
@@ -62,6 +65,23 @@ class PostService {
     } catch (e) {
       print("❌ Error fetching posts: $e");
       return [];
+    }
+  }
+
+  // Helper method to get current user ID
+  Future<String> _getCurrentUserId() async {
+    try {
+      final url = Uri.parse('$baseUrl/profile');
+      final response = await _httpClient.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['id']?.toString() ?? '';
+      }
+      return '';
+    } catch (e) {
+      print("❌ Error fetching current user ID: $e");
+      return '';
     }
   }
 

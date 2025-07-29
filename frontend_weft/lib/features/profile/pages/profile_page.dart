@@ -7,6 +7,8 @@ import 'package:frontend_weft/features/profile/services/profile_api_service.dart
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
+import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
+import 'package:frontend_weft/features/home/view/widgets/create_post_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
 
@@ -193,16 +195,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.refresh, color: AppPallete.textPrimaryDark),
-                                  tooltip: 'Refresh',
-                                  onPressed: () {
-                                    setState(() => _isLoading = true);
-                                    ref.invalidate(userProfileProvider);
-                                    Future.delayed(const Duration(milliseconds: 800), () {
-                                      if (mounted) setState(() => _isLoading = false);
-                                    });
-                                  },
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.add, color: AppPallete.textPrimaryDark),
+                                      tooltip: 'Create Weft',
+                                      onPressed: () => _showCreatePostDialog(context, ref),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.refresh, color: AppPallete.textPrimaryDark),
+                                      tooltip: 'Refresh',
+                                      onPressed: () {
+                                        setState(() => _isLoading = true);
+                                        ref.invalidate(userProfileProvider);
+                                        Future.delayed(const Duration(milliseconds: 800), () {
+                                          if (mounted) setState(() => _isLoading = false);
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -748,6 +759,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  void _showCreatePostDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => CreatePostDialog(ref: ref),
+    );
   }
 
   @override
