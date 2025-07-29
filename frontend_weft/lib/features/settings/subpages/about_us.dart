@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutUsPage extends StatelessWidget {
   const AboutUsPage({super.key});
@@ -173,6 +174,23 @@ class TeamMemberCard extends StatelessWidget {
 
   const TeamMemberCard({super.key, required this.member});
 
+  Future<void> _launchInstagram(String instagramId) async {
+    // Try to launch Instagram app first
+    final instagramAppUrl = Uri.parse('instagram://user?username=$instagramId');
+    final instagramWebUrl = Uri.parse('https://www.instagram.com/$instagramId/');
+    
+    try {
+      if (await canLaunchUrl(instagramAppUrl)) {
+        await launchUrl(instagramAppUrl);
+      } else {
+        await launchUrl(instagramWebUrl, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      // Fallback to web version if app launch fails
+      await launchUrl(instagramWebUrl, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -263,27 +281,30 @@ class TeamMemberCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             
-            // Instagram ID as plain text
+            // Instagram ID as clickable link
             if (member.instagramId.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF833AB4), Color(0xFFE1306C), Color(0xFFFD1D1D)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              GestureDetector(
+                onTap: () => _launchInstagram(member.instagramId),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF833AB4), Color(0xFFE1306C), Color(0xFFFD1D1D)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '@${member.instagramId}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
+                  child: Text(
+                    '@${member.instagramId}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
           ],
@@ -328,6 +349,13 @@ class TeamMember {
 // Team members data
 final List<TeamMember> teamMembers = [
   TeamMember(
+    name: 'Rudra ',
+    role: 'Founder',
+    branch: 'COE',
+    instagramId: 'rudiiieeeee',
+    photoUrl: 'https://via.placeholder.com/150',
+  ),
+  TeamMember(
     name: 'Prince Sharma',
     role: 'Co-Founder & Lead Developer',
     branch: 'COE',
@@ -355,18 +383,5 @@ final List<TeamMember> teamMembers = [
     instagramId: 'vatsal.gupta06',
     photoUrl: 'https://via.placeholder.com/150',
   ),
-  TeamMember(
-    name: 'Krishna Vig',
-    role: 'Designer',
-    branch: 'COE',
-    instagramId: 'vig.krishna19',
-    photoUrl: 'https://via.placeholder.com/150',
-  ),
-  TeamMember(
-    name: 'Samridhi Sharma',
-    role: 'UI/UX Designer',
-    branch: 'COE',
-    instagramId: 'samridhi.s14',
-    photoUrl: 'https://via.placeholder.com/150',
-  ),
+  
 ];
