@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/server_constants.dart';
 import 'package:frontend_weft/core/http_client.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
+import 'package:frontend_weft/features/profile/models/other_user_model.dart';
 
 final profileApiServiceProvider = Provider<ProfileApiService>((ref) {
   final httpClient = ref.watch(httpClientProvider);
@@ -33,6 +34,28 @@ class ProfileApiService {
       }
     } catch (e) {
       print("❌ Error fetching profile: $e");
+      return null;
+    }
+  }
+
+  /// Get other user profile by username or ID
+  Future<OtherUserModel?> getOtherUserProfile(String usernameOrId) async {
+    try {
+      final url = Uri.parse('$baseUrl/profile/$usernameOrId');
+      final response = await _httpClient.get(url);
+
+      print("🔵 GET Other User Profile URL: $url");
+      print("📬 Response (${response.statusCode}): ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return OtherUserModel.fromJson(data);
+      } else {
+        print("❌ Failed to fetch other user profile: ${response.statusCode} - ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("❌ Error fetching other user profile: $e");
       return null;
     }
   }

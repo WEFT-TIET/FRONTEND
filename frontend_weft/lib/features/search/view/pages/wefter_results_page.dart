@@ -399,9 +399,12 @@ class WEFTerResultsPage extends StatelessWidget {
   }
 
   void _showUserProfile(BuildContext context, Map<String, dynamic> user) {
+    // Use username if available, otherwise use a fallback
+    final String usernameOrId = user['username'] ?? user['id']?.toString() ?? user['name'] ?? 'unknown';
+    
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (BuildContext context) => OtherUserProfilePage(user: user),
+        builder: (BuildContext context) => OtherUserProfilePage(usernameOrId: usernameOrId),
       ),
     );
   }

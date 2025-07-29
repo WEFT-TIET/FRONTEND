@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
-import 'package:frontend_weft/features/profile/models/user_model.dart';
+import 'package:frontend_weft/features/profile/models/other_user_model.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
+import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 
 class OtherUserProfilePage extends ConsumerStatefulWidget {
-  final Map<String, dynamic> user;
+  final String usernameOrId;
   
   const OtherUserProfilePage({
     super.key,
-    required this.user,
+    required this.usernameOrId,
   });
 
   @override
@@ -33,8 +34,8 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Mock user data for frontend
-  late UserModel _userModel;
+  // User data from API
+  OtherUserModel? _userModel;
 
   @override
   bool get wantKeepAlive => true;
@@ -54,19 +55,37 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
       ]);
     });
     
-    // Create mock UserModel from the user map
-    _userModel = _createMockUserModel();
+    // Fetch user data from API
+    _fetchUserData();
   }
 
-  UserModel _createMockUserModel() {
-    return UserModel(
-      name: widget.user['name'] ?? 'Unknown User',
-      username: widget.user['username'] ?? 'unknown',
-      year: widget.user['year']?.toString() ?? '1',
-      branch: widget.user['branch'] ?? 'COE',
-      image_url: widget.user['image_url'],
-      posts: [], // Empty posts for now
-    );
+  Future<void> _fetchUserData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final profileService = ref.read(profileApiServiceProvider);
+      final userData = await profileService.getOtherUserProfile(widget.usernameOrId);
+      
+      if (userData != null) {
+        setState(() {
+          _userModel = userData;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to load user profile';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading profile: $e';
+        _isLoading = false;
+      });
+    }
   }
 
   void _calculateProfileCardHeight() {
@@ -155,89 +174,92 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                   ),
                   
                   // Profile Card
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: RepaintBoundary(
-                        key: _profileCardKey,
-                        child: _buildOptimizedProfileCard(_userModel),
-                      ),
-                    ),
-                  ),
-                  
-                  // Posts Section Header
-                  SliverPersistentHeader(
-                    pinned: false,
-                    floating: true,
-                    delegate: _SliverAppBarDelegate(
-                      minHeight: 60,
-                      maxHeight: 60,
-                      child: Container(
-                        color: AppPallete.transperantColor,
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '${_userModel.name}\'s Wefts',
-                              style: const TextStyle(
-                                color: AppPallete.textPrimaryDark,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                  if (_userModel != null)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        child: RepaintBoundary(
+                          key: _profileCardKey,
+                          child: _buildOptimizedProfileCard(_userModel!),
                         ),
                       ),
                     ),
-                  ),
+                  
+                  // Posts Section Header
+                  if (_userModel != null)
+                    SliverPersistentHeader(
+                      pinned: false,
+                      floating: true,
+                      delegate: _SliverAppBarDelegate(
+                        minHeight: 60,
+                        maxHeight: 60,
+                        child: Container(
+                          color: AppPallete.transperantColor,
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${_userModel!.name}\'s Wefts',
+                                style: const TextStyle(
+                                  color: AppPallete.textPrimaryDark,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   
                   // Posts List
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 0),
-                    sliver: _userModel.posts.isEmpty
-                        ? SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 32.0),
-                              child: Center(
-                                child: Text(
-                                  'No wefts yet.',
-                                  style: TextStyle(
-                                    color: AppPallete.textPrimaryDark.withOpacity(0.7),
-                                    fontSize: 16,
+                  if (_userModel != null)
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 0),
+                      sliver: _userModel!.posts.isEmpty
+                          ? SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 32.0),
+                                child: Center(
+                                  child: Text(
+                                    'No wefts yet.',
+                                    style: TextStyle(
+                                      color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ),
                               ),
+                            )
+                          : SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  final sortedPosts = List.of(_userModel!.posts)
+                                    ..sort((a, b) {
+                                      final aDate = DateTime.tryParse(a.createdAt) ?? DateTime(1970);
+                                      final bDate = DateTime.tryParse(b.createdAt) ?? DateTime(1970);
+                                      return bDate.compareTo(aDate);
+                                    });
+                                  final post = sortedPosts[index];
+                                  return PostCard(
+                                    postId: post.id,
+                                    userId: post.userId,
+                                    name: post.userName.isNotEmpty ? post.userName : _userModel!.name,
+                                    tag: post.title,
+                                    timeAgo: _formatTimeAgo(post.createdAt),
+                                    content: post.content,
+                                    stars: post.likesCount,
+                                    comments: post.commentsCount,
+                                    showMenu: false,
+                                  );
+                                },
+                                childCount: _userModel!.posts.length,
+                                addAutomaticKeepAlives: true,
+                                addRepaintBoundaries: true,
+                              ),
                             ),
-                          )
-                        : SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                final sortedPosts = List.of(_userModel.posts)
-                                  ..sort((a, b) {
-                                    final aDate = DateTime.tryParse(a.createdAt) ?? DateTime(1970);
-                                    final bDate = DateTime.tryParse(b.createdAt) ?? DateTime(1970);
-                                    return bDate.compareTo(aDate);
-                                  });
-                                final post = sortedPosts[index];
-                                return PostCard(
-                                  postId: post.id,
-                                  userId: post.userId,
-                                  name: post.userName.isNotEmpty ? post.userName : _userModel.name,
-                                  tag: post.title,
-                                  timeAgo: _formatTimeAgo(post.createdAt),
-                                  content: post.content,
-                                  stars: post.likesCount,
-                                  comments: post.commentsCount,
-                                  showMenu: false,
-                                );
-                              },
-                              childCount: _userModel.posts.length,
-                              addAutomaticKeepAlives: true,
-                              addRepaintBoundaries: true,
-                            ),
-                          ),
-                  ),
+                    ),
                 ],
               ),
             ),
@@ -254,8 +276,30 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
               Center(
                 child: Container(
                   padding: const EdgeInsets.all(16),
-                  color: Colors.red.withOpacity(0.8),
-                  child: Text(_errorMessage!, style: const TextStyle(color: Colors.white)),
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _errorMessage!,
+                        style: const TextStyle(color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: _fetchUserData,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.red,
+                        ),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -265,7 +309,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
   }
 
   // ENHANCED PROFILE CARD WITH MAP THEME
-  Widget _buildOptimizedProfileCard(UserModel user) {
+  Widget _buildOptimizedProfileCard(OtherUserModel user) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOutCubic,
@@ -304,7 +348,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
   }
 
   // ENHANCED PROFILE HEADER
-  Widget _buildProfileHeader(UserModel user) {
+  Widget _buildProfileHeader(OtherUserModel user) {
     return Row(
       children: [
         Hero(
@@ -405,7 +449,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
   }
 
   // ENHANCED ACADEMIC DETAILS
-  Widget _buildAcademicDetails(UserModel user) {
+  Widget _buildAcademicDetails(OtherUserModel user) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -475,7 +519,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
   }
 
   // ENHANCED ACTION BUTTONS
-  Widget _buildActionButtons(UserModel user) {
+  Widget _buildActionButtons(OtherUserModel user) {
     return Row(
       children: [
         Expanded(
@@ -605,7 +649,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  void _sendMessage(UserModel user) {
+  void _sendMessage(OtherUserModel user) {
     HapticFeedback.mediumImpact();
     // Navigate to chat/message screen
     // You'll need to implement this navigation
