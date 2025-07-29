@@ -5,9 +5,6 @@ import 'package:frontend_weft/features/home/view/pages/home_page.dart';
 import 'package:frontend_weft/features/messages/view/pages/message_page.dart';
 import 'package:frontend_weft/features/profile/pages/profile_page.dart';
 import 'package:frontend_weft/features/search/view/pages/search.dart';
-import 'package:frontend_weft/features/navbar/gradient_icon.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'dart:math' as math;
 
 class BottomNavBar extends StatefulWidget {
   final VoidCallback? onThemeToggle;
