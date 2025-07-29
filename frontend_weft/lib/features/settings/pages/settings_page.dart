@@ -12,6 +12,112 @@ import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:frontend_weft/features/settings/subpages/about_us.dart';
 
+class SettingsList extends StatelessWidget {
+  const SettingsList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // Account Section
+        SettingsSection(
+          title: 'Account',
+          items: [
+            SettingsItem(
+              icon: Icons.visibility_off_outlined,
+              title: 'Your Activity',
+              onTap: () => _navigateToActivity(context),
+            ),
+            SettingsItem(
+              icon: Icons.lock_outline,
+              title: 'Change Password',
+              onTap: () => _navigateToChangePassword(context),
+            ),
+            SettingsItem(
+              icon: Icons.delete_outline,
+              title: 'Delete Account',
+              onTap: () => _deleteAccount(context),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        // Privacy & Safety Section
+        SettingsSection(
+          title: 'Privacy & Safety',
+          items: [
+            SettingsItem(
+              icon: Icons.block_outlined,
+              title: 'Block List',
+              onTap: () => _navigateToBlockList(context),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        // Support Section
+        SettingsSection(
+          title: 'Support',
+          items: [
+            SettingsItem(
+              icon: Icons.help_outline,
+              title: 'Help Center',
+              onTap: () => _navigateToHelpCenter(context),
+            ),
+            SettingsItem(
+              icon: Icons.people_outline,
+              title: 'About Us',
+              onTap: () => _navigateToAboutUs(context),
+            ),
+          ],
+        ),
+        const SizedBox(height: 100), // Space for logout button
+      ],
+    );
+  }
+
+  void _navigateToActivity(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const YourActivityPage()),
+    );
+  }
+
+  void _navigateToChangePassword(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
+    );
+  }
+
+  void _deleteAccount(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const DeleteAccountPage()),
+    );
+  }
+
+  void _navigateToBlockList(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const BlockListPage()),
+    );
+  }
+
+  void _navigateToHelpCenter(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const HelpCenterPage()),
+    );
+  }
+
+  void _navigateToAboutUs(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AboutUsPage()),
+    );
+  }
+}
+
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
@@ -52,67 +158,7 @@ class SettingsPage extends ConsumerWidget {
         body: SafeArea(
           child: Column(
             children: [
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    // Account Section
-                    SettingsSection(
-                      title: 'Account',
-                      items: [
-                        SettingsItem(
-                          icon: Icons.visibility_off_outlined,
-                          title: 'Your Activity',
-                          onTap: () => _navigateToActivity(context),
-                        ),
-                        SettingsItem(
-                          icon: Icons.lock_outline,
-                          title: 'Change Password',
-                          onTap: () => _navigateToChangePassword(context),
-                        ),
-                        SettingsItem(
-                          icon: Icons.delete_outline,
-                          title: 'Delete Account',
-                          onTap: () => _deleteAccount(context),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Privacy & Safety Section
-                    SettingsSection(
-                      title: 'Privacy & Safety',
-                      items: [
-                        SettingsItem(
-                          icon: Icons.block_outlined,
-                          title: 'Block List',
-                          onTap: () => _navigateToBlockList(context),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Support Section
-                    SettingsSection(
-                      title: 'Support',
-                      items: [
-                        SettingsItem(
-                          icon: Icons.help_outline,
-                          title: 'Help Center',
-                          onTap: () => _navigateToHelpCenter(context),
-                        ),
-                        SettingsItem(
-                          icon: Icons.people_outline,
-                          title: 'About Us',
-                          onTap: () => _navigateToAboutUs(context),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 100), // Space for logout button
-                  ],
-                ),
-              ),
-
+              const Expanded(child: SettingsList()),
               // Logout Button at Bottom
               Container(
                 width: double.infinity,
@@ -150,92 +196,36 @@ class SettingsPage extends ConsumerWidget {
     );
   }
 
-  // Navigation Methods
-  void _navigateToActivity(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const YourActivityPage()),
-    );
-  }
-
-  void _navigateToChangePassword(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
-    );
-  }
-
-  void _deleteAccount(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const DeleteAccountPage()),
-    );
-  }
-
-  void _navigateToBlockList(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const BlockListPage()),
-    );
-  }
-
-  /*void _navigateToReportBug(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ReportBugPage(userEmail: '',)),
-    );
-  }*/
-
-  void _navigateToHelpCenter(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const HelpCenterPage()),
-    );
-  }
-
-  void _navigateToAboutUs(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AboutUsPage()),
-    );
-  }
-
+  // Logout Dialog
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppPallete.cardColorDark,
-        title: const Text(
-          'Logout',
-          style: TextStyle(color: AppPallete.textPrimaryDark),
-        ),
-        content: const Text(
-          'Are you sure you want to logout?',
-          style: TextStyle(color: AppPallete.textPrimaryDark),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppPallete.textPrimaryDark),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              // Call the logout method from the auth view model
-              await ref.read(authViewModelProvider.notifier).logoutUser();
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/login',
-                (route) => false,
-              );
-            },
-            child: const Text('Logout', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+            TextButton(
+              child: const Text('Logout'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await ref.read(authViewModelProvider.notifier).logoutUser();
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/login',
+                  (route) => false,
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
