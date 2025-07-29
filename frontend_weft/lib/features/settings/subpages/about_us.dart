@@ -357,14 +357,14 @@ final List<TeamMember> teamMembers = [
   ),
   TeamMember(
     name: 'Prince Sharma',
-    role: 'Co-Founder & Lead Developer',
+    role: 'Co-Founder',
     branch: 'COE',
     instagramId: 'tanice_gawd',
     photoUrl: 'https://via.placeholder.com/150',
   ),
   TeamMember(
     name: 'Shashwat Narwal',
-    role: 'Co-Founder & Video Editor',
+    role: 'Co-Founder ',
     branch: 'AI&ML',
     instagramId: 'shshwt_',
     photoUrl: 'https://via.placeholder.com/150',
