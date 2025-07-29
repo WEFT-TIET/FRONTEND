@@ -13,6 +13,7 @@ class PostCard extends ConsumerWidget {
   final String content;
   final int stars;
   final int comments;
+  final bool liked;
   final bool showMenu;
 
   const PostCard({
@@ -25,6 +26,7 @@ class PostCard extends ConsumerWidget {
     required this.content,
     this.stars = 0,
     this.comments = 0,
+    this.liked = false,
     this.showMenu = true,
   });
 
@@ -168,9 +170,9 @@ class PostCard extends ConsumerWidget {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.favorite_border,
+                      liked ? Icons.favorite : Icons.favorite_border,
                       size: 18,
-                      color: stars > 0 ? Colors.red : Colors.white38,
+                      color: liked ? Colors.red : Colors.white38,
                     ),
                     const SizedBox(width: 4),
                     Text(

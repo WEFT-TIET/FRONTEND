@@ -49,6 +49,9 @@ class PostsListWidget extends ConsumerWidget {
                   tag: post.title,
                   timeAgo: _formatTimeAgo(post.createdAt),
                   content: post.content,
+                  stars: post.likesCount,
+                  comments: post.commentsCount,
+                  liked: post.liked,
                 ),
               );
             },

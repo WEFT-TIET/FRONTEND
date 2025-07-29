@@ -256,6 +256,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                       content: post.content,
                                       stars: post.likesCount,
                                       comments: post.commentsCount,
+                                      liked: post.liked,
                                       showMenu: false,
                                     );
                                   },

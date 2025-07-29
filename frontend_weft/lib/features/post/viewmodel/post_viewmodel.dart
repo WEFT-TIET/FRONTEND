@@ -66,21 +66,29 @@ class PostViewModel extends StateNotifier<PostState> {
   // Like a post
   Future<bool> likePost(String postId) async {
     try {
-      final success = await _postService.likePost(postId);
+      final response = await _postService.likePost(postId);
 
-      if (success) {
-        // Update the local state to reflect the like
+      if (response != null) {
+        final status = response['status'] as String?;
+        final isLiked = status == 'Liked';
+        
+        // Update the local state based on the backend response
         final updatedPosts = state.posts.map((post) {
           if (post.id == postId) {
-            return post.copyWith(likesCount: post.likesCount + 1);
+            final newLikesCount = isLiked ? post.likesCount + 1 : post.likesCount - 1;
+            return post.copyWith(
+              liked: isLiked,
+              likesCount: newLikesCount,
+            );
           }
           return post;
         }).toList();
 
         state = state.copyWith(posts: updatedPosts);
+        return true;
       }
 
-      return success;
+      return false;
     } catch (e) {
       state = state.copyWith(error: e.toString());
       return false;
