@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/features/settings/subpages/block_list.dart';
 import 'package:frontend_weft/features/settings/subpages/change_password.dart';
+import 'package:frontend_weft/features/settings/subpages/delete_account.dart';
 import 'package:frontend_weft/features/settings/subpages/help_center.dart';
 import 'package:frontend_weft/features/settings/models/settings_item.dart';
 import 'package:frontend_weft/features/settings/subpages/your_activity.dart';
@@ -41,102 +42,110 @@ class SettingsPage extends ConsumerWidget {
           backgroundColor: AppPallete.transperantColor,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppPallete.textPrimaryDark),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: AppPallete.textPrimaryDark,
+            ),
             onPressed: () => Navigator.pop(context),
           ),
         ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  // Account Section
-                  SettingsSection(
-                    title: 'Account',
-                    items: [
-                      SettingsItem(
-                        icon: Icons.visibility_off_outlined,
-                        title: 'Your Activity',
-                        onTap: () => _navigateToActivity(context),
-                      ),
-                      SettingsItem(
-                        icon: Icons.lock_outline,
-                        title: 'Change Password',
-                        onTap: () => _navigateToChangePassword(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  // Privacy & Safety Section
-                  SettingsSection(
-                    title: 'Privacy & Safety',
-                    items: [
-                      SettingsItem(
-                        icon: Icons.block_outlined,
-                        title: 'Block List',
-                        onTap: () => _navigateToBlockList(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  // Support Section
-                  SettingsSection(
-                    title: 'Support',
-                    items: [
-                      SettingsItem(
-                        icon: Icons.help_outline,
-                        title: 'Help Center',
-                        onTap: () => _navigateToHelpCenter(context),
-                      ),
-                      SettingsItem(
-                        icon: Icons.people_outline,
-                        title: 'About Us',
-                        onTap: () => _navigateToAboutUs(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 100), // Space for logout button
-                ],
-              ),
-            ),
-            
-            // Logout Button at Bottom
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                onPressed: () => _showLogoutDialog(context,ref),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade600,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
                   children: [
-                    Icon(Icons.logout, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'Logout',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    // Account Section
+                    SettingsSection(
+                      title: 'Account',
+                      items: [
+                        SettingsItem(
+                          icon: Icons.visibility_off_outlined,
+                          title: 'Your Activity',
+                          onTap: () => _navigateToActivity(context),
+                        ),
+                        SettingsItem(
+                          icon: Icons.lock_outline,
+                          title: 'Change Password',
+                          onTap: () => _navigateToChangePassword(context),
+                        ),
+                        SettingsItem(
+                          icon: Icons.delete_outline,
+                          title: 'Delete Account',
+                          onTap: () => _deleteAccount(context),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 24),
+
+                    // Privacy & Safety Section
+                    SettingsSection(
+                      title: 'Privacy & Safety',
+                      items: [
+                        SettingsItem(
+                          icon: Icons.block_outlined,
+                          title: 'Block List',
+                          onTap: () => _navigateToBlockList(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Support Section
+                    SettingsSection(
+                      title: 'Support',
+                      items: [
+                        SettingsItem(
+                          icon: Icons.help_outline,
+                          title: 'Help Center',
+                          onTap: () => _navigateToHelpCenter(context),
+                        ),
+                        SettingsItem(
+                          icon: Icons.people_outline,
+                          title: 'About Us',
+                          onTap: () => _navigateToAboutUs(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 100), // Space for logout button
                   ],
                 ),
               ),
-            ),
-          ],
+
+              // Logout Button at Bottom
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                child: ElevatedButton(
+                  onPressed: () => _showLogoutDialog(context, ref),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade600,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.logout, size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        'Logout',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -153,6 +162,13 @@ class SettingsPage extends ConsumerWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
+    );
+  }
+
+  void _deleteAccount(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const DeleteAccountPage()),
     );
   }
 
@@ -175,13 +191,14 @@ class SettingsPage extends ConsumerWidget {
       context,
       MaterialPageRoute(builder: (context) => const HelpCenterPage()),
     );
-  } 
+  }
+
   void _navigateToAboutUs(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AboutUsPage()),
     );
-  } 
+  }
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
@@ -215,10 +232,7 @@ class SettingsPage extends ConsumerWidget {
                 (route) => false,
               );
             },
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Logout', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
