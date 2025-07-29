@@ -147,28 +147,36 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                     expandedHeight: 60,
                     backgroundColor: AppPallete.transperantColor,
                     elevation: 0,
-                    leading: IconButton(
-                      icon: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(12),
+                    leading: Container(
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1,
                         ),
-                        child: const Icon(Icons.arrow_back, color: Colors.white),
                       ),
-                      onPressed: () => Navigator.of(context).pop(),
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
                     ),
                     actions: [
-                      IconButton(
-                        icon: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(12),
+                      Container(
+                        margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1,
                           ),
-                          child: const Icon(Icons.more_vert, color: Colors.white),
                         ),
-                        onPressed: () => _showOptionsMenu(context),
+                        child: IconButton(
+                          icon: const Icon(Icons.more_vert, color: Colors.white),
+                          onPressed: () => _showOptionsMenu(context),
+                        ),
                       ),
                     ],
                   ),
@@ -610,9 +618,16 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF2A2D5A).withOpacity(0.95),
+          color: const Color(0xFF3A3E7A).withOpacity(0.95),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           border: Border.all(color: Colors.white.withOpacity(0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 25,
+              offset: const Offset(0, -10),
+            ),
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
