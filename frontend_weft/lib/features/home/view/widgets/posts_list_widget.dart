@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
-import 'package:frontend_weft/features/post/model/post_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PostsListWidget extends ConsumerWidget {
@@ -44,7 +43,12 @@ class PostsListWidget extends ConsumerWidget {
               return RepaintBoundary(
                 child: PostCard(
                   key: ValueKey('post_${post.id}'),
-                  post: post,
+                  postId: post.id,
+                  userId: post.userId,
+                  name: post.userName,
+                  tag: post.title,
+                  timeAgo: _formatTimeAgo(post.createdAt),
+                  content: post.content,
                 ),
               );
             },
@@ -56,13 +60,13 @@ class PostsListWidget extends ConsumerWidget {
     );
   }
 
-  List<Post> _getFilteredPosts(List<Post> posts) {
+  List<dynamic> _getFilteredPosts(List<dynamic> posts) {
     // Filter posts based on search query
     var filteredPosts = searchQuery.isEmpty
         ? posts
         : posts.where((post) => post.title
             .toLowerCase()
-            .contains(searchQuery.toLowerCase())).toList();
+            .contains(searchQuery)).toList();
 
     // Apply filter
     switch (selectedFilter) {
