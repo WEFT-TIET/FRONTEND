@@ -146,18 +146,22 @@ class PostService {
     }
   }
 
-  Future<bool> likePost(String postId) async {
+  Future<Map<String, dynamic>?> likePost(String postId) async {
     try {
-      final url = Uri.parse('$baseUrl/posts/$postId/like');
+      final url = Uri.parse('$baseUrl/post/like?id=$postId');
       final response = await _httpClient.post(url);
 
       print("🔵 POST Like URL: $url");
       print("📬 Response (${response.statusCode}): ${response.body}");
 
-      return response.statusCode == 200 || response.statusCode == 201;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        return data;
+      }
+      return null;
     } catch (e) {
       print("❌ Error liking post: $e");
-      return false;
+      return null;
     }
   }
 

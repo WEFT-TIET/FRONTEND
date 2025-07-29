@@ -8,6 +8,7 @@ import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
+import 'package:frontend_weft/features/post/model/post_model.dart';
 import 'package:frontend_weft/features/home/view/widgets/create_post_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
@@ -248,14 +249,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                       });
                                     final post = sortedPosts[index];
                                     return PostCard(
-                                      postId: post.id,
-                                      userId: post.userId,
-                                      name: post.userName.isNotEmpty ? post.userName : user.name,
-                                      tag: post.title,
-                                      timeAgo: _formatTimeAgo(post.createdAt),
-                                      content: post.content,
-                                      stars: post.likesCount,
-                                      comments: post.commentsCount,
+                                      post: post,
                                       showMenu: false,
                                     );
                                   },

@@ -3,28 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:frontend_weft/features/post/model/post_model.dart';
 
 class PostCard extends ConsumerWidget {
-  final String postId;
-  final String userId;
-  final String name;
-  final String tag;
-  final String timeAgo;
-  final String content;
-  final int stars;
-  final int comments;
+  final Post post;
   final bool showMenu;
 
   const PostCard({
     super.key,
-    this.postId = '',
-    required this.userId,
-    required this.name,
-    required this.tag,
-    required this.timeAgo,
-    required this.content,
-    this.stars = 0,
-    this.comments = 0,
+    required this.post,
     this.showMenu = true,
   });
 
@@ -32,7 +19,7 @@ class PostCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final currentUser = ref.watch(authViewModelProvider);
-    final isCurrentUserPost = currentUser?.id == userId;
+    final isCurrentUserPost = currentUser?.id == post.userId;
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
@@ -52,7 +39,7 @@ class PostCard extends ConsumerWidget {
                 radius: 20,
                 backgroundColor: AppPallete.gradient2,
                 child: Text(
-                  name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                  post.userName.isNotEmpty ? post.userName[0].toUpperCase() : 'U',
                   style: const TextStyle(
                     color: AppPallete.whiteColor,
                     fontWeight: FontWeight.bold,
@@ -65,14 +52,14 @@ class PostCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      post.userName,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppPallete.textPrimaryDark,
                       ),
                     ),
                     Text(
-                      '$tag • $timeAgo',
+                      '${post.createdAt}',
                       style: const TextStyle(
                         color: AppPallete.whiteColor,
                         fontSize: 12,
@@ -145,7 +132,7 @@ class PostCard extends ConsumerWidget {
 
           // Post content
           Text(
-            content,
+            post.content,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w500,
               color: AppPallete.textPrimaryDark,
@@ -158,23 +145,23 @@ class PostCard extends ConsumerWidget {
           Row(
             children: [
               GestureDetector(
-                onTap: postId.isNotEmpty
+                onTap: post.id.isNotEmpty
                     ? () {
                         ref
                             .read(postViewModelProvider.notifier)
-                            .likePost(postId);
+                            .likePost(post.id);
                       }
                     : null,
                 child: Row(
                   children: [
                     Icon(
-                      Icons.favorite_border,
+                      post.liked ? Icons.favorite : Icons.favorite_border,
                       size: 18,
-                      color: stars > 0 ? Colors.red : Colors.white38,
+                      color: post.liked ? Colors.red : Colors.white38,
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '$stars',
+                      '${post.likesCount}',
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ],
@@ -192,7 +179,7 @@ class PostCard extends ConsumerWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '$comments',
+                    '${post.commentsCount}',
                     style: const TextStyle(color: Colors.white70),
                   ),
                 ],
@@ -276,7 +263,7 @@ class PostCard extends ConsumerWidget {
             style: TextStyle(color: AppPallete.textPrimaryDark),
           ),
           content: Text(
-            'Are you sure you want to block $name? You won\'t see their posts anymore.',
+            'Are you sure you want to block ${post.userName}? You won\'t see their posts anymore.',
             style: TextStyle(color: AppPallete.textPrimaryDark),
           ),
           actions: [
@@ -292,7 +279,7 @@ class PostCard extends ConsumerWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _blockUser(context, userId, ref);
+                _blockUser(context, post.userId, ref);
               },
               style: TextButton.styleFrom(
                 foregroundColor: AppPallete.red,
@@ -319,7 +306,7 @@ class PostCard extends ConsumerWidget {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$name has been blocked'),
+            content: Text('${post.userName} has been blocked'),
             backgroundColor: AppPallete.gradient2,
           ),
         );

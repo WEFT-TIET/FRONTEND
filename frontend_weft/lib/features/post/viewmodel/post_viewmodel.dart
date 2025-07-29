@@ -66,22 +66,45 @@ class PostViewModel extends StateNotifier<PostState> {
   // Like a post
   Future<bool> likePost(String postId) async {
     try {
-      final success = await _postService.likePost(postId);
+      final response = await _postService.likePost(postId);
 
-      if (success) {
-        // Update the local state to reflect the like
-        final updatedPosts = state.posts.map((post) {
-          if (post.id == postId) {
-            return post.copyWith(likesCount: post.likesCount + 1);
-          }
-          return post;
-        }).toList();
+      if (response != null) {
+        final status = response['status'] as String?;
+        
+        print("🔵 Like response: $response");
+        print("🔵 Status: $status");
+        
+        if (status != null && (status == 'Liked' || status == 'Unliked')) {
+          // Update the local state based on the backend response
+          final updatedPosts = state.posts.map((post) {
+            if (post.id == postId) {
+              final newLiked = status == 'Liked';
+              final newLikesCount = newLiked ? post.likesCount + 1 : post.likesCount - 1;
+              
+              print("🔵 Post ${post.id}: wasLiked=${post.liked}, newLiked=$newLiked, oldCount=${post.likesCount}, newCount=$newLikesCount");
+              
+              return post.copyWith(
+                liked: newLiked,
+                likesCount: newLikesCount,
+              );
+            }
+            return post;
+          }).toList();
 
-        state = state.copyWith(posts: updatedPosts);
+          state = state.copyWith(posts: updatedPosts);
+          return true;
+        } else {
+          print("❌ Invalid status received: $status");
+          state = state.copyWith(error: "Invalid response from server");
+        }
+      } else {
+        print("❌ No response received from like request");
+        state = state.copyWith(error: "Failed to like/unlike post");
       }
 
-      return success;
+      return false;
     } catch (e) {
+      print("❌ Error in likePost: $e");
       state = state.copyWith(error: e.toString());
       return false;
     }
