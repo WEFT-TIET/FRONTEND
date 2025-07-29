@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
+import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 
 class PostCard extends ConsumerWidget {
   final String postId;
@@ -30,6 +31,9 @@ class PostCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currentUser = ref.watch(authViewModelProvider);
+    final isCurrentUserPost = currentUser?.id == userId;
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       padding: const EdgeInsets.all(16),
@@ -77,7 +81,7 @@ class PostCard extends ConsumerWidget {
                   ],
                 ),
               ),
-              if (showMenu)
+              if (showMenu && !isCurrentUserPost)
                 PopupMenuButton<String>(
                   icon: Icon(
                     Icons.more_vert,

@@ -185,9 +185,11 @@ class _BottomNavBarState extends State<BottomNavBar>
       childWhenDragging: Container(),
       onDragEnd: (details) {
         final screenSize = MediaQuery.of(context).size;
+        final maxX = screenSize.width > 65 ? screenSize.width - 65 : 0.0;
+        final maxY = screenSize.height > 65 ? screenSize.height - 65 : 0.0;
         setState(() {
-          _xPosition = (details.offset.dx - 32.5).clamp(0.0, screenSize.width - 65);
-          _yPosition = (details.offset.dy - 32.5).clamp(0.0, screenSize.height - 65);
+          _xPosition = (details.offset.dx - 32.5).clamp(0.0, maxX);
+          _yPosition = (details.offset.dy - 32.5).clamp(0.0, maxY);
           _originalXPosition = _xPosition; // Update original position after drag
           _originalYPosition = _yPosition; // Update original Y position after drag
         });
@@ -387,8 +389,10 @@ class _BottomNavBarState extends State<BottomNavBar>
     }
     
     // Ensure position is within screen bounds - allow full width for extreme right
-    _xPosition = _xPosition.clamp(0.0, screenSize.width - 65);
-    _yPosition = _yPosition.clamp(0.0, screenSize.height - 65);
+    final maxX = screenSize.width > 65 ? screenSize.width - 65 : 0.0;
+    final maxY = screenSize.height > 65 ? screenSize.height - 65 : 0.0;
+    _xPosition = _xPosition.clamp(0.0, maxX);
+    _yPosition = _yPosition.clamp(0.0, maxY);
     
     return Scaffold(
       backgroundColor: AppPallete.transperantColor,
