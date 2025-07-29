@@ -73,12 +73,15 @@ class _BottomNavBarState extends State<BottomNavBar>
         _circleY = screenSize.height - _sliderHeight - _circlePadding;
         _circleX = _circlePadding; // Start from left edge with padding
         
-        // Calculate navigation thresholds based on screen width
+        // Calculate navigation thresholds based on equal sections
         final availableWidth = screenSize.width - _circleSize - (_circlePadding * 2);
-        _homeThreshold = availableWidth * 0.25;
-        _searchThreshold = availableWidth * 0.5;
-        _messagesThreshold = availableWidth * 0.75;
-        _profileThreshold = availableWidth;
+        final sectionWidth = availableWidth / 4; // Equal sections for each page
+        
+        // Calculate icon positions (centers of each section)
+        _homeThreshold = sectionWidth * 0.5; // Center of first section
+        _searchThreshold = sectionWidth * 1.5; // Center of second section
+        _messagesThreshold = sectionWidth * 2.5; // Center of third section
+        _profileThreshold = sectionWidth * 3.5; // Center of fourth section
       });
     });
     
@@ -98,7 +101,7 @@ class _BottomNavBarState extends State<BottomNavBar>
     
     // Circle animation controller
     _circleController = AnimationController(
-      duration: const Duration(milliseconds: 700), // Increased from 500ms
+      duration: const Duration(milliseconds: 300), // Reduced from 700ms to 300ms for faster return
       vsync: this,
     );
 
@@ -138,23 +141,11 @@ class _BottomNavBarState extends State<BottomNavBar>
   void _onPanUpdate(DragUpdateDetails details) {
     if (!_isSliding) return;
     
-    final deltaX = details.globalPosition.dx - _startDragX;
+    // Make circle follow finger position directly
+    final fingerX = details.globalPosition.dx;
     
-    // Calculate current position and page boundaries
-    final relativePosition = _circleX - _circlePadding;
-    final currentPage = _getCurrentPage(relativePosition);
-    
-    // Reduce sensitivity even more and add drag at page boundaries
-    double sensitivity = 0.3; // Reduced from 0.5 to 0.3 (30% sensitivity)
-    
-    // Add extra drag when near page boundaries
-    if (_isNearPageBoundary(relativePosition, currentPage)) {
-      sensitivity *= 0.3; // 70% additional drag at boundaries (30% of 30% = 9% total sensitivity)
-      // Add vibration feedback when entering drag zone
-      HapticFeedback.lightImpact();
-    }
-    
-    final newX = _circleX + (deltaX * sensitivity);
+    // Calculate new circle position to be centered below the finger
+    final newX = fingerX - (_circleSize / 2);
     
     // Limit sliding to full screen width
     final maxSlideX = MediaQuery.of(context).size.width - _circleSize - _circlePadding;
@@ -165,63 +156,41 @@ class _BottomNavBarState extends State<BottomNavBar>
     });
     
     // Calculate which page to show based on position using thresholds
-    final newRelativePosition = _circleX - _circlePadding;
+    final relativePosition = _circleX - _circlePadding;
+    
+    // Define tolerance zone around each icon (small area where page changes)
+    final tolerance = 20.0; // 20px tolerance around each icon center
     
     int newIndex = _selectedIndex;
-    if (newRelativePosition < _homeThreshold) {
-      newIndex = 0; // Home
-    } else if (newRelativePosition < _searchThreshold) {
-      newIndex = 1; // Search
-    } else if (newRelativePosition < _messagesThreshold) {
-      newIndex = 2; // Messages
-    } else {
-      newIndex = 3; // Profile
-    }
     
+    // Check if circle is exactly on each icon (within tolerance)
+    if ((relativePosition - _homeThreshold).abs() <= tolerance) {
+      newIndex = 0; // Home - exactly on home icon
+    } else if ((relativePosition - _searchThreshold).abs() <= tolerance) {
+      newIndex = 1; // Search - exactly on search icon
+    } else if ((relativePosition - _messagesThreshold).abs() <= tolerance) {
+      newIndex = 2; // Messages - exactly on messages icon
+    } else if ((relativePosition - _profileThreshold).abs() <= tolerance) {
+      newIndex = 3; // Profile - exactly on profile icon
+    }
+    // If not on any icon, keep current page
+    
+    // Only vibrate when actually switching to a new page
     if (newIndex != _selectedIndex) {
       setState(() {
         _selectedIndex = newIndex;
       });
-      // Add stronger vibration feedback when switching pages
-      HapticFeedback.heavyImpact();
+      // Vibrate only when reaching a page icon
+      HapticFeedback.mediumImpact();
     }
   }
   
-  // Helper method to get current page based on position
-  int _getCurrentPage(double relativePosition) {
-    if (relativePosition < _homeThreshold) return 0;
-    if (relativePosition < _searchThreshold) return 1;
-    if (relativePosition < _messagesThreshold) return 2;
-    return 3;
-  }
-  
-  // Helper method to check if near page boundary
-  bool _isNearPageBoundary(double relativePosition, int currentPage) {
-    final boundaryZone = 30.0; // 30px zone around each boundary
-    
-    switch (currentPage) {
-      case 0: // Home
-        return relativePosition > (_homeThreshold - boundaryZone);
-      case 1: // Search
-        return relativePosition < (_searchThreshold + boundaryZone) && 
-               relativePosition > (_searchThreshold - boundaryZone);
-      case 2: // Messages
-        return relativePosition < (_messagesThreshold + boundaryZone) && 
-               relativePosition > (_messagesThreshold - boundaryZone);
-      case 3: // Profile
-        return relativePosition < (_profileThreshold + boundaryZone) && 
-               relativePosition > (_profileThreshold - boundaryZone);
-      default:
-        return false;
-    }
-  }
-
   void _onPanEnd(DragEndDetails details) {
     setState(() {
       _isSliding = false;
     });
     
-    // Animate circle back to initial position
+    // Animate circle back to initial position - much faster
     _circleController.forward().then((_) {
       setState(() {
         _circleX = _circlePadding; // Return to left edge with padding
@@ -229,8 +198,8 @@ class _BottomNavBarState extends State<BottomNavBar>
       _circleController.reverse();
     });
     
-    // Hide slider after a delay
-    Future.delayed(const Duration(milliseconds: 800), () { // Increased from 500ms
+    // Hide slider after a shorter delay
+    Future.delayed(const Duration(milliseconds: 300), () { // Reduced from 800ms to 300ms
       if (!_isSliding) {
         _slideController.reverse();
         setState(() {
@@ -495,7 +464,7 @@ class _BottomNavBarState extends State<BottomNavBar>
           
           // Sliding circle - positioned relative to slider
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 500), // Increased from 300ms
+            duration: const Duration(milliseconds: 200), // Reduced from 500ms to 200ms for faster transition
             curve: Curves.easeOutCubic, // Changed from easeOutCubic for smoother motion
             left: _circleX,
             bottom: _circlePadding + (_sliderHeight - _circleSize) / 2, // Center in slider, use bottom
