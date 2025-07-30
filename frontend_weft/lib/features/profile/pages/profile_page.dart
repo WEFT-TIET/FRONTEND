@@ -11,6 +11,7 @@ import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
 import 'package:frontend_weft/features/home/view/widgets/create_post_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:frontend_weft/features/post/data/post_service.dart';
 
 final userProfileProvider = FutureProvider<UserModel?>((ref) async {
   final api = ref.read(profileApiServiceProvider);

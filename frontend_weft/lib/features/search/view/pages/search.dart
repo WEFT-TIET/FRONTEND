@@ -236,7 +236,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     String branch = _branchController.text.trim();
 
     // Validate that at least one field is filled
-    if (name.isEmpty && year.isEmpty && branch.isEmpty) {
+    if (name.isEmpty && username.isEmpty && year.isEmpty && branch.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please enter at least one search criteria'),
