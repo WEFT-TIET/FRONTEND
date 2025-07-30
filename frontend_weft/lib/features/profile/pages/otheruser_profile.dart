@@ -7,6 +7,7 @@ import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
+import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 
 class OtherUserProfilePage extends ConsumerStatefulWidget {
   final String usernameOrId;
@@ -163,21 +164,37 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                       ),
                     ),
                     actions: [
-                      Container(
-                        margin: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 1,
-                          ),
+                      // Only show the 3 dots menu if it's not the current user's profile
+                      if (_userModel != null) ...[
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final currentUser = ref.watch(authViewModelProvider);
+                            final isOwnProfile = currentUser != null && 
+                                                 currentUser.id == _userModel!.id;
+                            
+                            // Don't show the menu if it's the user's own profile
+                            if (isOwnProfile) {
+                              return const SizedBox.shrink();
+                            }
+                            
+                            return Container(
+                              margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: IconButton(
+                                icon: const Icon(Icons.more_vert, color: Colors.white),
+                                onPressed: () => _showOptionsMenu(context),
+                              ),
+                            );
+                          },
                         ),
-                        child: IconButton(
-                          icon: const Icon(Icons.more_vert, color: Colors.white),
-                          onPressed: () => _showOptionsMenu(context),
-                        ),
-                      ),
+                      ],
                     ],
                   ),
                   

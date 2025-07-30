@@ -283,7 +283,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       final appHttpClient = ref.read(httpClientProvider);
       final result = await UserService.searchUsers(
         name: name.isNotEmpty ? name : null,
-        //username: username.isNotEmpty ? username : null,
+        username: username.isNotEmpty ? username : null,
         year: year.isNotEmpty ? year : null,
         branch: branch.isNotEmpty ? branch : null,
         client: appHttpClient,

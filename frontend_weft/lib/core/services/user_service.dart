@@ -7,6 +7,7 @@ class UserService {
   static Future<Map<String, dynamic>> searchUsers({
     String? name,
     String? year,
+    String? username,
     String? branch,
     AppHttpClient? client, 
   }) async {
@@ -20,6 +21,7 @@ class UserService {
       Map<String, String> queryParams = {};
       if (name != null && name.isNotEmpty) queryParams['name'] = name;
       if (year != null && year.isNotEmpty) queryParams['year'] = year;
+      if (username != null && username.isNotEmpty) queryParams['username'] = username;
       if (branch != null && branch.isNotEmpty) queryParams['branch'] = branch;
 
       Uri uri = Uri.parse(ApiConfig.searchUsersUrl).replace(

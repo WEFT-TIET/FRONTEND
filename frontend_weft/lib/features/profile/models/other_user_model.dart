@@ -2,6 +2,7 @@
 import 'package:frontend_weft/features/post/model/post_model.dart';
 
 class OtherUserModel {
+  final String id;
   final String name;
   final String username;
   final String year;
@@ -10,6 +11,7 @@ class OtherUserModel {
   final List<Post> posts;
 
   OtherUserModel({
+    required this.id,
     required this.name,
     required this.username,
     required this.year,
@@ -19,6 +21,7 @@ class OtherUserModel {
   });
 
   OtherUserModel copyWith({
+    String? id,
     String? name,
     String? username,
     String? year,
@@ -27,6 +30,7 @@ class OtherUserModel {
     List<Post>? posts,
   }) {
     return OtherUserModel(
+      id: id ?? this.id,
       name: name ?? this.name,
       username: username ?? this.username,
       year: year ?? this.year,
@@ -38,6 +42,7 @@ class OtherUserModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'username': username,
       'year': year,
@@ -49,6 +54,7 @@ class OtherUserModel {
 
   factory OtherUserModel.fromJson(Map<String, dynamic> json) {
     return OtherUserModel(
+      id: json['id']?.toString() ?? '',
       name: json['name'] ?? '',
       username: json['username'] ?? '',
       year: json['year']?.toString() ?? '',
@@ -63,6 +69,7 @@ class OtherUserModel {
   // Factory method to create from user map (for compatibility with existing code)
   factory OtherUserModel.fromUserMap(Map<String, dynamic> userMap) {
     return OtherUserModel(
+      id: userMap['id']?.toString() ?? '',
       name: userMap['name'] ?? 'Unknown User',
       username: userMap['username'] ?? 'unknown',
       year: userMap['year']?.toString() ?? '1',
