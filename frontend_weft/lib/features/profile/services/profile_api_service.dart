@@ -39,9 +39,9 @@ class ProfileApiService {
   }
 
   /// Get other user profile by username or ID
-  Future<OtherUserModel?> getOtherUserProfile(String usernameOrId) async {
+  Future<OtherUserModel?> getOtherUserProfile(String Id) async {
     try {
-      final url = Uri.parse('$baseUrl/profile?id=$usernameOrId');
+      final url = Uri.parse('$baseUrl/profile?id=$Id');
       final response = await _httpClient.get(url);
 
       print("🔵 GET Other User Profile URL: $url");

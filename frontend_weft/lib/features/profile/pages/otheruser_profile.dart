@@ -10,11 +10,11 @@ import 'package:frontend_weft/features/profile/services/profile_api_service.dart
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 
 class OtherUserProfilePage extends ConsumerStatefulWidget {
-  final String usernameOrId;
+  final String Id;
   
   const OtherUserProfilePage({
     super.key,
-    required this.usernameOrId,
+    required this.Id,
   });
 
   @override
@@ -68,8 +68,8 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
 
     try {
       final profileService = ref.read(profileApiServiceProvider);
-      final userData = await profileService.getOtherUserProfile(widget.usernameOrId);
-      
+      final userData = await profileService.getOtherUserProfile(widget.Id);
+
       if (userData != null) {
         setState(() {
           _userModel = userData;
