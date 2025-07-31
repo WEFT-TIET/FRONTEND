@@ -16,8 +16,12 @@ class PostService {
   PostService(this._httpClient);
 
   Future<List<Post>> getAllPosts() async {
+    return await getPostsByPage(1);
+  }
+
+  Future<List<Post>> getPostsByPage(int page) async {
     try {
-      final url = Uri.parse('$baseUrl/posts');
+      final url = Uri.parse('$baseUrl/posts?page=$page');
       final response = await _httpClient.get(url);
 
       print("🔵 GET Posts URL: $url");
@@ -40,7 +44,7 @@ class PostService {
           print("⚠️ Unknown response format: $data");
         }
 
-        print("📋 Found ${postsJson.length} posts");
+        print("📋 Found ${postsJson.length} posts for page $page");
         
         // Get blocked users to filter out their posts
         final blockedUsers = await _getBlockedUsers();

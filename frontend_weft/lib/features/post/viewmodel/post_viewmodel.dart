@@ -6,15 +6,35 @@ import 'package:frontend_weft/features/post/model/post_model.dart';
 class PostState {
   final List<Post> posts;
   final bool isLoading;
+  final bool isLoadingMore;
   final String? error;
+  final int currentPage;
+  final bool hasMorePosts;
 
-  const PostState({this.posts = const [], this.isLoading = false, this.error});
+  const PostState({
+    this.posts = const [], 
+    this.isLoading = false, 
+    this.isLoadingMore = false,
+    this.error,
+    this.currentPage = 1,
+    this.hasMorePosts = true,
+  });
 
-  PostState copyWith({List<Post>? posts, bool? isLoading, String? error}) {
+  PostState copyWith({
+    List<Post>? posts, 
+    bool? isLoading, 
+    bool? isLoadingMore,
+    String? error,
+    int? currentPage,
+    bool? hasMorePosts,
+  }) {
     return PostState(
       posts: posts ?? this.posts,
       isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       error: error,
+      currentPage: currentPage ?? this.currentPage,
+      hasMorePosts: hasMorePosts ?? this.hasMorePosts,
     );
   }
 }
@@ -25,15 +45,48 @@ class PostViewModel extends StateNotifier<PostState> {
 
   PostViewModel(this._postService) : super(const PostState());
 
-  // Fetch all posts
+  // Fetch all posts (first page)
   Future<void> fetchPosts() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, error: null, currentPage: 1);
 
     try {
-      final posts = await _postService.getAllPosts();
-      state = state.copyWith(posts: posts, isLoading: false);
+      final posts = await _postService.getPostsByPage(1);
+      state = state.copyWith(
+        posts: posts, 
+        isLoading: false, 
+        hasMorePosts: posts.length == 10, // Assuming 10 posts per page
+      );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  // Load more posts (pagination)
+  Future<void> loadMorePosts() async {
+    if (state.isLoadingMore || !state.hasMorePosts) return;
+
+    state = state.copyWith(isLoadingMore: true);
+
+    try {
+      final nextPage = state.currentPage + 1;
+      final newPosts = await _postService.getPostsByPage(nextPage);
+      
+      if (newPosts.isNotEmpty) {
+        final updatedPosts = [...state.posts, ...newPosts];
+        state = state.copyWith(
+          posts: updatedPosts,
+          currentPage: nextPage,
+          isLoadingMore: false,
+          hasMorePosts: newPosts.length == 10, // Assuming 10 posts per page
+        );
+      } else {
+        state = state.copyWith(
+          isLoadingMore: false,
+          hasMorePosts: false,
+        );
+      }
+    } catch (e) {
+      state = state.copyWith(isLoadingMore: false, error: e.toString());
     }
   }
 

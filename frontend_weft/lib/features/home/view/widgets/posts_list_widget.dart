@@ -18,48 +18,68 @@ class PostsListWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final postsAsync = ref.watch(postsProvider);
+    final postState = ref.watch(postViewModelProvider);
 
-    return postsAsync.when(
-      data: (posts) {
-        final filteredPosts = _getFilteredPosts(posts);
-        
-        if (filteredPosts.isEmpty) {
-          return _buildEmptyState();
-        }
+    // Show loading state for initial load
+    if (postState.isLoading && postState.posts.isEmpty) {
+      return _buildLoadingState();
+    }
 
-        return RefreshIndicator(
-          onRefresh: () async {
-            await ref
-                .read(postViewModelProvider.notifier)
-                .refreshPosts();
-          },
-          child: ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: filteredPosts.length,
-            itemBuilder: (context, index) {
-              final post = filteredPosts[index];
-              return RepaintBoundary(
-                child: PostCard(
-                  key: ValueKey('post_${post.id}'),
-                  postId: post.id,
-                  userId: post.userId,
-                  name: post.userName,
-                  tag: post.title,
-                  timeAgo: _formatTimeAgo(post.createdAt),
-                  content: post.content,
-                  stars: post.likesCount,
-                  comments: post.commentsCount,
-                  liked: post.liked,
-                ),
-              );
-            },
-          ),
-        );
+    // Show error state
+    if (postState.error != null && postState.posts.isEmpty) {
+      return _buildErrorState(postState.error!, ref);
+    }
+
+    final filteredPosts = _getFilteredPosts(postState.posts);
+    
+    if (filteredPosts.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await ref
+            .read(postViewModelProvider.notifier)
+            .refreshPosts();
       },
-      loading: () => _buildLoadingState(),
-      error: (error, stack) => _buildErrorState(error, ref),
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: filteredPosts.length + (postState.hasMorePosts ? 1 : 0),
+        itemBuilder: (context, index) {
+          // Show loading indicator at the end when loading more posts
+          if (index == filteredPosts.length) {
+            return _buildLoadMoreIndicator();
+          }
+
+          final post = filteredPosts[index];
+          
+          // Load more posts when user reaches near the end
+          if (index == filteredPosts.length - 3 && 
+              postState.hasMorePosts && 
+              !postState.isLoadingMore) {
+            // Trigger loading more posts
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ref.read(postViewModelProvider.notifier).loadMorePosts();
+            });
+          }
+
+          return RepaintBoundary(
+            child: PostCard(
+              key: ValueKey('post_${post.id}'),
+              postId: post.id,
+              userId: post.userId,
+              name: post.userName,
+              tag: post.title,
+              timeAgo: _formatTimeAgo(post.createdAt),
+              content: post.content,
+              stars: post.likesCount,
+              comments: post.commentsCount,
+              liked: post.liked,
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -87,6 +107,37 @@ class PostsListWidget extends ConsumerWidget {
     }
 
     return filteredPosts;
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Center(
+        child: Column(
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppPallete.gradient2,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Loading more posts...',
+              style: GoogleFonts.getFont(
+                'Oswald',
+                color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildEmptyState() {
@@ -163,7 +214,7 @@ class PostsListWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorState(error, WidgetRef ref) {
+  Widget _buildErrorState(String error, WidgetRef ref) {
     return Center(
       child: Column(
         children: [
