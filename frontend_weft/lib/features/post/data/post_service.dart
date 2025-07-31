@@ -29,19 +29,28 @@ class PostService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print("🔍 Raw response data: $data");
 
         List<dynamic> postsJson;
         if (data is List) {
           postsJson = data;
+          print("🔍 Response is a List with ${postsJson.length} items");
         } else if (data is Map && data['results'] != null) {
           postsJson = data['results'];
+          print("🔍 Response has 'results' field with ${postsJson.length} items");
         } else if (data is Map && data['posts'] != null) {
           postsJson = data['posts'];
+          print("🔍 Response has 'posts' field with ${postsJson.length} items");
         } else if (data is Map && data['data'] != null) {
           postsJson = data['data'];
+          print("🔍 Response has 'data' field with ${postsJson.length} items");
         } else {
           postsJson = [];
           print("⚠️ Unknown response format: $data");
+        }
+
+        if (postsJson.isNotEmpty) {
+          print("🔍 First post structure: ${postsJson.first}");
         }
 
         print("📋 Found ${postsJson.length} posts for page $page");

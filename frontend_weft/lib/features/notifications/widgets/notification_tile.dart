@@ -21,8 +21,6 @@ class NotificationTile extends ConsumerWidget {
     return RepaintBoundary(
       child: InkWell(
         onTap: () {
-          // Mark as read when tapped
-          ref.read(notificationViewModelProvider.notifier).markAsRead(notification.id);
           onTap?.call();
         },
         child: Container(
@@ -171,55 +169,13 @@ class NotificationTile extends ConsumerWidget {
   }
 
   Widget _buildActionSection(WidgetRef ref) {
-    // For follow notifications, show follow button
-    if (notification.type == NotificationType.follow) {
-      return _buildFollowButton(ref);
-    }
-    
     // For post-related notifications, show post image
     if (notification.postImage != null) {
       return _buildPostImage();
     }
     
-    // For other notifications, show action icon
+    // For all notifications, show action icon
     return _buildActionIcon();
-  }
-
-  Widget _buildFollowButton(WidgetRef ref) {
-    return Container(
-      width: 80,
-      height: 32,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppPallete.gradient1,
-            AppPallete.gradient2,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            ref.read(notificationViewModelProvider.notifier)
-                .followUser(notification.userId);
-          },
-          borderRadius: BorderRadius.circular(6),
-          child: Center(
-            child: Text(
-              'Follow',
-              style: GoogleFonts.getFont(
-                'Inter',
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppPallete.whiteColor,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildPostImage() {

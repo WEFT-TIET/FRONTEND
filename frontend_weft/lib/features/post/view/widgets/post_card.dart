@@ -48,7 +48,7 @@ class PostCard extends ConsumerWidget {
                 post: Post(
                   id: postId,
                   userId: userId,
-                  userName: name,
+                  username: name,
                   title: tag,
                   content: content,
                   createdAt: DateTime.now().toIso8601String(), // This will be overridden by actual data
@@ -220,7 +220,7 @@ class PostCard extends ConsumerWidget {
                             post: Post(
                               id: postId,
                               userId: userId,
-                              userName: name,
+                              username: name,
                               title: tag,
                               content: content,
                               createdAt: DateTime.now().toIso8601String(), // This will be overridden by actual data

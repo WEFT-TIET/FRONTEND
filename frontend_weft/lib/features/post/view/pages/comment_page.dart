@@ -51,7 +51,7 @@ class CommentPage extends ConsumerWidget {
                   PostCard(
                     postId: post.id,
                     userId: post.userId,
-                    name: post.userName,
+                    name: post.username,
                     tag: 'User',
                     timeAgo: _formatTimeAgo(post.createdAt),
                     content: post.content,

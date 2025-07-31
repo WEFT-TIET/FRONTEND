@@ -21,7 +21,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     // Fetch notifications when page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(notificationViewModelProvider.notifier).fetchNotifications();
-      ref.read(notificationViewModelProvider.notifier).fetchUnreadCount();
     });
   }
 
@@ -67,28 +66,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         icon: const Icon(Icons.arrow_back, color: AppPallete.textPrimaryDark),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      actions: [
-        Consumer(
-          builder: (context, ref, child) {
-            final unreadCount = ref.watch(unreadNotificationCountProvider);
-            if (unreadCount > 0) {
-              return TextButton(
-                onPressed: () => _markAllAsRead(),
-                child: Text(
-                  'Mark all as read',
-                  style: GoogleFonts.getFont(
-                    'Inter',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppPallete.gradient1,
-                  ),
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-      ],
     );
   }
 
@@ -112,7 +89,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     return RefreshIndicator(
       onRefresh: () async {
         await ref.read(notificationViewModelProvider.notifier).fetchNotifications();
-        await ref.read(notificationViewModelProvider.notifier).fetchUnreadCount();
       },
       color: AppPallete.gradient1,
       child: ListView.builder(
@@ -330,30 +306,5 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         ],
       ),
     );
-  }
-
-  void _markAllAsRead() async {
-    await ref.read(notificationViewModelProvider.notifier).markAllAsRead();
-    
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'All notifications marked as read',
-            style: GoogleFonts.getFont(
-              'Inter',
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          backgroundColor: AppPallete.gradient1,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          margin: const EdgeInsets.all(16),
-        ),
-      );
-    }
   }
 } 

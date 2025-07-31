@@ -270,7 +270,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                                   return PostCard(
                                     postId: post.id,
                                     userId: post.userId,
-                                    name: post.userName.isNotEmpty ? post.userName : _userModel!.name,
+                                    name: post.username.isNotEmpty ? post.username : _userModel!.name,
                                     tag: post.title,
                                     timeAgo: _formatTimeAgo(post.createdAt),
                                     content: post.content,

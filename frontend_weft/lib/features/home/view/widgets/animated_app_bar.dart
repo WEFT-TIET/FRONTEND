@@ -143,47 +143,7 @@ class AnimatedAppBar extends ConsumerWidget implements PreferredSizeWidget {
   }
 
   Widget _buildNotificationBadge() {
-    return Consumer(
-      builder: (context, ref, child) {
-        final unreadCount = ref.watch(unreadNotificationCountProvider);
-        
-        if (unreadCount == 0) {
-          return const SizedBox.shrink();
-        }
-        
-        return Positioned(
-          right: 11,
-          top: 11,
-          child: Container(
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: AppPallete.gradient1,
-              borderRadius: BorderRadius.circular(6),
-              boxShadow: [
-                BoxShadow(
-                  color: AppPallete.gradient1.withOpacity(0.3),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            constraints: const BoxConstraints(
-              minWidth: 14,
-              minHeight: 14,
-            ),
-            child: Text(
-              unreadCount > 99 ? '99+' : unreadCount.toString(),
-              style: const TextStyle(
-                color: AppPallete.whiteColor,
-                fontSize: 8,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        );
-      },
-    );
+    return const SizedBox.shrink();
   }
 
   void _handleRefresh(BuildContext context, WidgetRef ref) {

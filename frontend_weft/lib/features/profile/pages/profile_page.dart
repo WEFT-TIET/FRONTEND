@@ -205,7 +205,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                     child: PostCard(
                                       postId: post.id,
                                       userId: post.userId,
-                                      name: post.userName.isNotEmpty ? post.userName : user.name,
+                                      name: post.username.isNotEmpty ? post.username : user.name,
                                       tag: post.title,
                                       timeAgo: _formatTimeAgo(post.createdAt),
                                       content: post.content,

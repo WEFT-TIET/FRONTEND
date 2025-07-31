@@ -159,111 +159,55 @@ class NotificationModel {
   }
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    // Generate a default message based on the notification type
+    String getDefaultMessage(String type) {
+      switch (type.toLowerCase()) {
+        case 'like':
+          return 'liked your post';
+        case 'comment':
+          return 'commented on your post';
+        case 'follow':
+          return 'started following you';
+        case 'mention':
+          return 'mentioned you in a comment';
+        case 'post':
+          return 'posted something new';
+        default:
+          return 'interacted with your content';
+      }
+    }
+
+    final notificationType = json['type'] ?? json['Type'] ?? 'system';
+    final defaultMessage = getDefaultMessage(notificationType);
+
+    // Safely handle user data
+    UserModel? userData;
+    try {
+      if (json['user'] != null) {
+        userData = UserModel.fromJson(json['user']);
+      }
+    } catch (e) {
+      print('Error parsing user data: $e');
+      userData = null;
+    }
+
     return NotificationModel(
-      id: json['id'] ?? '',
-      userId: json['user_id'] ?? '',
-      postId: json['post_id'],
+      id: json['id']?.toString() ?? json['CommentID']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? json['UserID']?.toString() ?? '',
+      postId: json['post_id']?.toString() ?? json['PostID']?.toString(),
       type: NotificationType.values.firstWhere(
-        (e) => e.name == json['type'],
+        (e) => e.name == notificationType,
         orElse: () => NotificationType.system,
       ),
-      message: json['message'] ?? '',
+      message: json['message'] ?? defaultMessage,
       actionText: json['action_text'],
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       isRead: json['is_read'] ?? false,
-      user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
+      user: userData,
       postImage: json['post_image'],
       commentText: json['comment_text'],
       likeCount: json['like_count'],
       commentCount: json['comment_count'],
     );
-  }
-}
-
-// Mock data for development
-class MockNotificationData {
-  static List<NotificationModel> getNotifications() {
-    return [
-      NotificationModel(
-        id: '1',
-        userId: 'user1',
-        postId: 'post1',
-        type: NotificationType.like,
-        message: 'liked your post',
-        createdAt: DateTime.now().subtract(const Duration(minutes: 5)),
-        user: UserModel(
-          name: 'Rahul Kumar',
-          username: 'rahul_kumar',
-          year: '2024',
-          branch: 'COE',
-          image_url: 'lib/core/assets/profile_photo.jpeg',
-        ),
-        postImage: 'lib/core/assets/neeraj_pepsu.png',
-        likeCount: 12,
-      ),
-      NotificationModel(
-        id: '2',
-        userId: 'user2',
-        postId: 'post2',
-        type: NotificationType.comment,
-        message: 'commented on your post',
-        createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-        user: UserModel(
-          name: 'Priya Sharma',
-          username: 'priya_sharma',
-          year: '2023',
-          branch: 'ECE',
-          image_url: 'lib/core/assets/profile_photo.jpeg',
-        ),
-        commentText: 'Great post! Keep it up! 🚀',
-        postImage: 'lib/core/assets/neeraj_pepsu.png',
-      ),
-      NotificationModel(
-        id: '3',
-        userId: 'user3',
-        type: NotificationType.follow,
-        message: 'started following you',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-        user: UserModel(
-          name: 'Amit Patel',
-          username: 'amit_patel',
-          year: '2025',
-          branch: 'COPC',
-          image_url: 'lib/core/assets/profile_photo.jpeg',
-        ),
-      ),
-      NotificationModel(
-        id: '4',
-        userId: 'user4',
-        postId: 'post3',
-        type: NotificationType.mention,
-        message: 'mentioned you in a comment',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        user: UserModel(
-          name: 'Neha Singh',
-          username: 'neha_singh',
-          year: '2024',
-          branch: 'ENC',
-          image_url: 'lib/core/assets/profile_photo.jpeg',
-        ),
-        commentText: 'Hey @rudra_yadav, check this out!',
-      ),
-      NotificationModel(
-        id: '5',
-        userId: 'user5',
-        postId: 'post4',
-        type: NotificationType.post,
-        message: 'posted something new',
-        createdAt: DateTime.now().subtract(const Duration(days: 2)),
-        user: UserModel(
-          name: 'Vikram Malhotra',
-          username: 'vikram_malhotra',
-          year: '2023',
-          branch: 'IDFK',
-          image_url: 'lib/core/assets/profile_photo.jpeg',
-        ),
-        postImage: 'lib/core/assets/neeraj_pepsu.png',
-      ),
-    ];
   }
 } 

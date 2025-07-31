@@ -8,26 +8,22 @@ class NotificationState {
   final List<NotificationModel> notifications;
   final bool isLoading;
   final String? error;
-  final int unreadCount;
 
   const NotificationState({
     this.notifications = const [],
     this.isLoading = false,
     this.error,
-    this.unreadCount = 0,
   });
 
   NotificationState copyWith({
     List<NotificationModel>? notifications,
     bool? isLoading,
     String? error,
-    int? unreadCount,
   }) {
     return NotificationState(
       notifications: notifications ?? this.notifications,
       isLoading: isLoading ?? this.isLoading,
       error: error,
-      unreadCount: unreadCount ?? this.unreadCount,
     );
   }
 }
@@ -50,85 +46,6 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  // Fetch unread count
-  Future<void> fetchUnreadCount() async {
-    try {
-      final count = await _notificationService.getUnreadCount();
-      state = state.copyWith(unreadCount: count);
-    } catch (e) {
-      print("Error fetching unread count: $e");
-    }
-  }
-
-  // Mark notification as read
-  Future<void> markAsRead(String notificationId) async {
-    try {
-      final success = await _notificationService.markAsRead(notificationId);
-      if (success) {
-        // Update local state
-        final updatedNotifications = state.notifications.map((notification) {
-          if (notification.id == notificationId) {
-            return notification.copyWith(isRead: true);
-          }
-          return notification;
-        }).toList();
-
-        state = state.copyWith(notifications: updatedNotifications);
-        
-        // Update unread count
-        await fetchUnreadCount();
-      }
-    } catch (e) {
-      print("Error marking notification as read: $e");
-    }
-  }
-
-  // Mark all notifications as read
-  Future<void> markAllAsRead() async {
-    try {
-      final success = await _notificationService.markAllAsRead();
-      if (success) {
-        // Update local state
-        final updatedNotifications = state.notifications.map((notification) {
-          return notification.copyWith(isRead: true);
-        }).toList();
-
-        state = state.copyWith(
-          notifications: updatedNotifications,
-          unreadCount: 0,
-        );
-      }
-    } catch (e) {
-      print("Error marking all notifications as read: $e");
-    }
-  }
-
-  // Follow a user
-  Future<void> followUser(String userId) async {
-    try {
-      final success = await _notificationService.followUser(userId);
-      if (success) {
-        // You could update the UI to show "Following" state
-        print("Successfully followed user: $userId");
-      }
-    } catch (e) {
-      print("Error following user: $e");
-    }
-  }
-
-  // Like a post
-  Future<void> likePost(String postId) async {
-    try {
-      final success = await _notificationService.likePost(postId);
-      if (success) {
-        // You could update the UI to show "Liked" state
-        print("Successfully liked post: $postId");
-      }
-    } catch (e) {
-      print("Error liking post: $e");
     }
   }
 
@@ -168,9 +85,6 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
     return grouped;
   }
 
-  // Get unread notifications count
-  int get unreadCount => state.unreadCount;
-
   // Get all notifications
   List<NotificationModel> get notifications => state.notifications;
 
@@ -185,9 +99,4 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
 final notificationViewModelProvider = StateNotifierProvider<NotificationViewModel, NotificationState>((ref) {
   final notificationService = ref.watch(notificationServiceProvider);
   return NotificationViewModel(notificationService);
-});
-
-// Provider for unread count
-final unreadNotificationCountProvider = Provider<int>((ref) {
-  return ref.watch(notificationViewModelProvider).unreadCount;
 }); 
