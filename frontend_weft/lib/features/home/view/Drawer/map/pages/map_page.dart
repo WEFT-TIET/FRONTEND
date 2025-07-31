@@ -1,6 +1,7 @@
 // lib/pages/map_page.dart
 import 'package:flutter/material.dart';
 import '../widgets/campus_map_widget.dart';
+import 'trusted_users_page.dart';
 
 class MapPage extends StatelessWidget {
   const MapPage({super.key});
@@ -42,12 +43,35 @@ class MapPage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 16),
-                    Text(
-                      'Campus Map',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    Expanded(
+                      child: Text(
+                        'Campus Map',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.people, color: Colors.white),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TrustedUsersPage(),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
