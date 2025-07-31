@@ -85,19 +85,19 @@ class _HomePageState extends ConsumerState<HomePage>
     return CustomScrollView(
       slivers: [
         // Welcome Card Section
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-            child: RepaintBoundary(
-              child: WelcomeCard(animation: _animation),
-            ),
-          ),
-        ),
+        // SliverToBoxAdapter(
+        //   child: Padding(
+        //     padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+        //     child: RepaintBoundary(
+        //       //child: WelcomeCard(animation: _animation),
+        //     ),
+        //   ),
+        // ),
 
         // Search Bar Section
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
             child: RepaintBoundary(
               child: SearchBarWidget(
                 controller: _searchController,
