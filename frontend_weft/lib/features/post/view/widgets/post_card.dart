@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:frontend_weft/features/post/model/post_model.dart';
+import 'package:frontend_weft/features/post/view/pages/comment_page.dart';
 
 class PostCard extends ConsumerWidget {
   final String postId;
@@ -36,172 +38,220 @@ class PostCard extends ConsumerWidget {
     final currentUser = ref.watch(authViewModelProvider);
     final isCurrentUserPost = currentUser?.id == userId;
     
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppPallete.glassWhite05, // Original dark background
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppPallete.glassWhite20, width: 0.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Row
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppPallete.gradient2,
-                child: Text(
-                  name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                  style: const TextStyle(
-                    color: AppPallete.whiteColor,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return GestureDetector(
+      onTap: () {
+        // Navigate to comment page when post is tapped
+        if (postId.isNotEmpty) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => CommentPage(
+                post: Post(
+                  id: postId,
+                  userId: userId,
+                  userName: name,
+                  title: tag,
+                  content: content,
+                  createdAt: DateTime.now().toIso8601String(), // This will be overridden by actual data
+                  likesCount: stars,
+                  commentsCount: comments,
+                  liked: liked,
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppPallete.textPrimaryDark,
-                      ),
+            ),
+          );
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppPallete.glassWhite05, // Original dark background
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppPallete.glassWhite20, width: 0.5),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Row
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: AppPallete.gradient2,
+                  child: Text(
+                    name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                    style: const TextStyle(
+                      color: AppPallete.whiteColor,
+                      fontWeight: FontWeight.bold,
                     ),
-                    Text(
-                      '$tag • $timeAgo',
-                      style: const TextStyle(
-                        color: AppPallete.whiteColor,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (showMenu && !isCurrentUserPost)
-                PopupMenuButton<String>(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: AppPallete.textPrimaryDark,
                   ),
-                  color: AppPallete.glassWhite20,
-                  onSelected: (value) {
-                    switch (value) {
-                      case 'report':
-                        _showReportDialog(context, ref);
-                        break;
-                      case 'block':
-                        _showBlockDialog(context, ref);
-                        break;
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppPallete.textPrimaryDark,
+                        ),
+                      ),
+                      Text(
+                        '$tag • $timeAgo',
+                        style: const TextStyle(
+                          color: AppPallete.whiteColor,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (showMenu && !isCurrentUserPost)
+                  PopupMenuButton<String>(
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: AppPallete.textPrimaryDark,
+                    ),
+                    color: AppPallete.glassWhite20,
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'report':
+                          _showReportDialog(context, ref);
+                          break;
+                        case 'block':
+                          _showBlockDialog(context, ref);
+                          break;
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem<String>(
+                        value: 'report',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.report_outlined,
+                              color: AppPallete.textPrimaryDark,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Report Post',
+                              style: TextStyle(
+                                color: AppPallete.textPrimaryDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'block',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.block_outlined,
+                              color: AppPallete.red,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Block User',
+                              style: TextStyle(
+                                color: AppPallete.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Post content
+            Text(
+              content,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: AppPallete.textPrimaryDark,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Footer: likes + comments
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: postId.isNotEmpty
+                      ? () {
+                          ref
+                              .read(postViewModelProvider.notifier)
+                              .likePost(postId);
+                        }
+                      : null,
+                  child: Row(
+                    children: [
+                      Icon(
+                        liked ? Icons.favorite : Icons.favorite_border,
+                        size: 18,
+                        color: liked ? Colors.red : Colors.white38,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$stars',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(width: 16),
+
+                GestureDetector(
+                  onTap: () {
+                    // Navigate to comment page when comment icon is tapped
+                    if (postId.isNotEmpty) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => CommentPage(
+                            post: Post(
+                              id: postId,
+                              userId: userId,
+                              userName: name,
+                              title: tag,
+                              content: content,
+                              createdAt: DateTime.now().toIso8601String(), // This will be overridden by actual data
+                              likesCount: stars,
+                              commentsCount: comments,
+                              liked: liked,
+                            ),
+                          ),
+                        ),
+                      );
                     }
                   },
-                  itemBuilder: (BuildContext context) => [
-                    PopupMenuItem<String>(
-                      value: 'report',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.report_outlined,
-                            color: AppPallete.textPrimaryDark,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Report Post',
-                            style: TextStyle(
-                              color: AppPallete.textPrimaryDark,
-                            ),
-                          ),
-                        ],
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.chat_bubble_outline,
+                        size: 18,
+                        color: Colors.white38,
                       ),
-                    ),
-                    PopupMenuItem<String>(
-                      value: 'block',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.block_outlined,
-                            color: AppPallete.red,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Block User',
-                            style: TextStyle(
-                              color: AppPallete.red,
-                            ),
-                          ),
-                        ],
+                      const SizedBox(width: 4),
+                      Text(
+                        '$comments',
+                        style: const TextStyle(color: Colors.white70),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Post content
-          Text(
-            content,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: AppPallete.textPrimaryDark,
-              height: 1.5,
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-
-          // Footer: likes + comments
-          Row(
-            children: [
-              GestureDetector(
-                onTap: postId.isNotEmpty
-                    ? () {
-                        ref
-                            .read(postViewModelProvider.notifier)
-                            .likePost(postId);
-                      }
-                    : null,
-                child: Row(
-                  children: [
-                    Icon(
-                      liked ? Icons.favorite : Icons.favorite_border,
-                      size: 18,
-                      color: liked ? Colors.red : Colors.white38,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$stars',
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(width: 16),
-
-              Row(
-                children: [
-                  const Icon(
-                    Icons.chat_bubble_outline,
-                    size: 18,
-                    color: Colors.white38,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '$comments',
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
