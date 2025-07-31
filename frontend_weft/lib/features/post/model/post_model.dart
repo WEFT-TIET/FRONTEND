@@ -27,7 +27,7 @@ class Post {
       userId: json['user_id']?.toString() ?? json['userId']?.toString() ?? '',
       title: json['title'] ?? '',
       content: json['content'] ?? '',
-      username: json['username'] ?? 'Anonymous',
+      username: json['username'] ?? json['user_name'] ?? 'Anonymous',
       createdAt: json['createdAt'] ??
           json['created_at'] ??
           DateTime.now().toIso8601String(),
