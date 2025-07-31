@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/Drawer/attendance.dart';
+import 'package:frontend_weft/features/home/view/Drawer/map/pages/map_page.dart';
 import 'package:frontend_weft/features/home/view/Drawer/soc_page/pages/society_page.dart';
 import 'package:frontend_weft/features/home/view/Drawer/map.dart';
 import 'package:frontend_weft/features/home/view/Drawer/party.dart';
@@ -63,7 +64,7 @@ class DrawerWidget extends StatelessWidget {
                           context: context,
                           icon: Icons.map,
                           title: 'Map',
-                          page: ThaparMapScreen(),
+                          page: MapPage(),
                         ),
                         _buildMenuItem(
                           context: context,
