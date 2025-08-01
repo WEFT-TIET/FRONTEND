@@ -92,14 +92,14 @@ class PostCard extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        name,
+                        tag,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppPallete.textPrimaryDark,
                         ),
                       ),
                       Text(
-                        '$tag • $timeAgo',
+                        '$name • $timeAgo',
                         style: const TextStyle(
                           color: AppPallete.whiteColor,
                           fontSize: 12,
