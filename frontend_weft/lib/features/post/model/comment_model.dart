@@ -17,7 +17,7 @@ class Comment {
     return Comment(
       id: json['id']?.toString() ?? '',
       userId: json['user_id']?.toString() ?? '',
-      userName: json['user_name'] ?? 'Anonymous',
+      userName: json['username'] ?? 'Anonymous',
       content: json['content'] ?? '',
       createdAt: json['created_at'] ?? DateTime.now().toIso8601String(),
     );
@@ -27,7 +27,7 @@ class Comment {
     return {
       'id': id,
       'user_id': userId,
-      'user_name': userName,
+      'username': userName,
       'content': content,
       'created_at': createdAt,
     };
