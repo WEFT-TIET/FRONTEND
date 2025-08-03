@@ -69,7 +69,7 @@ class PostsListWidget extends ConsumerWidget {
               key: ValueKey('post_${post.id}'),
               postId: post.id,
               userId: post.userId,
-              name: post.username,
+              username: post.username,
               tag: post.title,
               timeAgo: _formatTimeAgo(post.createdAt),
               content: post.content,

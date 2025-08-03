@@ -9,7 +9,7 @@ import 'package:frontend_weft/features/post/view/pages/comment_page.dart';
 class PostCard extends ConsumerWidget {
   final String postId;
   final String userId;
-  final String name;
+  final String username;
   final String tag;
   final String timeAgo;
   final String content;
@@ -22,7 +22,7 @@ class PostCard extends ConsumerWidget {
     super.key,
     this.postId = '',
     required this.userId,
-    required this.name,
+    required this.username,
     required this.tag,
     required this.timeAgo,
     required this.content,
@@ -48,7 +48,7 @@ class PostCard extends ConsumerWidget {
                 post: Post(
                   id: postId,
                   userId: userId,
-                  username: name,
+                  username: username,
                   title: tag,
                   content: content,
                   createdAt: DateTime.now()
@@ -80,7 +80,7 @@ class PostCard extends ConsumerWidget {
                   radius: 20,
                   backgroundColor: AppPallete.gradient2,
                   child: Text(
-                    name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                    username.isNotEmpty ? username[0].toUpperCase() : 'U',
                     style: const TextStyle(
                       color: AppPallete.whiteColor,
                       fontWeight: FontWeight.bold,
@@ -100,7 +100,7 @@ class PostCard extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        '$name • $timeAgo',
+                        '$username • $timeAgo',
                         style: const TextStyle(
                           color: AppPallete.whiteColor,
                           fontSize: 12,
@@ -219,7 +219,7 @@ class PostCard extends ConsumerWidget {
                             post: Post(
                               id: postId,
                               userId: userId,
-                              username: name,
+                              username: username,
                               title: tag,
                               content: content,
                               createdAt: DateTime.now()
@@ -328,7 +328,7 @@ class PostCard extends ConsumerWidget {
             style: TextStyle(color: AppPallete.textPrimaryDark),
           ),
           content: Text(
-            'Are you sure you want to block $name? You won\'t see their posts anymore.',
+            'Are you sure you want to block $username? You won\'t see their posts anymore.',
             style: TextStyle(color: AppPallete.textPrimaryDark),
           ),
           actions: [
@@ -369,7 +369,7 @@ class PostCard extends ConsumerWidget {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$name has been blocked'),
+            content: Text('$username has been blocked'),
             backgroundColor: AppPallete.gradient2,
           ),
         );

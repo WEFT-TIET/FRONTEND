@@ -1,4 +1,6 @@
 // services/app_lifecycle_service.dart
+
+//for showing is rudii is selling nudes online
 import 'package:flutter/material.dart';
 import 'message_service.dart';
 
