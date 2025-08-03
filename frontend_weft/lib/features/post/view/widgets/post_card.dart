@@ -37,7 +37,7 @@ class PostCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final currentUser = ref.watch(authViewModelProvider);
     final isCurrentUserPost = currentUser?.id == userId;
-    
+
     return GestureDetector(
       onTap: () {
         // Navigate to comment page when post is tapped
@@ -51,7 +51,8 @@ class PostCard extends ConsumerWidget {
                   username: name,
                   title: tag,
                   content: content,
-                  createdAt: DateTime.now().toIso8601String(), // This will be overridden by actual data
+                  createdAt: DateTime.now()
+                      .toIso8601String(), // This will be overridden by actual data
                   likesCount: stars,
                   commentsCount: comments,
                   liked: liked,
@@ -157,9 +158,7 @@ class PostCard extends ConsumerWidget {
                             const SizedBox(width: 8),
                             Text(
                               'Block User',
-                              style: TextStyle(
-                                color: AppPallete.red,
-                              ),
+                              style: TextStyle(color: AppPallete.red),
                             ),
                           ],
                         ),
@@ -223,7 +222,8 @@ class PostCard extends ConsumerWidget {
                               username: name,
                               title: tag,
                               content: content,
-                              createdAt: DateTime.now().toIso8601String(), // This will be overridden by actual data
+                              createdAt: DateTime.now()
+                                  .toIso8601String(), // This will be overridden by actual data
                               likesCount: stars,
                               commentsCount: comments,
                               liked: liked,
@@ -346,9 +346,7 @@ class PostCard extends ConsumerWidget {
                 Navigator.of(context).pop();
                 _blockUser(context, userId, ref);
               },
-              style: TextButton.styleFrom(
-                foregroundColor: AppPallete.red,
-              ),
+              style: TextButton.styleFrom(foregroundColor: AppPallete.red),
               child: const Text('Block'),
             ),
           ],

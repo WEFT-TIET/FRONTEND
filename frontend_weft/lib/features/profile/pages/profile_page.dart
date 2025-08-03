@@ -2,16 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/features/post/view/pages/create_post_page.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
-import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
-import 'package:frontend_weft/features/home/view/widgets/create_post_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
-import 'package:frontend_weft/features/post/data/post_service.dart';
 
 final userProfileProvider = FutureProvider<UserModel?>((ref) async {
   final api = ref.read(profileApiServiceProvider);
@@ -150,7 +148,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                   IconButton(
                                     icon: const Icon(Icons.add, color: AppPallete.textPrimaryDark),
                                     tooltip: 'Create Weft',
-                                    onPressed: () => _showCreatePostDialog(context, ref),
+                                    onPressed: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => const CreatePostPage(),
+                                      ),
+                                    ),
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.refresh, color: AppPallete.textPrimaryDark),
@@ -720,13 +722,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${date.day}/${date.month}/${date.year}';
-  }
-
-  void _showCreatePostDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => CreatePostDialog(ref: ref),
-    );
   }
 
   @override

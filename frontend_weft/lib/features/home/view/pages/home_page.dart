@@ -8,6 +8,7 @@ import 'package:frontend_weft/features/home/view/widgets/welcome_card.dart';
 import 'package:frontend_weft/features/home/view/widgets/search_bar_widget.dart';
 import 'package:frontend_weft/features/home/view/widgets/filter_chips_widget.dart';
 import 'package:frontend_weft/features/home/view/widgets/posts_list_widget.dart';
+import 'package:frontend_weft/features/post/view/pages/create_post_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -40,11 +41,11 @@ class _HomePageState extends ConsumerState<HomePage>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _animation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
-    
+
     _animationController.forward();
   }
 
@@ -79,8 +80,6 @@ class _HomePageState extends ConsumerState<HomePage>
     );
   }
 
-
-
   Widget _buildOptimizedBody() {
     return CustomScrollView(
       slivers: [
@@ -97,7 +96,10 @@ class _HomePageState extends ConsumerState<HomePage>
         // Search Bar Section
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 2.0,
+            ),
             child: RepaintBoundary(
               child: SearchBarWidget(
                 controller: _searchController,
@@ -113,7 +115,10 @@ class _HomePageState extends ConsumerState<HomePage>
         // Filter Chips Section
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: RepaintBoundary(
               child: FilterChipsWidget(
                 filters: _filters,
@@ -128,9 +133,7 @@ class _HomePageState extends ConsumerState<HomePage>
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-            child: RepaintBoundary(
-              child: _buildSectionHeader(),
-            ),
+            child: RepaintBoundary(child: _buildSectionHeader()),
           ),
         ),
 
@@ -150,9 +153,7 @@ class _HomePageState extends ConsumerState<HomePage>
         ),
 
         // Bottom padding for FAB
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 80),
-        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 80)),
       ],
     );
   }
@@ -209,6 +210,4 @@ class _HomePageState extends ConsumerState<HomePage>
       });
     }
   }
-
-
 }
