@@ -2,23 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:frontend_weft/features/messages/models/chat.dart';
+import 'package:frontend_weft/features/messages/view/pages/chat_detail_page.dart';
+import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 import 'package:frontend_weft/features/profile/models/other_user_model.dart';
+import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
-import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
-import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
-import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 
 class OtherUserProfilePage extends ConsumerStatefulWidget {
   final String Id;
-  
+
   const OtherUserProfilePage({
     super.key,
     required this.Id,
   });
 
   @override
-  ConsumerState<OtherUserProfilePage> createState() => _OtherUserProfilePageState();
+  ConsumerState<OtherUserProfilePage> createState() =>
+      _OtherUserProfilePageState();
 }
 
 class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
@@ -29,13 +32,11 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
   bool _isProfileCardPinned = false;
   double _profileCardHeight = 0;
 
-  // Animation controller for smooth transitions
   late AnimationController _animationController;
 
   bool _isLoading = false;
   String? _errorMessage;
 
-  // User data from API
   OtherUserModel? _userModel;
 
   @override
@@ -55,9 +56,16 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
         DeviceOrientation.portraitUp,
       ]);
     });
-    
-    // Fetch user data from API
+
     _fetchUserData();
+  }
+  
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchUserData() async {
@@ -70,22 +78,26 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
       final profileService = ref.read(profileApiServiceProvider);
       final userData = await profileService.getOtherUserProfile(widget.Id);
 
-      if (userData != null) {
+      if (mounted) {
+        if (userData != null) {
+          setState(() {
+            _userModel = userData;
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _errorMessage = 'Failed to load user profile';
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         setState(() {
-          _userModel = userData;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _errorMessage = 'Failed to load user profile';
+          _errorMessage = 'Error loading profile: $e';
           _isLoading = false;
         });
       }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Error loading profile: $e';
-        _isLoading = false;
-      });
     }
   }
 
@@ -111,7 +123,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
+
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -129,19 +141,23 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
         body: Stack(
           children: [
             NotificationListener<ScrollNotification>(
+              // --- CORRECTED NOTIFICATION LISTENER ---
               onNotification: (notification) {
+                // First, check if the notification is the specific type we want.
                 if (notification is OverscrollIndicatorNotification) {
-                  (notification as OverscrollIndicatorNotification).disallowIndicator();
+                  // If it is, you can safely call the method on it.
+                  notification.disallowIndicator();
                 }
+                // Return false to allow the notification to continue bubbling up.
                 return false;
               },
+
               child: CustomScrollView(
                 controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics(),
                 ),
                 slivers: [
-                  // Custom App Bar
                   SliverAppBar(
                     floating: true,
                     pinned: false,
@@ -164,19 +180,17 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                       ),
                     ),
                     actions: [
-                      // Only show the 3 dots menu if it's not the current user's profile
                       if (_userModel != null) ...[
                         Consumer(
                           builder: (context, ref, child) {
                             final currentUser = ref.watch(authViewModelProvider);
-                            final isOwnProfile = currentUser != null && 
-                                                 currentUser.id == _userModel!.id;
-                            
-                            // Don't show the menu if it's the user's own profile
+                            final isOwnProfile =
+                                currentUser?.id == _userModel!.id;
+
                             if (isOwnProfile) {
                               return const SizedBox.shrink();
                             }
-                            
+
                             return Container(
                               margin: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
@@ -188,7 +202,8 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                                 ),
                               ),
                               child: IconButton(
-                                icon: const Icon(Icons.more_vert, color: Colors.white),
+                                icon: const Icon(Icons.more_vert,
+                                    color: Colors.white),
                                 onPressed: () => _showOptionsMenu(context),
                               ),
                             );
@@ -197,8 +212,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                       ],
                     ],
                   ),
-                  
-                  // Profile Card
                   if (_userModel != null)
                     SliverToBoxAdapter(
                       child: Padding(
@@ -209,8 +222,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                         ),
                       ),
                     ),
-                  
-                  // Posts Section Header
                   if (_userModel != null)
                     SliverPersistentHeader(
                       pinned: false,
@@ -237,8 +248,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                         ),
                       ),
                     ),
-                  
-                  // Posts List
                   if (_userModel != null)
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -250,7 +259,8 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                                   child: Text(
                                     'No wefts yet.',
                                     style: TextStyle(
-                                      color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                                      color: AppPallete.textPrimaryDark
+                                          .withOpacity(0.7),
                                       fontSize: 16,
                                     ),
                                   ),
@@ -260,17 +270,24 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                           : SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
-                                  final sortedPosts = List.of(_userModel!.posts)
-                                    ..sort((a, b) {
-                                      final aDate = DateTime.tryParse(a.createdAt) ?? DateTime(1970);
-                                      final bDate = DateTime.tryParse(b.createdAt) ?? DateTime(1970);
-                                      return bDate.compareTo(aDate);
-                                    });
+                                  final sortedPosts =
+                                      List.of(_userModel!.posts)
+                                        ..sort((a, b) {
+                                          final aDate =
+                                              DateTime.tryParse(a.createdAt) ??
+                                                  DateTime(1970);
+                                          final bDate =
+                                              DateTime.tryParse(b.createdAt) ??
+                                                  DateTime(1970);
+                                          return bDate.compareTo(aDate);
+                                        });
                                   final post = sortedPosts[index];
                                   return PostCard(
                                     postId: post.id,
                                     userId: post.userId,
-                                    username: post.username.isNotEmpty ? post.username : _userModel!.name,
+                                    username: post.username.isNotEmpty
+                                        ? post.username
+                                        : _userModel!.name,
                                     tag: post.title,
                                     timeAgo: _formatTimeAgo(post.createdAt),
                                     content: post.content,
@@ -293,7 +310,8 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                 color: Colors.black26,
                 child: const Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(AppPallete.textPrimaryDark),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(AppPallete.textPrimaryDark),
                   ),
                 ),
               ),
@@ -333,7 +351,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  // ENHANCED PROFILE CARD WITH MAP THEME
   Widget _buildOptimizedProfileCard(OtherUserModel user) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -341,7 +358,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        // Darker glassmorphism effect
         color: const Color(0xFF2A2D5A).withOpacity(0.8),
         border: Border.all(
           color: Colors.white.withOpacity(0.2),
@@ -372,7 +388,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  // ENHANCED PROFILE HEADER
   Widget _buildProfileHeader(OtherUserModel user) {
     return Row(
       children: [
@@ -384,7 +399,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                 context,
                 imageUrl: user.image_url,
                 userName: user.name,
-                onEditPressed: null, // No edit for other users
+                onEditPressed: null,
                 isEditing: false,
               );
             },
@@ -393,7 +408,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
               height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                // Enhanced glassmorphism for profile image
                 color: Colors.white.withOpacity(0.1),
                 border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
                 boxShadow: [
@@ -410,19 +424,21 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
                 ],
               ),
               child: ClipOval(
-                child: (user.image_url != null && user.image_url!.startsWith('http'))
-                    ? Image.network(
-                        user.image_url!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
-                      )
-                    : Image.asset(
-                        user.image_url ?? 'lib/core/assets/profile_photo.jpeg',
-                        fit: BoxFit.cover,
-                        cacheWidth: 200,
-                        cacheHeight: 200,
-                        errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
-                      ),
+                child:
+                    (user.image_url != null && user.image_url!.startsWith('http'))
+                        ? Image.network(
+                            user.image_url!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+                          )
+                        : Image.asset(
+                            user.image_url ??
+                                'lib/core/assets/profile_photo.jpeg',
+                            fit: BoxFit.cover,
+                            cacheWidth: 200,
+                            cacheHeight: 200,
+                            errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+                          ),
               ),
             ),
           ),
@@ -457,12 +473,14 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  // Helper method for default avatar
   Widget _buildDefaultAvatar() {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [const Color(0xFF6366F1).withOpacity(0.3), const Color(0xFF8B5CF6).withOpacity(0.3)],
+          colors: [
+            const Color(0xFF6366F1).withOpacity(0.3),
+            const Color(0xFF8B5CF6).withOpacity(0.3)
+          ],
         ),
       ),
       child: Icon(
@@ -473,7 +491,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  // ENHANCED ACADEMIC DETAILS
   Widget _buildAcademicDetails(OtherUserModel user) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -516,7 +533,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  // ENHANCED DETAIL COLUMN
   Widget _buildDetailColumn(String title, String value) {
     return Column(
       children: [
@@ -543,7 +559,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  // ENHANCED ACTION BUTTONS
   Widget _buildActionButtons(OtherUserModel user) {
     return Row(
       children: [
@@ -570,7 +585,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  // ENHANCED ACTION BUTTON
   Widget _buildActionButton(
     String text,
     Color backgroundColor,
@@ -683,9 +697,28 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
 
   void _sendMessage(OtherUserModel user) {
     HapticFeedback.mediumImpact();
-    // Navigate to chat/message screen
-    // You'll need to implement this navigation
-    ProfileDialogs.showSnackBar(context, 'Message feature coming soon!');
+
+    final chat = Chat(
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      profilePic: user.image_url ?? '',
+      lastMessage: '',
+      lastMessageTime: DateTime.now(),
+      unreadCount: 0,
+      // The following fields might not be on your OtherUserModel.
+      // We use safe defaults.
+      isOnline: false, 
+      lastSeen: null,
+    );
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ChatDetailPage(
+          chat: chat,
+        ),
+      ),
+    );
   }
 
   void _shareProfile() async {
@@ -713,13 +746,6 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${date.day}/${date.month}/${date.year}';
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _animationController.dispose();
-    super.dispose();
   }
 }
 
@@ -755,4 +781,4 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
         minHeight != oldDelegate.minHeight ||
         child != oldDelegate.child;
   }
-} 
+}

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../models/message.dart';
 import '../models/chat.dart';
+import 'package:frontend_weft/core/http_client.dart';
 
 class SocketService {
   static final SocketService _instance = SocketService._internal();
@@ -12,6 +13,8 @@ class SocketService {
   String? _currentUserId;
   bool _isConnected = false;
 
+
+
   // Event streams
   Stream<Message>? _messageStream;
   Stream<Chat>? _chatUpdateStream;
@@ -19,10 +22,11 @@ class SocketService {
   Stream<Map<String, dynamic>>? _onlineStatusStream;
 
   // Getters for streams
-  Stream<Message>? get messageStream => _messageStream;
-  Stream<Chat>? get chatUpdateStream => _chatUpdateStream;
-  Stream<Map<String, dynamic>>? get typingStream => _typingStream;
-  Stream<Map<String, dynamic>>? get onlineStatusStream => _onlineStatusStream;
+Stream<Message> get messageStream => _messageStreamController.stream;
+  Stream<Chat> get chatUpdateStream => _chatUpdateStreamController.stream;
+  Stream<Map<String, dynamic>> get typingStream => _typingStreamController.stream;
+  Stream<Map<String, dynamic>> get onlineStatusStream => _onlineStatusStreamController.stream;
+  Stream<Map<String, dynamic>> get messageStatusUpdateStream => _messageStatusUpdateController.stream;
 
   bool get isConnected => _isConnected;
   String? get currentUserId => _currentUserId;
@@ -49,7 +53,7 @@ class SocketService {
       );
 
       // Set up event listeners
-      _setupEventListeners();
+      _setupEventListeners(token: token);
 
       // Connect to server
       _socket!.connect();
@@ -62,14 +66,27 @@ class SocketService {
   }
 
   // Set up all socket event listeners
-  void _setupEventListeners() {
+  void _setupEventListeners({String? token}) {
     if (_socket == null) return;
 
     // Connection events
     _socket!.onConnect((_) {
       print('Socket connected successfully');
       _isConnected = true;
-      
+
+      if (token != null) {
+        _socket!.emit('auth', token);
+        print('Emitted auth event with token: $token');
+      }
+
+      _socket!.on('auth_success', (_) {
+        print('Server confirmed: Authentication Successful');
+      });
+      _socket!.on('auth_error', (error) {
+        print('Server returned auth error: $error');
+      });
+
+
       // Join user's personal room
       if (_currentUserId != null) {
         _socket!.emit('join_user_room', {'userId': _currentUserId});
@@ -87,14 +104,39 @@ class SocketService {
     });
 
     // Message events
-    _socket!.on('new_message', (data) {
+    _socket!.on('message', (data) {
       try {
+        // IMPORTANT: Your Go server sends snake_case keys like "sender_id".
+        // Your Message.fromJson constructor must be able to handle this.
+        // If you are using json_serializable, you can use the @JsonKey annotation:
+        // @JsonKey(name: 'sender_id')
+        // final String senderId;
         final message = Message.fromJson(data);
         _messageStreamController.add(message);
       } catch (e) {
-        print('Error parsing new message: $e');
+        print('Error parsing incoming message: $e');
       }
     });
+
+    _socket!.on('message_received', (data) {
+      // We'll pass this data to MessageService to update the message status
+      _messageStatusUpdateController.add({
+        'status': MessageStatus.sent, // 'sent' means server received it
+        'data': data 
+      });
+    });
+
+    // This event confirms the message reached the other user's device
+    _socket!.on('delivered', (data) {
+      // We'll pass this data to MessageService to update the message status again
+      _messageStatusUpdateController.add({
+        'status': MessageStatus.delivered, // 'delivered' means recipient got it
+        'data': data
+      });
+    });
+
+
+
 
     _socket!.on('message_status_update', (data) {
       try {
@@ -157,28 +199,19 @@ class SocketService {
   final _onlineStatusStreamController = StreamController<Map<String, dynamic>>.broadcast();
 
   // Initialize streams
-
+  
   // Send message
   void sendMessage({
     required String receiverId,
     required String content,
-    MessageType type = MessageType.text,
   }) {
-    if (!_isConnected || _socket == null || _currentUserId == null) {
-      throw Exception('Socket not connected or user not authenticated');
+    if (!_isConnected || _socket == null) {
+      throw Exception('Socket not connected');
     }
-
-    final messageData = {
-      'senderId': _currentUserId,
-      'receiverId': receiverId,
-      'content': content,
-      'type': type.toString().split('.').last,
-      'timestamp': DateTime.now().toIso8601String(),
-    };
-
-    _socket!.emit('send_message', messageData);
+    // The list [receiverId, content] corresponds to the arguments
+    // (args[0], args[1]) in your Go handler.
+    _socket!.emit('message', [receiverId, content]);
   }
-
   // Join chat room
   void joinChatRoom(String chatId) {
     if (!_isConnected || _socket == null) return;

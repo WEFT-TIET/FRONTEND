@@ -7,6 +7,7 @@ class Chat {
   final DateTime? lastMessageTime;
   final int unreadCount;
   final DateTime? lastSeen;
+  final bool isOnline; // --- ADDED: The new field ---
 
   Chat({
     required this.id,
@@ -17,6 +18,7 @@ class Chat {
     this.lastMessageTime,
     this.unreadCount = 0,
     this.lastSeen,
+    this.isOnline = false, // --- ADDED: Parameter with a default value ---
   });
 
   factory Chat.fromJson(Map<String, dynamic> json) {
@@ -30,9 +32,9 @@ class Chat {
           ? DateTime.parse(json['lastMessageTime'])
           : null,
       unreadCount: json['unreadCount'] ?? 0,
-      lastSeen: json['lastSeen'] != null
-          ? DateTime.parse(json['lastSeen'])
-          : null,
+      lastSeen:
+          json['lastSeen'] != null ? DateTime.parse(json['lastSeen']) : null,
+      isOnline: json['isOnline'] ?? false, // --- ADDED: JSON deserialization ---
     );
   }
 
@@ -46,6 +48,7 @@ class Chat {
       'lastMessageTime': lastMessageTime?.toIso8601String(),
       'unreadCount': unreadCount,
       'lastSeen': lastSeen?.toIso8601String(),
+      'isOnline': isOnline, // --- ADDED: JSON serialization ---
     };
   }
 
@@ -57,8 +60,8 @@ class Chat {
     String? lastMessage,
     DateTime? lastMessageTime,
     int? unreadCount,
-    bool? isOnline,
     DateTime? lastSeen,
+    bool? isOnline, // --- UPDATED: You already had this part ---
   }) {
     return Chat(
       id: id ?? this.id,
@@ -69,6 +72,7 @@ class Chat {
       lastMessageTime: lastMessageTime ?? this.lastMessageTime,
       unreadCount: unreadCount ?? this.unreadCount,
       lastSeen: lastSeen ?? this.lastSeen,
+      isOnline: isOnline ?? this.isOnline, // --- ADDED: The copyWith logic ---
     );
   }
 }

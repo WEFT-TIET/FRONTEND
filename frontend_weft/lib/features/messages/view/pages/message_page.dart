@@ -1,9 +1,9 @@
-// pages/message_page.dart
+import 'dart:async'; // --- ADDED: For StreamSubscription ---
 import 'package:flutter/material.dart';
+import 'package:frontend_weft/features/messages/service/message_service.dart'; // --- ADDED: Import the service ---
 import 'package:frontend_weft/features/messages/models/chat.dart';
 import 'package:frontend_weft/features/messages/widgets/chat_tile.dart';
 import 'chat_detail_page.dart';
-
 
 class MessagePage extends StatefulWidget {
   const MessagePage({super.key});
@@ -13,91 +13,72 @@ class MessagePage extends StatefulWidget {
 }
 
 class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin {
+  // --- ADDED: Service instance and stream subscription ---
+  final MessageService _messageService = MessageService();
+  StreamSubscription? _chatsSubscription;
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   final TextEditingController _searchController = TextEditingController();
+
+  // --- CHANGED: These lists are now managed by the service ---
+  List<Chat> _allChats = [];
   List<Chat> _filteredChats = [];
   bool _isSearching = false;
 
-  // Dummy data - replace with actual socket data
-  final List<Chat> _chats = [
-    Chat(
-      id: '1',
-      name: 'Alice Johnson',
-      username: '@alice',
-      profilePic: 'https://randomuser.me/api/portraits/women/1.jpg',
-      lastMessage: 'Hey! How are you doing today?',
-      lastMessageTime: DateTime.now().subtract(Duration(minutes: 5)),
-      unreadCount: 2,
-      
-    ),
-    Chat(
-      id: '2',
-      name: 'Bob Smith',
-      username: '@bob',
-      profilePic: 'https://randomuser.me/api/portraits/men/2.jpg',
-      lastMessage: 'Let\'s catch up later this evening.',
-      lastMessageTime: DateTime.now().subtract(Duration(minutes: 45)),
-      unreadCount: 0,
-      
-      lastSeen: DateTime.now().subtract(Duration(hours: 2)),
-    ),
-    Chat(
-      id: '3',
-      name: 'Charlie Lee',
-      username: '@charlie',
-      profilePic: 'https://randomuser.me/api/portraits/men/3.jpg',
-      lastMessage: 'I\'ve sent you the files you requested.',
-      lastMessageTime: DateTime.now().subtract(Duration(days: 1)),
-      unreadCount: 1,
-      
-      lastSeen: DateTime.now().subtract(Duration(hours: 12)),
-    ),
-    Chat(
-      id: '4',
-      name: 'Diana Prince',
-      username: '@diana',
-      profilePic: 'https://randomuser.me/api/portraits/women/4.jpg',
-      lastMessage: 'Thanks for the help with the project!',
-      lastMessageTime: DateTime.now().subtract(Duration(days: 2)),
-      unreadCount: 0,
-      
-    ),
-  ];
+  // --- REMOVED: The hardcoded dummy _chats list is gone ---
 
   @override
   void initState() {
     super.initState();
+
+    // --- ADDED: Load initial data from the service ---
+    _allChats = _messageService.getAllChats();
+    _filteredChats = _allChats;
+
+    // --- ADDED: Listen for live updates from the chats stream ---
+    _chatsSubscription = _messageService.chatsStream.listen((updatedChats) {
+      if (mounted) {
+        setState(() {
+          _allChats = updatedChats;
+          // Re-apply the current search filter whenever the chat list updates
+          _filterChats();
+        });
+      }
+    });
+
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
     );
-    _filteredChats = _chats;
     _animationController.forward();
-    
+
     _searchController.addListener(_filterChats);
   }
 
   @override
   void dispose() {
+    // --- ADDED: Cancel subscription to prevent memory leaks ---
+    _chatsSubscription?.cancel();
     _animationController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
+  // --- UPDATED: Search now works on the live data from the service ---
   void _filterChats() {
     final query = _searchController.text.toLowerCase();
     setState(() {
       if (query.isEmpty) {
-        _filteredChats = _chats;
+        _filteredChats = _allChats; // Show all chats if search is empty
         _isSearching = false;
       } else {
         _isSearching = true;
-        _filteredChats = _chats
+        _filteredChats = _allChats // Filter from the master list
             .where((chat) =>
                 chat.name.toLowerCase().contains(query) ||
                 chat.username.toLowerCase().contains(query))
@@ -127,15 +108,16 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
             child: child,
           );
         },
-        transitionDuration: Duration(milliseconds: 300),
+        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // The build method now uses the dynamically updated _filteredChats list
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -151,13 +133,8 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
         body: SafeArea(
           child: Column(
             children: [
-              // Header with title and search
               _buildHeader(),
-              
-              // Search bar
               _buildSearchBar(),
-              
-              // Chat list
               Expanded(
                 child: FadeTransition(
                   opacity: _fadeAnimation,
@@ -175,10 +152,10 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
 
   Widget _buildHeader() {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Row(
         children: [
-          Text(
+          const Text(
             'Messages',
             style: TextStyle(
               fontSize: 32,
@@ -187,7 +164,7 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
               letterSpacing: 1.2,
             ),
           ),
-          Spacer(),
+          const Spacer(),
           Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
@@ -198,7 +175,7 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
               ),
             ),
             child: IconButton(
-              icon: Icon(Icons.add, color: Colors.white, size: 24),
+              icon: const Icon(Icons.add, color: Colors.white, size: 24),
               onPressed: () {
                 // Handle new chat
               },
@@ -211,9 +188,9 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
 
   Widget _buildSearchBar() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
-        color: Color(0xFF3A3E7A).withOpacity(0.6),
+        color: const Color(0xFF3A3E7A).withOpacity(0.6),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Colors.white.withOpacity(0.2),
@@ -223,13 +200,13 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
             blurRadius: 10,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: TextField(
         controller: _searchController,
-        style: TextStyle(color: Colors.white, fontSize: 16),
+        style: const TextStyle(color: Colors.white, fontSize: 16),
         decoration: InputDecoration(
           hintText: 'Search conversations...',
           hintStyle: TextStyle(
@@ -254,7 +231,8 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
       ),
     );
@@ -262,17 +240,13 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
 
   Widget _buildChatList() {
     return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       itemCount: _filteredChats.length,
       itemBuilder: (context, index) {
         final chat = _filteredChats[index];
-        return AnimatedContainer(
-          duration: Duration(milliseconds: 300 + (index * 100)),
-          curve: Curves.easeOutBack,
-          child: ChatTile(
-            chat: chat,
-            onTap: () => _navigateToChat(chat),
-          ),
+        return ChatTile(
+          chat: chat,
+          onTap: () => _navigateToChat(chat),
         );
       },
     );
@@ -300,7 +274,7 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
               color: Colors.white.withOpacity(0.6),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           Text(
             _isSearching ? 'No conversations found' : 'No messages yet',
             style: TextStyle(
@@ -309,7 +283,7 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
               color: Colors.white.withOpacity(0.8),
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             _isSearching
                 ? 'Try searching with different keywords'
