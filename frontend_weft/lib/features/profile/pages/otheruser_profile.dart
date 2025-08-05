@@ -124,7 +124,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Container(
+return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -140,170 +140,159 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
         backgroundColor: AppPallete.transperantColor,
         body: Stack(
           children: [
-            NotificationListener<ScrollNotification>(
-              // --- CORRECTED NOTIFICATION LISTENER ---
-              onNotification: (notification) {
-                // First, check if the notification is the specific type we want.
-                if (notification is OverscrollIndicatorNotification) {
-                  // If it is, you can safely call the method on it.
-                  notification.disallowIndicator();
-                }
-                // Return false to allow the notification to continue bubbling up.
-                return false;
-              },
-
-              child: CustomScrollView(
-                controller: _scrollController,
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
-                ),
-                slivers: [
-                  SliverAppBar(
-                    floating: true,
-                    pinned: false,
-                    expandedHeight: 60,
-                    backgroundColor: AppPallete.transperantColor,
-                    elevation: 0,
-                    leading: Container(
-                      margin: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.2),
-                          width: 1,
-                        ),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.of(context).pop(),
+            // --- FIXED: Removed problematic NotificationListener ---
+            CustomScrollView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              slivers: [
+                SliverAppBar(
+                  floating: true,
+                  pinned: false,
+                  expandedHeight: 60,
+                  backgroundColor: AppPallete.transperantColor,
+                  elevation: 0,
+                  leading: Container(
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1,
                       ),
                     ),
-                    actions: [
-                      if (_userModel != null) ...[
-                        Consumer(
-                          builder: (context, ref, child) {
-                            final currentUser = ref.watch(authViewModelProvider);
-                            final isOwnProfile =
-                                currentUser?.id == _userModel!.id;
-
-                            if (isOwnProfile) {
-                              return const SizedBox.shrink();
-                            }
-
-                            return Container(
-                              margin: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
-                                  width: 1,
-                                ),
-                              ),
-                              child: IconButton(
-                                icon: const Icon(Icons.more_vert,
-                                    color: Colors.white),
-                                onPressed: () => _showOptionsMenu(context),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ],
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
                   ),
-                  if (_userModel != null)
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                        child: RepaintBoundary(
-                          key: _profileCardKey,
-                          child: _buildOptimizedProfileCard(_userModel!),
-                        ),
-                      ),
-                    ),
-                  if (_userModel != null)
-                    SliverPersistentHeader(
-                      pinned: false,
-                      floating: true,
-                      delegate: _SliverAppBarDelegate(
-                        minHeight: 60,
-                        maxHeight: 60,
-                        child: Container(
-                          color: AppPallete.transperantColor,
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                '${_userModel!.name}\'s Wefts',
-                                style: const TextStyle(
-                                  color: AppPallete.textPrimaryDark,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                  actions: [
+                    if (_userModel != null) ...[
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final currentUser = ref.watch(authViewModelProvider);
+                          final isOwnProfile =
+                              currentUser?.id == _userModel!.id;
+
+                          if (isOwnProfile) {
+                            return const SizedBox.shrink();
+                          }
+
+return Container(
+                            margin: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1,
                               ),
-                            ],
-                          ),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(Icons.more_vert,
+                                  color: Colors.white),
+                              onPressed: () => _showOptionsMenu(context),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+                if (_userModel != null)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: RepaintBoundary(
+                        key: _profileCardKey,
+                        child: _buildOptimizedProfileCard(_userModel!),
+                      ),
+                    ),
+                  ),
+                if (_userModel != null)
+                  SliverPersistentHeader(
+                    pinned: false,
+                    floating: true,
+                    delegate: _SliverAppBarDelegate(
+                      minHeight: 60,
+                      maxHeight: 60,
+                      child: Container(
+                        color: AppPallete.transperantColor,
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${_userModel!.name}\'s Wefts',
+                              style: const TextStyle(
+                                color: AppPallete.textPrimaryDark,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  if (_userModel != null)
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 0),
-                      sliver: _userModel!.posts.isEmpty
-                          ? SliverToBoxAdapter(
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 32.0),
-                                child: Center(
-                                  child: Text(
-                                    'No wefts yet.',
-                                    style: TextStyle(
-                                      color: AppPallete.textPrimaryDark
-                                          .withOpacity(0.7),
-                                      fontSize: 16,
-                                    ),
+                  ),
+                if (_userModel != null)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                    sliver: _userModel!.posts.isEmpty
+                        ? SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 32.0),
+                              child: Center(
+                                child: Text(
+                                  'No wefts yet.',
+                                  style: TextStyle(
+                                    color: AppPallete.textPrimaryDark
+                                        .withOpacity(0.7),
+                                    fontSize: 16,
                                   ),
                                 ),
                               ),
-                            )
-                          : SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  final sortedPosts =
-                                      List.of(_userModel!.posts)
-                                        ..sort((a, b) {
-                                          final aDate =
-                                              DateTime.tryParse(a.createdAt) ??
-                                                  DateTime(1970);
-                                          final bDate =
-                                              DateTime.tryParse(b.createdAt) ??
-                                                  DateTime(1970);
-                                          return bDate.compareTo(aDate);
-                                        });
-                                  final post = sortedPosts[index];
-                                  return PostCard(
-                                    postId: post.id,
-                                    userId: post.userId,
-                                    username: post.username.isNotEmpty
-                                        ? post.username
-                                        : _userModel!.name,
-                                    tag: post.title,
-                                    timeAgo: _formatTimeAgo(post.createdAt),
-                                    content: post.content,
-                                    stars: post.likesCount,
-                                    comments: post.commentsCount,
-                                    showMenu: false,
-                                  );
-                                },
-                                childCount: _userModel!.posts.length,
-                                addAutomaticKeepAlives: true,
-                                addRepaintBoundaries: true,
-                              ),
                             ),
-                    ),
-                ],
-              ),
+                          )
+                        : SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                final sortedPosts =
+                                    List.of(_userModel!.posts)
+                                      ..sort((a, b) {
+                                        final aDate =
+                                            DateTime.tryParse(a.createdAt) ??
+                                                DateTime(1970);
+                                        final bDate =
+                                            DateTime.tryParse(b.createdAt) ??
+                                                DateTime(1970);
+
+return bDate.compareTo(aDate);
+                                      });
+                                final post = sortedPosts[index];
+                                return PostCard(
+                                  postId: post.id,
+                                  userId: post.userId,
+                                  username: post.username.isNotEmpty
+                                      ? post.username
+                                      : _userModel!.name,
+                                  tag: post.title,
+                                  timeAgo: _formatTimeAgo(post.createdAt),
+                                  content: post.content,
+                                  stars: post.likesCount,
+                                  comments: post.commentsCount,
+                                  showMenu: false,
+                                );
+                              },
+                              childCount: _userModel!.posts.length,
+                              addAutomaticKeepAlives: true,
+                              addRepaintBoundaries: true,
+                            ),
+                          ),
+                  ),
+              ],
             ),
             if (_isLoading)
               Container(
@@ -388,7 +377,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  Widget _buildProfileHeader(OtherUserModel user) {
+Widget _buildProfileHeader(OtherUserModel user) {
     return Row(
       children: [
         Hero(
@@ -491,7 +480,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  Widget _buildAcademicDetails(OtherUserModel user) {
+Widget _buildAcademicDetails(OtherUserModel user) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -585,7 +574,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  Widget _buildActionButton(
+Widget _buildActionButton(
     String text,
     Color backgroundColor,
     Color textColor,
@@ -721,7 +710,7 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     );
   }
 
-  void _shareProfile() async {
+void _shareProfile() async {
     HapticFeedback.mediumImpact();
     ProfileDialogs.showSnackBar(context, 'Share feature coming soon!');
   }

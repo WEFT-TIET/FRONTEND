@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../models/message.dart';
 import '../models/chat.dart';
-import 'package:frontend_weft/core/http_client.dart';
 
 class SocketService {
   static final SocketService _instance = SocketService._internal();
@@ -13,104 +12,42 @@ class SocketService {
   String? _currentUserId;
   bool _isConnected = false;
 
+  final _messageStreamController = StreamController<Message>.broadcast();
+  final _messageStatusUpdateController = StreamController<Map<String, dynamic>>.broadcast();
+  final _chatUpdateStreamController = StreamController<Chat>.broadcast();
+  final _typingStreamController = StreamController<Map<String, dynamic>>.broadcast();
+  final _onlineStatusStreamController = StreamController<Map<String, dynamic>>.broadcast();
 
-
-  // Event streams
-  Stream<Message>? _messageStream;
-  Stream<Chat>? _chatUpdateStream;
-  Stream<Map<String, dynamic>>? _typingStream;
-  Stream<Map<String, dynamic>>? _onlineStatusStream;
-
-  // Getters for streams
-Stream<Message> get messageStream => _messageStreamController.stream;
+  Stream<Message> get messageStream => _messageStreamController.stream;
   Stream<Chat> get chatUpdateStream => _chatUpdateStreamController.stream;
   Stream<Map<String, dynamic>> get typingStream => _typingStreamController.stream;
   Stream<Map<String, dynamic>> get onlineStatusStream => _onlineStatusStreamController.stream;
   Stream<Map<String, dynamic>> get messageStatusUpdateStream => _messageStatusUpdateController.stream;
-
-  bool get isConnected => _isConnected;
   String? get currentUserId => _currentUserId;
 
-  // Initialize socket connection
-  Future<void> connect({
-    required String serverUrl,
-    required String userId,
-    String? token,
-  }) async {
-    try {
-      _currentUserId = userId;
-
-      // Configure socket options
-      _socket = IO.io(
-        serverUrl,
-        IO.OptionBuilder()
-            .setTransports(['websocket'])
-            .disableAutoConnect()
-            .setExtraHeaders({
-              if (token != null) 'Authorization': 'Bearer $token',
-            })
-            .build(),
-      );
-
-      // Set up event listeners
-      _setupEventListeners(token: token);
-
-      // Connect to server
-      _socket!.connect();
-
-      print('Socket connecting to: $serverUrl');
-    } catch (e) {
-      print('Socket connection error: $e');
-      throw Exception('Failed to connect to socket server: $e');
-    }
+  Future<void> connect({required String serverUrl, required String userId, String? token}) async {
+    _currentUserId = userId;
+    _socket = IO.io(
+      serverUrl,
+      IO.OptionBuilder().setTransports(['websocket']).disableAutoConnect().setExtraHeaders({
+        if (token != null) 'Authorization': 'Bearer $token',
+      }).build(),
+    );
+    _setupEventListeners(token: token);
+    _socket!.connect();
   }
 
-  // Set up all socket event listeners
   void _setupEventListeners({String? token}) {
-    if (_socket == null) return;
-
-    // Connection events
     _socket!.onConnect((_) {
       print('Socket connected successfully');
       _isConnected = true;
-
-      if (token != null) {
-        _socket!.emit('auth', token);
-        print('Emitted auth event with token: $token');
-      }
-
-      _socket!.on('auth_success', (_) {
-        print('Server confirmed: Authentication Successful');
-      });
-      _socket!.on('auth_error', (error) {
-        print('Server returned auth error: $error');
-      });
-
-
-      // Join user's personal room
-      if (_currentUserId != null) {
-        _socket!.emit('join_user_room', {'userId': _currentUserId});
-      }
+      if (token != null) _socket!.emit('auth', token);
     });
+    _socket!.onDisconnect((_) => _isConnected = false);
+    _socket!.onConnectError((error) => print('Socket connection error: $error'));
 
-    _socket!.onDisconnect((_) {
-      print('Socket disconnected');
-      _isConnected = false;
-    });
-
-    _socket!.onConnectError((error) {
-      print('Socket connection error: $error');
-      _isConnected = false;
-    });
-
-    // Message events
     _socket!.on('message', (data) {
       try {
-        // IMPORTANT: Your Go server sends snake_case keys like "sender_id".
-        // Your Message.fromJson constructor must be able to handle this.
-        // If you are using json_serializable, you can use the @JsonKey annotation:
-        // @JsonKey(name: 'sender_id')
-        // final String senderId;
         final message = Message.fromJson(data);
         _messageStreamController.add(message);
       } catch (e) {
@@ -119,235 +56,50 @@ Stream<Message> get messageStream => _messageStreamController.stream;
     });
 
     _socket!.on('message_received', (data) {
-      // We'll pass this data to MessageService to update the message status
-      _messageStatusUpdateController.add({
-        'status': MessageStatus.sent, // 'sent' means server received it
-        'data': data 
-      });
+      _messageStatusUpdateController.add({'status': MessageStatus.sent, 'data': data});
     });
 
-    // This event confirms the message reached the other user's device
-    _socket!.on('delivered', (data) {
-      // We'll pass this data to MessageService to update the message status again
-      _messageStatusUpdateController.add({
-        'status': MessageStatus.delivered, // 'delivered' means recipient got it
-        'data': data
-      });
+    // Updated event name from 'delivered' to 'message_delivered'
+    _socket!.on('message_delivered', (data) {
+      _messageStatusUpdateController.add({'status': MessageStatus.delivered, 'data': data});
     });
 
-
-
-
-    _socket!.on('message_status_update', (data) {
-      try {
-        final messageId = data['messageId'] as String;
-        final status = MessageStatus.values.firstWhere(
-          (e) => e.toString() == 'MessageStatus.${data['status']}',
-          orElse: () => MessageStatus.sent,
-        );
-        
-        _messageStatusUpdateController.add({
-          'messageId': messageId,
-          'status': status,
-        });
-      } catch (e) {
-        print('Error parsing message status update: $e');
-      }
+    // Updated event name from 'message_status_update' to 'message_read'
+    _socket!.on('message_read', (data) {
+      _messageStatusUpdateController.add({'status': MessageStatus.read, 'data': data});
     });
 
-    // Chat events
-    _socket!.on('chat_update', (data) {
-      try {
-        final chat = Chat.fromJson(data);
-        _chatUpdateStreamController.add(chat);
-      } catch (e) {
-        print('Error parsing chat update: $e');
-      }
-    });
-
-    // Typing events
-    _socket!.on('user_typing', (data) {
-      _typingStreamController.add({
-        'userId': data['userId'],
-        'chatId': data['chatId'],
-        'isTyping': data['isTyping'],
-      });
-    });
-
-    // Online status events
-    _socket!.on('user_online_status', (data) {
-      _onlineStatusStreamController.add({
-        'userId': data['userId'],
-        'isOnline': data['isOnline'],
-        'lastSeen': data['lastSeen'] != null 
-            ? DateTime.parse(data['lastSeen'])
-            : null,
-      });
-    });
-
-    // Error handling
-    _socket!.on('error', (error) {
-      print('Socket error: $error');
-    });
+    _socket!.on('error', (error) => print('Socket error: $error'));
   }
 
-  // Stream controllers
-  final _messageStreamController = StreamController<Message>.broadcast();
-  final _messageStatusUpdateController = StreamController<Map<String, dynamic>>.broadcast();
-  final _chatUpdateStreamController = StreamController<Chat>.broadcast();
-  final _typingStreamController = StreamController<Map<String, dynamic>>.broadcast();
-  final _onlineStatusStreamController = StreamController<Map<String, dynamic>>.broadcast();
+  // Updated to send receiver_id, uuid, and content
+  void sendMessage({required String receiver_id, required String uuid, required String content}) {
+    if (_isConnected) _socket!.emit('message', [receiver_id, uuid, content]);
+  }
 
-  // Initialize streams
+  // Updated to match the backend's expected payload for marking a message as read
+  void markMessageAsRead({required String sender_id, required String messageUuid}) {
+    if (_isConnected) _socket!.emit('message_read', [sender_id, messageUuid]);
+  }
   
-  // Send message
-  void sendMessage({
-    required String receiverId,
-    required String content,
-  }) {
-    if (!_isConnected || _socket == null) {
-      throw Exception('Socket not connected');
-    }
-    // The list [receiverId, content] corresponds to the arguments
-    // (args[0], args[1]) in your Go handler.
-    _socket!.emit('message', [receiverId, content]);
-  }
-  // Join chat room
-  void joinChatRoom(String chatId) {
-    if (!_isConnected || _socket == null) return;
-
-    _socket!.emit('join_chat', {'chatId': chatId});
+  void getUserChats() {
+    if (_isConnected) _socket!.emit('get_user_chats', {'userId': _currentUserId});
   }
 
-  // Leave chat room
-  void leaveChatRoom(String chatId) {
-    if (!_isConnected || _socket == null) return;
-
-    _socket!.emit('leave_chat', {'chatId': chatId});
-  }
-
-  // Send typing indicator
-  void sendTypingIndicator({
-    required String chatId,
-    required bool isTyping,
-  }) {
-    if (!_isConnected || _socket == null || _currentUserId == null) return;
-
-    _socket!.emit('typing', {
-      'userId': _currentUserId,
-      'chatId': chatId,
-      'isTyping': isTyping,
-    });
-  }
-
-  // Mark message as read
-  void markMessageAsRead(String messageId) {
-    if (!_isConnected || _socket == null || _currentUserId == null) return;
-
-    _socket!.emit('mark_as_read', {
-      'messageId': messageId,
-      'userId': _currentUserId,
-    });
-  }
-
-  // Update online status
-  void updateOnlineStatus(bool isOnline) {
-    if (!_isConnected || _socket == null || _currentUserId == null) return;
-
+  void updateOnlineStatus({required bool isOnline}) {
+  if (_isConnected) {
     _socket!.emit('update_online_status', {
       'userId': _currentUserId,
       'isOnline': isOnline,
+      'timestamp': DateTime.now().toIso8601String(),
     });
   }
+}
 
-  // Block user
-  void blockUser({
-    required String userId,
-    required String reason,
-  }) {
-    if (!_isConnected || _socket == null || _currentUserId == null) return;
 
-    _socket!.emit('block_user', {
-      'blockerId': _currentUserId,
-      'blockedUserId': userId,
-      'reason': reason,
-    });
-  }
-
-  // Report user
-  void reportUser({
-    required String userId,
-    required String reason,
-    String? additionalInfo,
-  }) {
-    if (!_isConnected || _socket == null || _currentUserId == null) return;
-
-    _socket!.emit('report_user', {
-      'reporterId': _currentUserId,
-      'reportedUserId': userId,
-      'reason': reason,
-      'additionalInfo': additionalInfo,
-    });
-  }
-
-  // Get chat history
-  void getChatHistory({
-    required String chatId,
-    int page = 1,
-    int limit = 50,
-  }) {
-    if (!_isConnected || _socket == null || _currentUserId == null) return;
-
-    _socket!.emit('get_chat_history', {
-      'chatId': chatId,
-      'userId': _currentUserId,
-      'page': page,
-      'limit': limit,
-    });
-  }
-
-  // Get user's chats
-  void getUserChats() {
-    if (!_isConnected || _socket == null || _currentUserId == null) return;
-
-    _socket!.emit('get_user_chats', {
-      'userId': _currentUserId,
-    });
-  }
-
-  // Search users
-  void searchUsers(String query) {
-    if (!_isConnected || _socket == null || _currentUserId == null) return;
-
-    _socket!.emit('search_users', {
-      'query': query,
-      'userId': _currentUserId,
-    });
-  }
-
-  // Disconnect socket
   void disconnect() {
-    if (_socket != null) {
-      _socket!.disconnect();
-      _socket!.dispose();
-      _socket = null;
-    }
-    
+    _socket?.disconnect();
+    _socket?.dispose();
     _isConnected = false;
-    _currentUserId = null;
-    
-    // Close stream controllers
-    _messageStreamController.close();
-    _messageStatusUpdateController.close();
-    _chatUpdateStreamController.close();
-    _typingStreamController.close();
-    _onlineStatusStreamController.close();
-  }
-
-  // Reconnect socket
-  Future<void> reconnect() async {
-    if (_socket != null) {
-      _socket!.connect();
-    }
   }
 }

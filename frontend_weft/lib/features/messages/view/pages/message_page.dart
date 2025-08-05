@@ -1,6 +1,6 @@
-import 'dart:async'; // --- ADDED: For StreamSubscription ---
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:frontend_weft/features/messages/service/message_service.dart'; // --- ADDED: Import the service ---
+import 'package:frontend_weft/features/messages/service/message_service.dart';
 import 'package:frontend_weft/features/messages/models/chat.dart';
 import 'package:frontend_weft/features/messages/widgets/chat_tile.dart';
 import 'chat_detail_page.dart';
@@ -13,39 +13,27 @@ class MessagePage extends StatefulWidget {
 }
 
 class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin {
-  // --- ADDED: Service instance and stream subscription ---
   final MessageService _messageService = MessageService();
+  late final Future<void> _initMessageService;
   StreamSubscription? _chatsSubscription;
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   final TextEditingController _searchController = TextEditingController();
 
-  // --- CHANGED: These lists are now managed by the service ---
   List<Chat> _allChats = [];
   List<Chat> _filteredChats = [];
   bool _isSearching = false;
 
-  // --- REMOVED: The hardcoded dummy _chats list is gone ---
-
   @override
   void initState() {
     super.initState();
-
-    // --- ADDED: Load initial data from the service ---
-    _allChats = _messageService.getAllChats();
-    _filteredChats = _allChats;
-
-    // --- ADDED: Listen for live updates from the chats stream ---
-    _chatsSubscription = _messageService.chatsStream.listen((updatedChats) {
-      if (mounted) {
-        setState(() {
-          _allChats = updatedChats;
-          // Re-apply the current search filter whenever the chat list updates
-          _filterChats();
-        });
-      }
-    });
+    // Use your actual user ID and token here
+    _initMessageService = _messageService.initialize(
+      serverUrl: 'http://your-backend-url', // Replace with your server URL
+      userId: 'your_user_id',               // Replace with the actual user ID
+      token: 'your_auth_token',             // Replace with the actual auth token
+    );
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -55,35 +43,40 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
       parent: _animationController,
       curve: Curves.easeInOut,
     );
-    _animationController.forward();
 
     _searchController.addListener(_filterChats);
   }
 
+  void _subscribeToChats() {
+    _allChats = _messageService.getAllChats();
+    _filteredChats = _allChats;
+    _chatsSubscription = _messageService.chatsStream.listen((updatedChats) {
+      if (mounted) {
+        setState(() {
+          _allChats = updatedChats;
+          _filterChats();
+        });
+      }
+    });
+  }
+
   @override
   void dispose() {
-    // --- ADDED: Cancel subscription to prevent memory leaks ---
     _chatsSubscription?.cancel();
     _animationController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
-  // --- UPDATED: Search now works on the live data from the service ---
   void _filterChats() {
     final query = _searchController.text.toLowerCase();
     setState(() {
-      if (query.isEmpty) {
-        _filteredChats = _allChats; // Show all chats if search is empty
-        _isSearching = false;
-      } else {
-        _isSearching = true;
-        _filteredChats = _allChats // Filter from the master list
-            .where((chat) =>
-                chat.name.toLowerCase().contains(query) ||
-                chat.username.toLowerCase().contains(query))
-            .toList();
-      }
+      _isSearching = query.isNotEmpty;
+      _filteredChats = _allChats
+          .where((chat) =>
+              chat.name.toLowerCase().contains(query) ||
+              chat.username.toLowerCase().contains(query))
+          .toList();
     });
   }
 
@@ -91,22 +84,15 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => ChatDetailPage(
-          chat: chat,
-        ),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            ChatDetailPage(chat: chat),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
           const curve = Curves.easeInOutCubic;
-
-          var tween = Tween(begin: begin, end: end).chain(
-            CurveTween(curve: curve),
-          );
-
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          return SlideTransition(position: animation.drive(tween), child: child);
         },
         transitionDuration: const Duration(milliseconds: 300),
       ),
@@ -115,17 +101,12 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    // The build method now uses the dynamically updated _filteredChats list
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF2A2D5A),
-            Color(0xFF4A4E8A),
-            Color(0xFF3A3E7A),
-          ],
+          colors: [Color(0xFF2A2D5A), Color(0xFF4A4E8A), Color(0xFF3A3E7A)],
         ),
       ),
       child: Scaffold(
@@ -136,11 +117,25 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
               _buildHeader(),
               _buildSearchBar(),
               Expanded(
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: _filteredChats.isEmpty
-                      ? _buildEmptyState()
-                      : _buildChatList(),
+                child: FutureBuilder(
+                  future: _initMessageService,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
+                    } else {
+                      // Subscribe to chat updates only after service is initialized
+                      _subscribeToChats();
+                      _animationController.forward();
+                      return FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: _filteredChats.isEmpty
+                            ? _buildEmptyState()
+                            : _buildChatList(),
+                      );
+                    }
+                  },
                 ),
               ),
             ],
@@ -149,7 +144,7 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
       ),
     );
   }
-
+// ... Rest of the widgets (_buildHeader, _buildSearchBar, etc.) remain the same
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),

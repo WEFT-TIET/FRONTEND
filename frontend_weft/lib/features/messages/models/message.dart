@@ -1,7 +1,7 @@
 class Message {
   final String id;
-  final String senderId;
-  final String receiverId;
+  final String sender_id;
+  final String receiver_id;
   final String content;
   final DateTime timestamp;
   final MessageType type;
@@ -9,8 +9,8 @@ class Message {
 
   Message({
     required this.id,
-    required this.senderId,
-    required this.receiverId,
+    required this.sender_id,
+    required this.receiver_id,
     required this.content,
     required this.timestamp,
     this.type = MessageType.text,
@@ -20,8 +20,8 @@ class Message {
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
       id: json['id'],
-      senderId: json['senderId'],
-      receiverId: json['receiverId'],
+      sender_id: json['sender_id'],
+      receiver_id: json['receiver_id'],
       content: json['content'],
       timestamp: DateTime.parse(json['timestamp']),
       type: MessageType.values.firstWhere(
@@ -38,8 +38,8 @@ class Message {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'senderId': senderId,
-      'receiverId': receiverId,
+      'sender_id': sender_id,
+      'receiver_id': receiver_id,
       'content': content,
       'timestamp': timestamp.toIso8601String(),
       'type': type.toString().split('.').last,
@@ -49,8 +49,8 @@ class Message {
 
   Message copyWith({
     String? id,
-    String? senderId,
-    String? receiverId,
+    String? sender_id,
+    String? receiver_id,
     String? content,
     DateTime? timestamp,
     MessageType? type,
@@ -58,8 +58,8 @@ class Message {
   }) {
     return Message(
       id: id ?? this.id,
-      senderId: senderId ?? this.senderId,
-      receiverId: receiverId ?? this.receiverId,
+      sender_id: sender_id ?? this.sender_id,
+      receiver_id: receiver_id ?? this.receiver_id,
       content: content ?? this.content,
       timestamp: timestamp ?? this.timestamp,
       type: type ?? this.type,

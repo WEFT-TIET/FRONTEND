@@ -46,8 +46,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     _messagesSubscription =
         _messageService.messagesStream.listen((updatedMessages) {
       if (updatedMessages.isNotEmpty &&
-          (updatedMessages.first.senderId == widget.chat.id ||
-              updatedMessages.first.receiverId == widget.chat.id)) {
+          (updatedMessages.first.sender_id == widget.chat.id ||
+              updatedMessages.first.receiver_id == widget.chat.id)) {
         if (mounted) {
           setState(() {
             _messages = updatedMessages;
@@ -100,7 +100,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     if (content.trim().isEmpty) return;
 
     _messageService.sendMessage(
-      receiverId: widget.chat.id,
+      receiver_id: widget.chat.id,
       content: content,
     );
     _scrollToBottom();
@@ -115,7 +115,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     );
 
     // For non-dialog actions, or actions that happen before a dialog
-    _messageService.handleUserAction(actionData);
+ 
+    //_messageService.handleUserAction(actionData);
 
     switch (action) {
       case UserAction.viewProfile:
@@ -413,7 +414,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   itemCount: _messages.length,
                   itemBuilder: (context, index) {
                     final message = _messages[index];
-                    final isMe = message.senderId == _currentUserId;
+                    final isMe = message.sender_id == _currentUserId;
 
                     return MessageBubble(
                       message: message,
