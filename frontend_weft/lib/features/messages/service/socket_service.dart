@@ -27,14 +27,28 @@ class SocketService {
 
   Future<void> connect({required String serverUrl, required String userId, String? token}) async {
     _currentUserId = userId;
+    
+    // Make sure to use the correct options for Socket.IO
     _socket = IO.io(
       serverUrl,
-      IO.OptionBuilder().setTransports(['websocket']).disableAutoConnect().setExtraHeaders({
-        if (token != null) 'Authorization': 'Bearer $token',
-      }).build(),
+      IO.OptionBuilder()
+        .setTransports(['websocket']) // Try websocket first
+        .setExtraHeaders({
+          if (token != null) 'Authorization': 'Bearer $token',
+        })
+        .enableForceNew() // Force a new connection
+        .enableReconnection() // Enable reconnection
+        .setReconnectionAttempts(5) // Try to reconnect 5 times
+        .setReconnectionDelay(5000) // Wait 5 seconds between attempts
+        .disableAutoConnect() // We'll connect manually
+        .build(),
     );
+    
     _setupEventListeners(token: token);
     _socket!.connect();
+    
+    // Add debug logging
+    print('Attempting to connect to socket at: $serverUrl with userId: $userId');
   }
 
   void _setupEventListeners({String? token}) {

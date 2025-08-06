@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_weft/features/messages/service/message_service.dart';
 import 'package:frontend_weft/features/messages/models/chat.dart';
 import 'package:frontend_weft/features/messages/widgets/chat_tile.dart';
+import 'package:frontend_weft/features/auth/viewmodel/auth_local_repository.dart';
 import 'chat_detail_page.dart';
 
 class MessagePage extends StatefulWidget {
@@ -28,13 +29,15 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    // Use your actual user ID and token here
-    _initMessageService = _messageService.initialize(
-      serverUrl: 'http://your-backend-url', // Replace with your server URL
-      userId: 'your_user_id',               // Replace with the actual user ID
-      token: 'your_auth_token',             // Replace with the actual auth token
-    );
-
+    // Create the auth repository
+    final authRepo = AuthLocalRepository();
+    
+    // Initialize with a default value to avoid the late initialization error
+    _initMessageService = Future.value();
+    
+    // Then update it with the actual initialization
+    _loadUserAndInitialize();
+    
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -45,6 +48,32 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
     );
 
     _searchController.addListener(_filterChats);
+  }
+
+  Future<void> _loadUserAndInitialize() async {
+    try {
+      // Create the auth repository
+      final authRepo = AuthLocalRepository();
+      
+      // Get the current user and token
+      final user = await authRepo.getUser();
+      final token = await authRepo.getAccessToken();
+      
+      if (user != null && token != null) {
+        // Update the initialization with actual values
+        // Use ws:// or wss:// protocol for WebSocket connections
+        _initMessageService = _messageService.initialize(
+          serverUrl: 'http://ec2-3-7-223-144.ap-south-1.compute.amazonaws.com:4040/', // Keep HTTP protocol
+          userId: user.id,
+          token: token,
+        );
+      } else {
+        print('User not logged in or token not available');
+        // Handle the case when user is not logged in
+      }
+    } catch (e) {
+      print('Error loading user data: $e');
+    }
   }
 
   void _subscribeToChats() {
@@ -144,7 +173,6 @@ class _MessagePageState extends State<MessagePage> with TickerProviderStateMixin
       ),
     );
   }
-// ... Rest of the widgets (_buildHeader, _buildSearchBar, etc.) remain the same
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
