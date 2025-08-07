@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/home/view/pages/home_page.dart';
-import 'package:frontend_weft/features/messages/view/pages/message_page.dart';
+import 'package:frontend_weft/features/messages/view/pages/messages_list_page.dart';
+
 import 'package:frontend_weft/features/profile/pages/profile_page.dart';
 import 'package:frontend_weft/features/search/view/pages/search.dart';
 import 'package:frontend_weft/features/navbar/gradient_icon.dart';
@@ -30,7 +31,7 @@ class _BottomNavBarState extends State<BottomNavBar>
   static const List<Widget> _pages = [
     HomePage(),
     SearchPage(),
-    MessagePage(),
+    MessagesListPage(),
     ProfilePage(),
   ];
 

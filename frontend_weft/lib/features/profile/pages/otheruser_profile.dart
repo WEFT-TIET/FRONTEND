@@ -3,12 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
-import 'package:frontend_weft/features/messages/models/chat.dart';
-import 'package:frontend_weft/features/messages/view/pages/chat_detail_page.dart';
+import 'package:frontend_weft/features/messages/view/pages/chat_page.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 import 'package:frontend_weft/features/profile/models/other_user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
+import 'package:frontend_weft/features/messages/view/pages/chat_page.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
 
 class OtherUserProfilePage extends ConsumerStatefulWidget {
@@ -632,6 +632,14 @@ Widget _buildActionButton(
     );
   }
 
+  void _sendMessage(OtherUserModel user) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ChatPage(receiverId: int.parse(user.id)),
+      ),
+    );
+  }
+
   void _showOptionsMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -684,31 +692,7 @@ Widget _buildActionButton(
     );
   }
 
-  void _sendMessage(OtherUserModel user) {
-    HapticFeedback.mediumImpact();
 
-    final chat = Chat(
-      id: user.id,
-      name: user.name,
-      username: user.username,
-      profilePic: user.image_url ?? '',
-      lastMessage: '',
-      lastMessageTime: DateTime.now(),
-      unreadCount: 0,
-      // The following fields might not be on your OtherUserModel.
-      // We use safe defaults.
-      isOnline: false, 
-      lastSeen: null,
-    );
-
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => ChatDetailPage(
-          chat: chat,
-        ),
-      ),
-    );
-  }
 
 void _shareProfile() async {
     HapticFeedback.mediumImpact();

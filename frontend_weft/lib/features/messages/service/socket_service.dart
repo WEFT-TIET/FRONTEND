@@ -1,119 +1,176 @@
 import 'dart:async';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
-import '../models/message.dart';
-import '../models/chat.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:frontend_weft/core/server_constants.dart';
+import 'package:frontend_weft/features/auth/viewmodel/auth_local_repository.dart';
+import 'package:frontend_weft/features/messages/models/message_model.dart';
+
+final socketServiceProvider = Provider<SocketService>((ref) {
+  final repo = ref.read(authLocalRepositoryProvider);
+  return SocketService(repo);
+});
 
 class SocketService {
-  static final SocketService _instance = SocketService._internal();
-  factory SocketService() => _instance;
-  SocketService._internal();
+  SocketService(this._authRepo);
 
-  IO.Socket? _socket;
-  String? _currentUserId;
-  bool _isConnected = false;
+  final AuthLocalRepository _authRepo;
+  io.Socket? _socket;
 
-  final _messageStreamController = StreamController<Message>.broadcast();
-  final _messageStatusUpdateController = StreamController<Map<String, dynamic>>.broadcast();
-  final _chatUpdateStreamController = StreamController<Chat>.broadcast();
-  final _typingStreamController = StreamController<Map<String, dynamic>>.broadcast();
-  final _onlineStatusStreamController = StreamController<Map<String, dynamic>>.broadcast();
+  final _messageController = StreamController<ChatMessage>.broadcast();
+  Stream<ChatMessage> get messagesStream => _messageController.stream;
 
-  Stream<Message> get messageStream => _messageStreamController.stream;
-  Stream<Chat> get chatUpdateStream => _chatUpdateStreamController.stream;
-  Stream<Map<String, dynamic>> get typingStream => _typingStreamController.stream;
-  Stream<Map<String, dynamic>> get onlineStatusStream => _onlineStatusStreamController.stream;
-  Stream<Map<String, dynamic>> get messageStatusUpdateStream => _messageStatusUpdateController.stream;
-  String? get currentUserId => _currentUserId;
+  bool get isConnected => _socket?.connected ?? false;
 
-  Future<void> connect({required String serverUrl, required String userId, String? token}) async {
-    _currentUserId = userId;
+  Future<void> connect() async {
+    if (isConnected) return;
+
+    final token = await _authRepo.getAccessToken();
+    if (token == null) throw Exception('Access token not found');
+
+    print('🔌 Connecting to socket with token: ${token.substring(0, 10)}...');
     
-    // Make sure to use the correct options for Socket.IO
-    _socket = IO.io(
-      serverUrl,
-      IO.OptionBuilder()
-        .setTransports(['websocket']) // Try websocket first
-        .setExtraHeaders({
-          if (token != null) 'Authorization': 'Bearer $token',
-        })
-        .enableForceNew() // Force a new connection
-        .enableReconnection() // Enable reconnection
-        .setReconnectionAttempts(5) // Try to reconnect 5 times
-        .setReconnectionDelay(5000) // Wait 5 seconds between attempts
-        .disableAutoConnect() // We'll connect manually
-        .build(),
-    );
+    // Use base URL and let socket.io handle the rest
+    final url = ServerConstants.baseUrl;
+    print('🔗 Socket URL: $url');
+
+    _socket = io.io(url, <String, dynamic>{
+      'transports': ['polling'], // Use only polling for now
+      'autoConnect': false,
+      'forceNew': true,
+      'timeout': 30000,
+      'upgrade': false, // Disable websocket upgrade
+      'rememberUpgrade': false,
+    });
+
+    _registerListeners();
     
-    _setupEventListeners(token: token);
+    // Add connection event listeners before connecting
+    _socket!.on('connect', (_) {
+      print('🟢 Socket connected successfully!');
+      print('🔑 Authenticating with token...');
+      // Send token as raw string as expected by backend
+      _socket!.emit('auth', token);
+    });
+    
+    _socket!.on('connect_error', (error) {
+      print('❌ Socket connection error: $error');
+    });
+    
+    _socket!.on('disconnect', (reason) {
+      print('🔴 Socket disconnected: $reason');
+    });
+    
+    print('🚀 Initiating socket connection...');
     _socket!.connect();
-    
-    // Add debug logging
-    print('Attempting to connect to socket at: $serverUrl with userId: $userId');
   }
 
-  void _setupEventListeners({String? token}) {
-    _socket!.onConnect((_) {
-      print('Socket connected successfully');
-      _isConnected = true;
-      if (token != null) _socket!.emit('auth', token);
+  void _registerListeners() {
+    if (_socket == null) return;
+
+    _socket!.on('auth_success', (_) {
+      print('✅ Socket authenticated successfully');
     });
-    _socket!.onDisconnect((_) => _isConnected = false);
-    _socket!.onConnectError((error) => print('Socket connection error: $error'));
+
+    _socket!.on('auth_error', (data) {
+      print('❌ Socket auth error: $data');
+    });
 
     _socket!.on('message', (data) {
+      print('📨 Received message: $data');
       try {
-        final message = Message.fromJson(data);
-        _messageStreamController.add(message);
+        final msg = _mapToChatMessage(data);
+        _messageController.add(msg);
       } catch (e) {
-        print('Error parsing incoming message: $e');
+        print('❌ Error mapping message: $e');
       }
     });
 
     _socket!.on('message_received', (data) {
-      _messageStatusUpdateController.add({'status': MessageStatus.sent, 'data': data});
+      print('📬 Message received acknowledgment: $data');
     });
 
-    // Updated event name from 'delivered' to 'message_delivered'
     _socket!.on('message_delivered', (data) {
-      _messageStatusUpdateController.add({'status': MessageStatus.delivered, 'data': data});
+      print('📫 Message delivered: $data');
     });
 
-    // Updated event name from 'message_status_update' to 'message_read'
     _socket!.on('message_read', (data) {
-      _messageStatusUpdateController.add({'status': MessageStatus.read, 'data': data});
+      print('👁️ Message read: $data');
     });
 
-    _socket!.on('error', (error) => print('Socket error: $error'));
-  }
+    _socket!.on('error', (data) {
+      print('❌ Socket error: $data');
+    });
 
-  // Updated to send receiver_id, uuid, and content
-  void sendMessage({required String receiver_id, required String uuid, required String content}) {
-    if (_isConnected) _socket!.emit('message', [receiver_id, uuid, content]);
-  }
-
-  // Updated to match the backend's expected payload for marking a message as read
-  void markMessageAsRead({required String sender_id, required String messageUuid}) {
-    if (_isConnected) _socket!.emit('message_read', [sender_id, messageUuid]);
-  }
-  
-  void getUserChats() {
-    if (_isConnected) _socket!.emit('get_user_chats', {'userId': _currentUserId});
-  }
-
-  void updateOnlineStatus({required bool isOnline}) {
-  if (_isConnected) {
-    _socket!.emit('update_online_status', {
-      'userId': _currentUserId,
-      'isOnline': isOnline,
-      'timestamp': DateTime.now().toIso8601String(),
+    _socket!.on('disconnect', (data) {
+      print('🔴 Socket disconnected: $data');
     });
   }
-}
 
+  ChatMessage _mapToChatMessage(dynamic data) {
+    print('🔍 Mapping message data: $data');
+    
+    // Handle both Map and direct data
+    final Map<String, dynamic> messageData = data is Map<String, dynamic> ? data : {};
+    
+    try {
+      return ChatMessage(
+        id: messageData['id'] is int 
+            ? messageData['id'] 
+            : (messageData['id'] != null ? int.tryParse(messageData['id'].toString()) : null),
+        uuid: messageData['message_uuid']?.toString() ?? '',
+        senderId: messageData['sender_id'] is int 
+            ? messageData['sender_id'] 
+            : int.parse(messageData['sender_id'].toString()),
+        receiverId: messageData['receiver_id'] is int
+            ? messageData['receiver_id']
+            : (messageData['receiver_id'] != null
+                ? int.parse(messageData['receiver_id'].toString())
+                : 0),
+        content: messageData['content']?.toString() ?? '',
+        createdAt: messageData['created_at'] != null 
+            ? DateTime.tryParse(messageData['created_at'].toString()) ?? DateTime.now()
+            : DateTime.now(),
+        delivered: messageData['delivered'] == true,
+        read: messageData['read'] == true,
+      );
+    } catch (e) {
+      print('❌ Error in _mapToChatMessage: $e');
+      print('❌ Data was: $messageData');
+      rethrow;
+    }
+  }
 
-  void disconnect() {
+  void sendMessage({required int receiverId, required String content, required int senderId}) {
+    if (!isConnected) {
+      print('❌ Cannot send message - socket not connected');
+      return;
+    }
+    
+    final msg = ChatMessage.outgoing(
+      senderId: senderId,
+      receiverId: receiverId,
+      content: content,
+    );
+
+    print('📤 Sending message: receiverId=$receiverId, uuid=${msg.uuid}, content=$content');
+    _socket!.emit('message', [receiverId.toString(), msg.uuid, content]);
+    _messageController.add(msg); // Optimistic update
+  }
+
+  void markMessageRead({required int senderId, required String uuid}) {
+    if (!isConnected) return;
+    _socket!.emit('message_read', [senderId.toString(), uuid]);
+  }
+
+  Future<void> fetchMessages(int pageNumber) async {
+    if (!isConnected) return;
+    _socket!.emit('fetch_messages', [pageNumber.toString()]);
+  }
+
+  void dispose() {
+    _messageController.close();
     _socket?.disconnect();
     _socket?.dispose();
-    _isConnected = false;
   }
 }
