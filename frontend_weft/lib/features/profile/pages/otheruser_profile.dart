@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:frontend_weft/features/messages/view/pages/chat_page.dart';
+import 'package:frontend_weft/features/messages/viewmodel/conversations_viewmodel.dart';
+import 'package:frontend_weft/features/messages/viewmodel/chat_viewmodel.dart';
+import 'package:frontend_weft/features/messages/repository/message_repository.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 import 'package:frontend_weft/features/profile/models/other_user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
-import 'package:frontend_weft/features/messages/view/pages/chat_page.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
 
 class OtherUserProfilePage extends ConsumerStatefulWidget {
@@ -549,28 +551,193 @@ Widget _buildAcademicDetails(OtherUserModel user) {
   }
 
   Widget _buildActionButtons(OtherUserModel user) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildActionButton(
-            'Message',
-            Colors.white.withOpacity(0.15),
-            Colors.white,
-            () => _sendMessage(user),
-            icon: Icons.message,
+    return Consumer(
+      builder: (context, ref, child) {
+        final currentUser = ref.watch(authViewModelProvider);
+        final isOwnProfile = currentUser?.id == user.id;
+
+        if (isOwnProfile) {
+          // Don't show message button for own profile
+          return Row(
+            children: [
+              Expanded(
+                child: _buildActionButton(
+                  'Share',
+                  Colors.white.withOpacity(0.15),
+                  Colors.white,
+                  _shareProfile,
+                  icon: Icons.share,
+                ),
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              child: _buildMessageButton(user),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildActionButton(
+                'Share',
+                Colors.white.withOpacity(0.15),
+                Colors.white,
+                _shareProfile,
+                icon: Icons.share,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildMessageButton(OtherUserModel user) {
+    return Consumer(
+      builder: (context, ref, child) {
+        // Watch socket connection status
+        final connectionState = ref.watch(socketConnectionProvider);
+        
+        return connectionState.when(
+          data: (isConnected) => _buildEnhancedMessageButton(
+            user,
+            isConnected: isConnected,
+            isLoading: false,
+          ),
+          loading: () => _buildEnhancedMessageButton(
+            user,
+            isConnected: false,
+            isLoading: true,
+          ),
+          error: (_, __) => _buildEnhancedMessageButton(
+            user,
+            isConnected: false,
+            isLoading: false,
+            hasError: true,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEnhancedMessageButton(
+    OtherUserModel user, {
+    required bool isConnected,
+    required bool isLoading,
+    bool hasError = false,
+  }) {
+    String buttonText = 'Message';
+    String tooltipText = '';
+    IconData buttonIcon = Icons.message;
+    Color? iconColor;
+    VoidCallback? onPressed = () => _sendMessage(user);
+
+    if (isLoading) {
+      buttonText = 'Connecting...';
+      tooltipText = 'Connecting to messaging service...';
+      buttonIcon = Icons.sync;
+      onPressed = null;
+    } else if (hasError) {
+      buttonText = 'Message';
+      tooltipText = 'Messaging service unavailable. Tap to try anyway.';
+      buttonIcon = Icons.message_outlined;
+      iconColor = Colors.orange;
+    } else if (isConnected) {
+      buttonText = 'Message';
+      tooltipText = 'Send a message to ${user.name}';
+      buttonIcon = Icons.message;
+      iconColor = Colors.green;
+    } else {
+      buttonText = 'Message';
+      tooltipText = 'Send a message to ${user.name}';
+      buttonIcon = Icons.message_outlined;
+    }
+
+    return Tooltip(
+      message: tooltipText,
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          color: const Color(0xFF1A1D3A).withOpacity(onPressed == null ? 0.4 : 0.8),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.white.withOpacity(onPressed == null ? 0.1 : 0.15),
+            width: 1,
+          ),
+          boxShadow: onPressed == null ? [] : [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(12),
+            splashColor: onPressed == null ? null : Colors.white.withOpacity(0.1),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (isLoading)
+                    SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white.withOpacity(0.7),
+                        ),
+                      ),
+                    )
+                  else
+                    Stack(
+                      children: [
+                        Icon(
+                          buttonIcon,
+                          color: iconColor ?? Colors.white.withOpacity(onPressed == null ? 0.5 : 1.0),
+                          size: 18,
+                        ),
+                        // Small connection indicator dot
+                        if (isConnected && !hasError)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      buttonText,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(onPressed == null ? 0.5 : 1.0),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildActionButton(
-            'Share',
-            Colors.white.withOpacity(0.15),
-            Colors.white,
-            _shareProfile,
-            icon: Icons.share,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -578,19 +745,21 @@ Widget _buildActionButton(
     String text,
     Color backgroundColor,
     Color textColor,
-    VoidCallback onPressed, {
+    VoidCallback? onPressed, {
     IconData? icon,
   }) {
+    final isDisabled = onPressed == null;
+    
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1D3A).withOpacity(0.8),
+        color: const Color(0xFF1A1D3A).withOpacity(isDisabled ? 0.4 : 0.8),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withOpacity(isDisabled ? 0.1 : 0.15),
           width: 1,
         ),
-        boxShadow: [
+        boxShadow: isDisabled ? [] : [
           BoxShadow(
             color: Colors.black.withOpacity(0.15),
             blurRadius: 8,
@@ -603,21 +772,25 @@ Widget _buildActionButton(
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(12),
-          splashColor: Colors.white.withOpacity(0.1),
+          splashColor: isDisabled ? null : Colors.white.withOpacity(0.1),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (icon != null) ...[
-                  Icon(icon, color: textColor, size: 18),
+                  Icon(
+                    icon, 
+                    color: textColor.withOpacity(isDisabled ? 0.5 : 1.0), 
+                    size: 18,
+                  ),
                   const SizedBox(width: 6),
                 ],
                 Flexible(
                   child: Text(
                     text,
                     style: TextStyle(
-                      color: textColor,
+                      color: textColor.withOpacity(isDisabled ? 0.5 : 1.0),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -632,12 +805,73 @@ Widget _buildActionButton(
     );
   }
 
-  void _sendMessage(OtherUserModel user) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ChatPage(receiverId: int.parse(user.id)),
-      ),
-    );
+  void _sendMessage(OtherUserModel user) async {
+    final currentUser = ref.read(authViewModelProvider);
+    if (currentUser == null) {
+      ProfileDialogs.showSnackBar(context, 'Please log in to send messages');
+      return;
+    }
+
+    // Add haptic feedback
+    HapticFeedback.lightImpact();
+
+    try {
+      final receiverId = int.parse(user.id);
+      
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        ),
+      );
+
+      try {
+        // Ensure socket connection is established
+        final messageRepo = ref.read(messageRepositoryProvider);
+        await messageRepo.connect();
+        
+        // Create or update conversation in the conversations list
+        final newConversation = ConversationSummary(
+          userId: receiverId,
+          userName: user.name,
+          userAvatar: user.image_url,
+          lastActivity: DateTime.now(),
+          isOnline: false, // We don't have online status from profile
+        );
+        
+        // Add conversation to the list
+        ref.read(conversationsProvider.notifier).addOrUpdateConversation(newConversation);
+
+        // Close loading dialog
+        if (mounted) Navigator.of(context).pop();
+
+        // Navigate to chat page
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ChatPage(
+              receiverId: receiverId,
+              receiverName: user.name,
+            ),
+          ),
+        );
+      } catch (connectionError) {
+        // Close loading dialog
+        if (mounted) Navigator.of(context).pop();
+        
+        print('Connection error: $connectionError');
+        ProfileDialogs.showSnackBar(
+          context, 
+          'Failed to connect to messaging service. Please try again.',
+        );
+      }
+    } catch (e) {
+      print('Error parsing user ID: $e');
+      ProfileDialogs.showSnackBar(context, 'Error opening chat: Invalid user ID');
+    }
   }
 
   void _showOptionsMenu(BuildContext context) {
