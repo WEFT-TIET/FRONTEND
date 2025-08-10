@@ -56,4 +56,23 @@ class SettingsApiService {
       return false;
     }
   }
+
+  /// Change user password - automatically includes AccessToken as Cookie
+  Future<bool> changePassword(String newPassword) async {
+    try {
+      final url = Uri.parse('$baseUrl/changepassword');
+      final body = jsonEncode({'new_password': newPassword});
+
+      final response = await _httpClient.post(url, body: body);
+
+      print("🔵 POST Change Password URL: $url");
+      print("📦 Request Body: $body");
+      print("📬 Response (${response.statusCode}): ${response.body}");
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print("❌ Error changing password: $e");
+      return false;
+    }
+  }
 }

@@ -128,16 +128,17 @@ class PostViewModel extends StateNotifier<PostState> {
         // Update the local state based on the backend response
         final updatedPosts = state.posts.map((post) {
           if (post.id == postId) {
-            final newLikesCount = isLiked ? post.likesCount + 1 : post.likesCount - 1;
-            return post.copyWith(
-              liked: isLiked,
-              likesCount: newLikesCount,
-            );
+            return post.copyWith(liked: isLiked);
           }
           return post;
         }).toList();
 
         state = state.copyWith(posts: updatedPosts);
+        
+        // Refresh posts to get accurate counts from server
+        // This ensures we have the correct like counts
+        Future.microtask(() => fetchPosts());
+        
         return true;
       }
 

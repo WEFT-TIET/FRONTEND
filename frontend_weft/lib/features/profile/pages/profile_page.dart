@@ -7,9 +7,10 @@ import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
+import 'package:frontend_weft/features/profile/pages/skills_management_page.dart';
+import 'package:frontend_weft/features/profile/pages/edit_profile_page.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final userProfileProvider = FutureProvider<UserModel?>((ref) async {
   final api = ref.read(profileApiServiceProvider);
@@ -25,19 +26,8 @@ class ProfilePage extends ConsumerStatefulWidget {
 
 class _ProfilePageState extends ConsumerState<ProfilePage>
     with AutomaticKeepAliveClientMixin {
-  bool _isEditing = false;
   bool _isLoading = false;
   String? _errorMessage;
-
-  // Controllers for editable fields
-  late TextEditingController _nameController;
-  late TextEditingController _usernameController;
-  late TextEditingController _yearController;
-  late TextEditingController _branchController;
-
-  // Add your Cloudinary details here
-  static const String _cloudName = 'CLOUDINARY_CLOUD_NAME';
-  static const String _uploadPreset = 'CLOUDINARY_UPLOAD_PRESET';
 
   @override
   bool get wantKeepAlive => true;
@@ -45,7 +35,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   @override
   void initState() {
     super.initState();
-    _initializeControllersWithDefaults();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
@@ -53,19 +42,28 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     });
   }
 
-  void _initializeControllersWithDefaults([UserModel? user]) {
-    // Use empty strings as default if user is null
-    _nameController = TextEditingController(text: user?.name ?? '');
-    _usernameController = TextEditingController(text: user?.username ?? '');
-    _yearController = TextEditingController(text: user?.year ?? '');
-    _branchController = TextEditingController(text: user?.branch ?? '');
-  }
-
-  void _updateControllers(UserModel user) {
-    _nameController.text = user.name;
-    _usernameController.text = user.username;
-    _yearController.text = user.year;
-    _branchController.text = user.branch;
+  Widget? _buildCustomBackButton(BuildContext context) {
+    // Check if we can pop and if we should show the back button
+    if (Navigator.of(context).canPop()) {
+      // Get the previous route name from the Navigator
+      final modalRoute = ModalRoute.of(context);
+      final routeName = modalRoute?.settings.name;
+      
+      // Don't show back button if we're coming from auth screens or if this is the home route
+      if (routeName == '/home' || routeName == '/welcome' || routeName == '/login' || 
+          routeName?.contains('signup') == true) {
+        return null; // No back button
+      }
+      
+      // Show back button for legitimate navigation (e.g., from post details, search results, etc.)
+      return IconButton(
+        icon: const Icon(Icons.arrow_back, color: AppPallete.textPrimaryDark),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      );
+    }
+    return null; // No back button if we can't pop
   }
 
   @override
@@ -90,6 +88,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         appBar: AppBar(
           backgroundColor: AppPallete.transperantColor,
           elevation: 0,
+          leading: _buildCustomBackButton(context),
           title: const Text(
             'WEFT',
             style: TextStyle(
@@ -112,7 +111,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
             if (user == null) {
               return const Center(child: Text('No profile data found'));
             }
-            _updateControllers(user);
             return Stack(
               children: [
                 CustomScrollView(
@@ -214,7 +212,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                       stars: post.likesCount,
                                       comments: post.commentsCount,
                                       liked: post.liked,
-                                      showMenu: false,
+                                      showMenu: true, // Enable menu for profile posts
+                                      verified: user.isVerified,
+                                      onPostDeleted: () {
+                                        // Refresh profile data when post is deleted
+                                        ref.invalidate(userProfileProvider);
+                                      },
                                     ),
                                   );
                                 },
@@ -289,7 +292,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         children: [
           _buildProfileHeader(user),
           const SizedBox(height: 12),
-          _buildAcademicDetails(),
+          _buildAcademicDetails(user),
           const SizedBox(height: 12),
           _buildActionButtons(user),
         ],
@@ -305,17 +308,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           tag: 'profile_image',
           child: GestureDetector(
             onTap: () {
-              if (_isEditing) {
-                _showImagePicker(user);
-              } else {
-                showProfileImageViewer(
-                  context,
-                  imageUrl: user.image_url,
-                  userName: user.name,
-                  onEditPressed: () => _showImagePicker(user),
-                  isEditing: false,
-                );
-              }
+              showProfileImageViewer(
+                context,
+                imageUrl: user.image_url,
+                userName: user.name,
+                onEditPressed: () => _navigateToEditProfile(user),
+                isEditing: false,
+              );
             },
             child: Container(
               width: 80,
@@ -324,9 +323,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 shape: BoxShape.circle,
                 // Enhanced glassmorphism for profile image
                 color: Colors.white.withOpacity(0.1),
-                border: _isEditing
-                    ? Border.all(color: const Color(0xFF6366F1), width: 3)
-                    : Border.all(color: Colors.white.withOpacity(0.4), width: 2),
+                border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
@@ -341,32 +338,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 ],
               ),
               child: ClipOval(
-                child: _isEditing
-                    ? Container(
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt, 
-                          color: Colors.white, 
-                          size: 32
-                        ),
+                child: (user.image_url != null && user.image_url!.startsWith('http'))
+                    ? Image.network(
+                        user.image_url!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
                       )
-                    : (user.image_url != null && user.image_url!.startsWith('http'))
-                        ? Image.network(
-                            user.image_url!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
-                          )
-                        : Image.asset(
-                            user.image_url ?? 'lib/core/assets/profile_photo.jpeg',
-                            fit: BoxFit.cover,
-                            cacheWidth: 200,
-                            cacheHeight: 200,
-                            errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
-                          ),
+                    : Image.asset(
+                        user.image_url ?? 'lib/core/assets/profile_photo.jpeg',
+                        fit: BoxFit.cover,
+                        cacheWidth: 200,
+                        cacheHeight: 200,
+                        errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+                      ),
               ),
             ),
           ),
@@ -376,35 +360,90 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: _isEditing
-                    ? _buildEditableField(_nameController, 24, FontWeight.bold)
-                    : Text(
-                        user.name,
-                        key: const ValueKey('name_text'),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  user.name,
+                                  key: const ValueKey('name_text'),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                              if (user.isVerified) ...[
+                                const SizedBox(width: 6),
+                                const Icon(
+                                  Icons.verified,
+                                  color: Color(0xFF10B981),
+                                  size: 18,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: Text(
+                            '@${user.username}',
+                            key: const ValueKey('username_text'),
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Skills Icon
+                  GestureDetector(
+                    onTap: () => _showSkillsDialog(user),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6366F1).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color(0xFF6366F1).withOpacity(0.5),
+                          width: 1,
                         ),
                       ),
-              ),
-              const SizedBox(height: 6),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: _isEditing
-                    ? _buildEditableField(_usernameController, 16, FontWeight.w500, prefix: '@')
-                    : Text(
-                        '@${user.username}',
-                        key: const ValueKey('username_text'),
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.stars,
+                            color: Color(0xFF6366F1),
+                            size: 16,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${user.skills.length}',
+                            style: const TextStyle(
+                              color: Color(0xFF6366F1),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -429,48 +468,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     );
   }
 
-  // ENHANCED EDITABLE FIELD
-  Widget _buildEditableField(
-    TextEditingController controller,
-    double fontSize,
-    FontWeight fontWeight, {
-    String? prefix,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1D3A).withOpacity(0.8),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.2)),
-      ),
-      child: TextFormField(
-        controller: controller,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-        ),
-        decoration: InputDecoration(
-          isDense: true,
-          prefixText: prefix,
-          prefixStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          filled: true,
-          fillColor: Colors.transparent,
-        ),
-      ),
-    );
-  }
-
   // ENHANCED ACADEMIC DETAILS
-  Widget _buildAcademicDetails() {
+  Widget _buildAcademicDetails(UserModel user) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -490,7 +489,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       ),
       child: Row(
         children: [
-          Expanded(child: _buildDetailColumn('Year', _yearController)),
+          Expanded(child: _buildDetailColumn('Year', user.year)),
           Container(
             width: 1,
             height: 32,
@@ -506,14 +505,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               ),
             ),
           ),
-          Expanded(child: _buildDetailColumn('Branch', _branchController)),
+          Expanded(child: _buildDetailColumn('Branch', user.branch)),
+          Container(
+            width: 1,
+            height: 32,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.white.withOpacity(0.3),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+          Expanded(child: _buildInstagramColumn(user)),
         ],
       ),
     );
   }
 
   // ENHANCED DETAIL COLUMN
-  Widget _buildDetailColumn(String title, TextEditingController controller) {
+  Widget _buildDetailColumn(String title, String value) {
     return Column(
       children: [
         Text(
@@ -526,38 +541,97 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           ),
         ),
         const SizedBox(height: 4),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: _isEditing
-              ? SizedBox(
-                  width: title == 'Branch' ? 100 : 60,
-                  child: _buildEditableField(controller, 16, FontWeight.w600),
-                )
-              : Text(
-                  controller.text,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.3,
-                  ),
-                ),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.3,
+          ),
         ),
       ],
     );
   }
 
+  // INSTAGRAM COLUMN WITH CLICK FUNCTIONALITY
+  Widget _buildInstagramColumn(UserModel user) {
+    return Column(
+      children: [
+        Text(
+          'Instagram',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 4),
+        GestureDetector(
+          onTap: () => _openInstagram(user.instagramId ?? ''),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: user.instagramId != null && user.instagramId!.isNotEmpty 
+                  ? const Color(0xFFE4405F).withOpacity(0.2)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+              border: user.instagramId != null && user.instagramId!.isNotEmpty 
+                  ? Border.all(
+                      color: const Color(0xFFE4405F).withOpacity(0.5),
+                      width: 1,
+                    )
+                  : null,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (user.instagramId != null && user.instagramId!.isNotEmpty) ...[
+                  const Icon(
+                    Icons.camera_alt,
+                    color: Color(0xFFE4405F),
+                    size: 14,
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Flexible(
+                  child: Text(
+                    user.instagramId != null && user.instagramId!.isNotEmpty 
+                        ? '@${user.instagramId!}'
+                        : 'Not set',
+                    style: TextStyle(
+                      color: user.instagramId != null && user.instagramId!.isNotEmpty 
+                          ? const Color(0xFFE4405F)
+                          : Colors.white.withOpacity(0.5),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ENHANCED SKILLS SECTION
   // ENHANCED ACTION BUTTONS
   Widget _buildActionButtons(UserModel user) {
     return Row(
       children: [
         Expanded(
           child: _buildActionButton(
-            _isEditing ? 'Save' : 'Edit',
+            'Edit',
             Colors.white.withOpacity(0.15),
             Colors.white,
-            () => _toggleEdit(user),
-            icon: _isEditing ? Icons.save : Icons.edit,
+            () => _navigateToEditProfile(user),
+            icon: Icons.edit,
           ),
         ),
         const SizedBox(width: 12),
@@ -633,37 +707,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     );
   }
 
-  Future<void> _toggleEdit(UserModel user) async {
-    if (_isEditing) {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
-      try {
-        final updatedUser = user.copyWith(
-          name: _nameController.text,
-          username: _usernameController.text,
-          year: _yearController.text,
-          branch: _branchController.text,
-        );
-        final api = ref.read(profileApiServiceProvider);
-        final success = await api.updateUserProfile(updatedUser.toJson());
-        if (success) {
-          ref.invalidate(userProfileProvider);
-          setState(() => _isEditing = false);
-          HapticFeedback.lightImpact();
-          ProfileDialogs.showSnackBar(context, 'Profile updated!');
-        } else {
-          setState(() => _errorMessage = 'Update failed');
-        }
-      } catch (e) {
-        setState(() => _errorMessage = 'Update failed: $e');
-      } finally {
-        setState(() => _isLoading = false);
-      }
-    } else {
-      setState(() => _isEditing = true);
-      HapticFeedback.selectionClick();
+  Future<void> _navigateToEditProfile(UserModel user) async {
+    HapticFeedback.selectionClick();
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfilePage(user: user),
+      ),
+    );
+    
+    // If profile was updated, refresh the data
+    if (result == true) {
+      ref.invalidate(userProfileProvider);
     }
   }
 
@@ -672,43 +727,38 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     ProfileDialogs.showSnackBar(context, 'Share feature coming soon!');
   }
 
-  void _showImagePicker(UserModel user) async {
+  void _showSkillsDialog(UserModel user) async {
     HapticFeedback.selectionClick();
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      await _uploadProfileImageToCloudinary(pickedFile.path, user);
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SkillsManagementPage(user: user),
+      ),
+    );
   }
 
-  Future<void> _uploadProfileImageToCloudinary(String filePath, UserModel user) async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+  Future<void> _openInstagram(String instagramId) async {
+    if (instagramId.isEmpty) return;
+    
+    HapticFeedback.selectionClick();
+    
+    // Remove @ if user added it
+    final cleanId = instagramId.replaceFirst('@', '');
+    
+    // Try to open Instagram app first, then fallback to web
+    final appUrl = 'instagram://user?username=$cleanId';
+    final webUrl = 'https://instagram.com/$cleanId';
+    
     try {
-      final cloudinary = CloudinaryPublic(_cloudName, _uploadPreset, cache: false);
-      CloudinaryResponse response = await cloudinary.uploadFile(
-        CloudinaryFile.fromFile(
-          filePath,
-          resourceType: CloudinaryResourceType.Image,
-          publicId: 'profile_pictures/user_${user.username}',
-        ),
-      );
-      final image_url = response.secureUrl;
-      final api = ref.read(profileApiServiceProvider);
-      final updatedUser = user.copyWith(image_url: image_url);
-      final success = await api.updateUserProfile(updatedUser.toJson());
-      if (success) {
-        ref.invalidate(userProfileProvider);
-        ProfileDialogs.showSnackBar(context, 'Profile image updated!');
+      final Uri appUri = Uri.parse(appUrl);
+      if (await canLaunchUrl(appUri)) {
+        await launchUrl(appUri, mode: LaunchMode.externalApplication);
       } else {
-        setState(() => _errorMessage = 'Failed to update profile image');
+        final Uri webUri = Uri.parse(webUrl);
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      setState(() => _errorMessage = 'Image upload failed: $e');
-    } finally {
-      setState(() => _isLoading = false);
+      ProfileDialogs.showSnackBar(context, 'Could not open Instagram profile');
     }
   }
 
@@ -722,14 +772,5 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${date.day}/${date.month}/${date.year}';
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _usernameController.dispose();
-    _yearController.dispose();
-    _branchController.dispose();
-    super.dispose();
   }
 }

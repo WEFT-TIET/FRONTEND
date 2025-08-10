@@ -51,6 +51,14 @@ class PostService {
 
         if (postsJson.isNotEmpty) {
           print("🔍 First post structure: ${postsJson.first}");
+          // Check if user information is included
+          final firstPost = postsJson.first;
+          if (firstPost['user'] != null) {
+            print("🔍 User object in post: ${firstPost['user']}");
+          }
+          if (firstPost['email'] != null) {
+            print("🔍 Email in post: ${firstPost['email']}");
+          }
         }
 
         print("📋 Found ${postsJson.length} posts for page $page");

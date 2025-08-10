@@ -56,14 +56,33 @@ class AuthService {
 
   /// Sign up and return a User model
   Future<User> signup(Map<String, dynamic> userData) async {
+    print("🚀 Signup request: $userData");
+    
     final response = await _httpClient.post(
       Uri.parse('$baseUrl/register'),
       body: jsonEncode(userData),
     );
 
-    if (response.statusCode == 200) {
-      return User.fromJson(jsonDecode(response.body));
+    print("📡 Signup response status: ${response.statusCode}");
+    print("📡 Signup response body: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // Just return success - tokens are automatically saved as cookies
+      // Create a basic user object for state management
+      final user = User(
+        id: '',
+        name: userData['name'] ?? '',
+        email: userData['email'] ?? '',
+        year: userData['year'] ?? '',
+        branch: userData['branch'] ?? '',
+        accessToken: '',
+        refreshToken: '',
+      );
+      
+      print("✅ Signup successful");
+      return user;
     } else {
+      print("❌ Signup failed: ${response.statusCode} ${response.body}");
       throw Exception("Signup failed: ${response.statusCode} ${response.body}");
     }
   }

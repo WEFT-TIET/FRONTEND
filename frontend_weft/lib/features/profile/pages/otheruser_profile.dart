@@ -12,6 +12,7 @@ import 'package:frontend_weft/features/profile/models/other_user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OtherUserProfilePage extends ConsumerStatefulWidget {
   final String Id;
@@ -286,6 +287,7 @@ return bDate.compareTo(aDate);
                                   stars: post.likesCount,
                                   comments: post.commentsCount,
                                   showMenu: false,
+                                  verified: _userModel!.isVerified,
                                 );
                               },
                               childCount: _userModel!.posts.length,
@@ -439,23 +441,90 @@ Widget _buildProfileHeader(OtherUserModel user) {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                user.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '@${user.username}',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                user.name,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                            if (user.isVerified) ...[
+                              const SizedBox(width: 6),
+                              const Icon(
+                                Icons.verified,
+                                color: Color(0xFF10B981),
+                                size: 18,
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '@${user.username}',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Skills Icon (view only)
+                  GestureDetector(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${user.name} has ${user.skills.length} skills'),
+                          backgroundColor: const Color(0xFF6366F1),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6366F1).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color(0xFF6366F1).withOpacity(0.5),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.stars,
+                            color: Color(0xFF6366F1),
+                            size: 16,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${user.skills.length}',
+                            style: const TextStyle(
+                              color: Color(0xFF6366F1),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -502,7 +571,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
       ),
       child: Row(
         children: [
-          Expanded(child: _buildDetailColumn('Year', user.year)),
+          Expanded(child: _buildDetailColumn('Joined', user.year)),
           Container(
             width: 1,
             height: 32,
@@ -519,6 +588,22 @@ Widget _buildAcademicDetails(OtherUserModel user) {
             ),
           ),
           Expanded(child: _buildDetailColumn('Branch', user.branch)),
+          Container(
+            width: 1,
+            height: 32,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.white.withOpacity(0.3),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+          Expanded(child: _buildInstagramColumn(user.instagramId)),
         ],
       ),
     );
@@ -550,6 +635,73 @@ Widget _buildAcademicDetails(OtherUserModel user) {
     );
   }
 
+  // INSTAGRAM COLUMN WITH CLICK FUNCTIONALITY (VIEW ONLY)
+  Widget _buildInstagramColumn(String? instagramId) {
+    return Column(
+      children: [
+        Text(
+          'Instagram',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 4),
+        GestureDetector(
+          onTap: () => _openInstagram(instagramId ?? ''),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: instagramId != null && instagramId.isNotEmpty 
+                  ? const Color(0xFFE4405F).withOpacity(0.2)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+              border: instagramId != null && instagramId.isNotEmpty 
+                  ? Border.all(
+                      color: const Color(0xFFE4405F).withOpacity(0.5),
+                      width: 1,
+                    )
+                  : null,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (instagramId != null && instagramId.isNotEmpty) ...[
+                  const Icon(
+                    Icons.camera_alt,
+                    color: Color(0xFFE4405F),
+                    size: 14,
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Flexible(
+                  child: Text(
+                    instagramId != null && instagramId.isNotEmpty 
+                        ? '@$instagramId'
+                        : 'Not set',
+                    style: TextStyle(
+                      color: instagramId != null && instagramId.isNotEmpty 
+                          ? const Color(0xFFE4405F)
+                          : Colors.white.withOpacity(0.5),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // SKILLS SECTION
   Widget _buildActionButtons(OtherUserModel user) {
     return Consumer(
       builder: (context, ref, child) {
@@ -928,7 +1080,7 @@ Widget _buildActionButton(
 
 
 
-void _shareProfile() async {
+  void _shareProfile() async {
     HapticFeedback.mediumImpact();
     ProfileDialogs.showSnackBar(context, 'Share feature coming soon!');
   }
@@ -941,6 +1093,31 @@ void _shareProfile() async {
   void _blockUser() {
     HapticFeedback.mediumImpact();
     ProfileDialogs.showSnackBar(context, 'Block feature coming soon!');
+  }
+
+  Future<void> _openInstagram(String instagramId) async {
+    if (instagramId.isEmpty) return;
+    
+    HapticFeedback.selectionClick();
+    
+    // Remove @ if user added it
+    final cleanId = instagramId.replaceFirst('@', '');
+    
+    // Try to open Instagram app first, then fallback to web
+    final appUrl = 'instagram://user?username=$cleanId';
+    final webUrl = 'https://instagram.com/$cleanId';
+    
+    try {
+      final Uri appUri = Uri.parse(appUrl);
+      if (await canLaunchUrl(appUri)) {
+        await launchUrl(appUri, mode: LaunchMode.externalApplication);
+      } else {
+        final Uri webUri = Uri.parse(webUrl);
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      ProfileDialogs.showSnackBar(context, 'Could not open Instagram profile');
+    }
   }
 
   String _formatTimeAgo(String isoDate) {

@@ -54,13 +54,27 @@ class TrustedUserTile extends StatelessWidget {
         title: Row(
           children: [
             Expanded(
-              child: Text(
-                user.name,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      user.name,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  if (_isVerifiedUser(user.username)) ...[
+                    const SizedBox(width: 6),
+                    const Icon(
+                      Icons.verified,
+                      color: Color(0xFF10B981),
+                      size: 16,
+                    ),
+                  ],
+                ],
               ),
             ),
             if (user.isGhostMode)
@@ -240,5 +254,11 @@ class TrustedUserTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  bool _isVerifiedUser(String username) {
+    // Check if username contains thapar.edu or similar patterns for verified users
+    return username.toLowerCase().contains('thapar') || 
+           username.toLowerCase().contains('tiet');
   }
 } 

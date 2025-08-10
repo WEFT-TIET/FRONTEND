@@ -6,7 +6,7 @@ import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:frontend_weft/features/post/model/post_model.dart';
 import 'package:frontend_weft/features/post/view/pages/comment_page.dart';
 
-class PostCard extends ConsumerWidget {
+class PostCard extends ConsumerStatefulWidget {
   final String postId;
   final String userId;
   final String username;
@@ -17,6 +17,9 @@ class PostCard extends ConsumerWidget {
   final int comments;
   final bool liked;
   final bool showMenu;
+  final bool showActions; // New parameter to control like/comment buttons
+  final bool verified;
+  final VoidCallback? onPostDeleted; // Callback for post deletion
 
   const PostCard({
     super.key,
@@ -30,32 +33,55 @@ class PostCard extends ConsumerWidget {
     this.comments = 0,
     this.liked = false,
     this.showMenu = true,
+    this.showActions = true, // Default to true to show actions
+    this.verified = false,
+    this.onPostDeleted, // Optional callback
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends ConsumerState<PostCard> {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = this.ref;
     final theme = Theme.of(context);
     final currentUser = ref.watch(authViewModelProvider);
-    final isCurrentUserPost = currentUser?.id == userId;
+    final isCurrentUserPost = currentUser?.id == widget.userId;
+
+    // Additional validation to fix backend inconsistency
+    // If likes count is 0, the post should not be marked as liked
+    final actuallyLiked = widget.stars > 0 ? widget.liked : false;
+
+    // Check if post content is longer than 50 words
+    final words = widget.content.trim().split(RegExp(r'\s+'));
+    final shouldShowReadMore = words.length > 50;
+    final displayContent = shouldShowReadMore && !_isExpanded 
+        ? '${words.take(50).join(' ')}...'
+        : widget.content;
 
     return GestureDetector(
       onTap: () {
         // Navigate to comment page when post is tapped
-        if (postId.isNotEmpty) {
+        if (widget.postId.isNotEmpty) {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => CommentPage(
                 post: Post(
-                  id: postId,
-                  userId: userId,
-                  username: username,
-                  title: tag,
-                  content: content,
+                  id: widget.postId,
+                  userId: widget.userId,
+                  username: widget.username,
+                  title: widget.tag, // Use the actual tag/title
+                  content: widget.content,
                   createdAt: DateTime.now()
                       .toIso8601String(), // This will be overridden by actual data
-                  likesCount: stars,
-                  commentsCount: comments,
-                  liked: liked,
+                  likesCount: widget.stars,
+                  commentsCount: widget.comments,
+                  liked: widget.liked,
+                  verified: widget.verified,
                 ),
               ),
             ),
@@ -80,7 +106,7 @@ class PostCard extends ConsumerWidget {
                   radius: 20,
                   backgroundColor: AppPallete.gradient2,
                   child: Text(
-                    username.isNotEmpty ? username[0].toUpperCase() : 'U',
+                    widget.username.isNotEmpty ? widget.username[0].toUpperCase() : 'U',
                     style: const TextStyle(
                       color: AppPallete.whiteColor,
                       fontWeight: FontWeight.bold,
@@ -93,31 +119,61 @@ class PostCard extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        tag,
+                        widget.tag,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppPallete.textPrimaryDark,
                         ),
                       ),
-                      Text(
-                        '$username • $timeAgo',
-                        style: const TextStyle(
-                          color: AppPallete.whiteColor,
-                          fontSize: 12,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            widget.username,
+                            style: const TextStyle(
+                              color: AppPallete.whiteColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (widget.verified) ...[
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.verified,
+                              color: Color(0xFF10B981),
+                              size: 14,
+                            ),
+                          ],
+                          Text(
+                            ' • ${widget.timeAgo}',
+                            style: const TextStyle(
+                              color: AppPallete.whiteColor,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                if (showMenu && !isCurrentUserPost)
+                if (widget.showMenu)
                   PopupMenuButton<String>(
                     icon: Icon(
                       Icons.more_vert,
                       color: AppPallete.textPrimaryDark,
                     ),
-                    color: AppPallete.glassWhite20,
+                    color: AppPallete.profileDialogBackground,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: AppPallete.gradient1.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
                     onSelected: (value) {
                       switch (value) {
+                        case 'delete':
+                          _showDeleteDialog(context, ref);
+                          break;
                         case 'report':
                           _showReportDialog(context, ref);
                           break;
@@ -127,106 +183,204 @@ class PostCard extends ConsumerWidget {
                       }
                     },
                     itemBuilder: (BuildContext context) => [
-                      PopupMenuItem<String>(
-                        value: 'report',
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.report_outlined,
-                              color: AppPallete.textPrimaryDark,
-                              size: 20,
+                      // Show delete option only for current user's posts
+                      if (isCurrentUserPost)
+                        PopupMenuItem<String>(
+                          value: 'delete',
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: AppPallete.red.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Icon(
+                                    Icons.delete_outline,
+                                    color: AppPallete.red,
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Delete Post',
+                                  style: TextStyle(
+                                    color: AppPallete.red,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Report Post',
-                              style: TextStyle(
-                                color: AppPallete.textPrimaryDark,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'block',
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.block_outlined,
-                              color: AppPallete.red,
-                              size: 20,
+                      // Show report and block options only for other users' posts
+                      if (!isCurrentUserPost) ...[
+                        PopupMenuItem<String>(
+                          value: 'report',
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Icon(
+                                    Icons.report_outlined,
+                                    color: Colors.orange,
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Report Post',
+                                  style: TextStyle(
+                                    color: AppPallete.textPrimaryDark,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Block User',
-                              style: TextStyle(color: AppPallete.red),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                        PopupMenuItem<String>(
+                          value: 'block',
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: AppPallete.red.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Icon(
+                                    Icons.block_outlined,
+                                    color: AppPallete.red,
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Block User',
+                                  style: TextStyle(
+                                    color: AppPallete.red,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
               ],
             ),
             const SizedBox(height: 12),
 
-            // Post content
-            Text(
-              content,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: AppPallete.textPrimaryDark,
-                height: 1.5,
-              ),
+            // Post content with read more functionality
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  displayContent,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 16, // Increased from default bodyMedium size
+                    fontWeight: FontWeight.w500,
+                    color: AppPallete.textPrimaryDark,
+                    height: 1.6, // Slightly increased line height for better readability
+                    letterSpacing: 0.2, // Added letter spacing for better readability
+                  ),
+                ),
+                if (shouldShowReadMore)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isExpanded = !_isExpanded;
+                        });
+                      },
+                      child: Text(
+                        _isExpanded ? 'Show less' : 'Read more',
+                        style: TextStyle(
+                          color: AppPallete.gradient2,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 16),
 
-            // Footer: likes + comments
-            Row(
-              children: [
+            // Footer: likes + comments (only show if showActions is true)
+            if (widget.showActions)
+              Row(
+                children: [
                 GestureDetector(
-                  onTap: postId.isNotEmpty
+                  onTap: widget.postId.isNotEmpty
                       ? () {
                           ref
                               .read(postViewModelProvider.notifier)
-                              .likePost(postId);
+                              .likePost(widget.postId);
                         }
                       : null,
                   child: Row(
                     children: [
                       Icon(
-                        liked ? Icons.favorite : Icons.favorite_border,
-                        size: 18,
-                        color: liked ? Colors.red : Colors.white38,
+                        actuallyLiked ? Icons.star : Icons.star_border,
+                        size: 24,
+                        color: actuallyLiked 
+                            ? AppPallete.secondaryDark 
+                            : Colors.white60,
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 6),
                       Text(
-                        '$stars',
-                        style: const TextStyle(color: Colors.white70),
+                        '${widget.stars}',
+                        style: TextStyle(
+                          color: actuallyLiked 
+                              ? AppPallete.secondaryDark 
+                              : Colors.white70,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(width: 16),
+                const SizedBox(width: 24),
 
                 GestureDetector(
                   onTap: () {
                     // Navigate to comment page when comment icon is tapped
-                    if (postId.isNotEmpty) {
+                    if (widget.postId.isNotEmpty) {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => CommentPage(
                             post: Post(
-                              id: postId,
-                              userId: userId,
-                              username: username,
-                              title: tag,
-                              content: content,
+                              id: widget.postId,
+                              userId: widget.userId,
+                              username: widget.username,
+                              title: widget.tag, // Use the actual tag/title
+                              content: widget.content,
                               createdAt: DateTime.now()
                                   .toIso8601String(), // This will be overridden by actual data
-                              likesCount: stars,
-                              commentsCount: comments,
-                              liked: liked,
+                              likesCount: widget.stars,
+                              commentsCount: widget.comments,
+                              liked: widget.liked,
+                              verified: widget.verified,
                             ),
                           ),
                         ),
@@ -236,14 +390,18 @@ class PostCard extends ConsumerWidget {
                   child: Row(
                     children: [
                       const Icon(
-                        Icons.chat_bubble_outline,
-                        size: 18,
-                        color: Colors.white38,
+                        Icons.chat_bubble_outline_rounded,
+                        size: 24, // Increased from 18
+                        color: Colors.white60,
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 6),
                       Text(
-                        '$comments',
-                        style: const TextStyle(color: Colors.white70),
+                        '${widget.comments}',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -256,40 +414,132 @@ class PostCard extends ConsumerWidget {
     );
   }
 
-  void _showReportDialog(BuildContext context, WidgetRef ref) {
+  void _showDeleteDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: AppPallete.glassWhite20,
-          title: Text(
-            'Report Post',
-            style: TextStyle(color: AppPallete.textPrimaryDark),
+          backgroundColor: AppPallete.profileDialogBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: AppPallete.red.withOpacity(0.3),
+              width: 1,
+            ),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          title: Row(
             children: [
-              Text(
-                'Why are you reporting this post?',
-                style: TextStyle(color: AppPallete.textPrimaryDark),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppPallete.red.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: AppPallete.red,
+                  size: 20,
+                ),
               ),
-              const SizedBox(height: 16),
-              _buildReportOption('Spam or misleading'),
-              _buildReportOption('Harassment or hate speech'),
-              _buildReportOption('Inappropriate content'),
-              _buildReportOption('Violence or dangerous content'),
-              _buildReportOption('Other'),
+              const SizedBox(width: 12),
+              Text(
+                'Delete Post',
+                style: TextStyle(
+                  color: AppPallete.textPrimaryDark,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
             ],
+          ),
+          content: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppPallete.gradient3.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppPallete.gradient1.withOpacity(0.3),
+                width: 0.5,
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: AppPallete.red.withOpacity(0.8),
+                  size: 32,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Are you sure you want to delete this post?',
+                  style: TextStyle(
+                    color: AppPallete.textPrimaryDark,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'This action cannot be undone. The post will be permanently removed from WEFT.',
+                  style: TextStyle(
+                    color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              style: TextButton.styleFrom(
+                foregroundColor: AppPallete.textPrimaryDark.withOpacity(0.7),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
                 'Cancel',
-                style: TextStyle(color: AppPallete.textPrimaryDark),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deletePost(context, widget.postId, ref);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppPallete.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 2,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.delete, size: 16),
+                  SizedBox(width: 6),
+                  Text(
+                    'Delete',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -298,19 +548,171 @@ class PostCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildReportOption(String reason) {
+  void _deletePost(BuildContext context, String postId, WidgetRef ref) {
+    ref.read(postViewModelProvider.notifier).deletePost(postId).then((success) {
+      if (success) {
+        // Call the callback if provided (for profile page refresh)
+        widget.onPostDeleted?.call();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                const Text('Post deleted successfully'),
+              ],
+            ),
+            backgroundColor: AppPallete.gradient2,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                const Text('Failed to delete post'),
+              ],
+            ),
+            backgroundColor: AppPallete.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      }
+    });
+  }
+
+  void _showReportDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppPallete.profileDialogBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: AppPallete.gradient1.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.report_outlined,
+                  color: Colors.orange,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Report Post',
+                style: TextStyle(
+                  color: AppPallete.textPrimaryDark,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Why are you reporting this post?',
+                style: TextStyle(
+                  color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildReportOption('Spam or misleading', Icons.report_problem),
+              _buildReportOption('Harassment or hate speech', Icons.person_off),
+              _buildReportOption('Inappropriate content', Icons.warning),
+              _buildReportOption('Violence or dangerous content', Icons.dangerous),
+              _buildReportOption('Other', Icons.more_horiz),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: AppPallete.textPrimaryDark.withOpacity(0.7),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildReportOption(String reason, IconData iconData) {
     return Builder(
       builder: (context) => InkWell(
         onTap: () {
           Navigator.of(context).pop();
           _submitReport(context, reason);
         },
+        borderRadius: BorderRadius.circular(8),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          child: Text(
-            reason,
-            style: TextStyle(color: AppPallete.textPrimaryDark),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          decoration: BoxDecoration(
+            color: AppPallete.gradient3.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: AppPallete.gradient1.withOpacity(0.2),
+              width: 0.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                iconData,
+                color: Colors.orange,
+                size: 18,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  reason,
+                  style: TextStyle(
+                    color: AppPallete.textPrimaryDark,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: AppPallete.textPrimaryDark.withOpacity(0.3),
+                size: 14,
+              ),
+            ],
           ),
         ),
       ),
@@ -322,32 +724,128 @@ class PostCard extends ConsumerWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: AppPallete.glassWhite20,
-          title: Text(
-            'Block User',
-            style: TextStyle(color: AppPallete.textPrimaryDark),
+          backgroundColor: AppPallete.profileDialogBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: AppPallete.red.withOpacity(0.3),
+              width: 1,
+            ),
           ),
-          content: Text(
-            'Are you sure you want to block $username? You won\'t see their posts anymore.',
-            style: TextStyle(color: AppPallete.textPrimaryDark),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppPallete.red.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.block,
+                  color: AppPallete.red,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Block User',
+                style: TextStyle(
+                  color: AppPallete.textPrimaryDark,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          content: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppPallete.gradient3.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppPallete.gradient1.withOpacity(0.3),
+                width: 0.5,
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.person_off,
+                  color: AppPallete.red.withOpacity(0.8),
+                  size: 32,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Are you sure you want to block ${widget.username}?',
+                  style: TextStyle(
+                    color: AppPallete.textPrimaryDark,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'You won\'t see their posts anymore and they won\'t be able to interact with your content.',
+                  style: TextStyle(
+                    color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              style: TextButton.styleFrom(
+                foregroundColor: AppPallete.textPrimaryDark.withOpacity(0.7),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
                 'Cancel',
-                style: TextStyle(color: AppPallete.textPrimaryDark),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-            TextButton(
+            const SizedBox(width: 8),
+            ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _blockUser(context, userId, ref);
+                _blockUser(context, widget.userId, ref);
               },
-              style: TextButton.styleFrom(foregroundColor: AppPallete.red),
-              child: const Text('Block'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppPallete.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 2,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.block, size: 16),
+                  SizedBox(width: 6),
+                  Text(
+                    'Block',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         );
@@ -369,7 +867,7 @@ class PostCard extends ConsumerWidget {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$username has been blocked'),
+            content: Text('${widget.username} has been blocked'),
             backgroundColor: AppPallete.gradient2,
           ),
         );

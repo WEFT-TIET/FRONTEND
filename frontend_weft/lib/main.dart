@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/theme.dart';
+import 'package:frontend_weft/features/auth/view/welcome_page.dart';
 import 'package:frontend_weft/features/auth/view/login_page.dart';
 import 'package:frontend_weft/features/auth/view/signup_page.dart';
+import 'package:frontend_weft/features/auth/view/signup_initial_page.dart';
+import 'package:frontend_weft/features/auth/view/signup_username_page.dart';
+import 'package:frontend_weft/features/auth/view/signup_profile_page.dart';
+import 'package:frontend_weft/features/auth/view/forgot_password_page.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_local_repository.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:frontend_weft/features/navbar/navigation.dart';
@@ -33,10 +38,15 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       title: 'WEFT',
       theme: DarkAppTheme.darkThemeMode,
-      initialRoute: currentUser == null ? '/login' : '/home',
+      initialRoute: currentUser == null ? '/welcome' : '/home',
       routes: {
+        '/welcome': (context) => const WelcomePage(),
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
+        '/signup-initial': (context) => const SignupInitialPage(),
+        '/signup-username': (context) => const SignupUsernamePage(),
+        '/signup-profile': (context) => const SignupProfilePage(),
+        '/forgot-password': (context) => const ForgotPasswordPage(),
         '/home': (context) => const BottomNavBar(),
         '/settings': (context) => const SettingsPage(),
       },

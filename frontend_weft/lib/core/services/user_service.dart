@@ -9,6 +9,7 @@ class UserService {
     String? year,
     String? username,
     String? branch,
+    String? skill,
     AppHttpClient? client, 
   }) async {
     try {
@@ -23,6 +24,8 @@ class UserService {
       if (year != null && year.isNotEmpty) queryParams['year'] = year;
       if (username != null && username.isNotEmpty) queryParams['username'] = username;
       if (branch != null && branch.isNotEmpty) queryParams['branch'] = branch;
+      if (skill != null && skill.isNotEmpty) queryParams['skill'] = skill;
+      if (skill != null && skill.isNotEmpty) queryParams['skill'] = skill;
 
       Uri uri = Uri.parse(ApiConfig.searchUsersUrl).replace(
         queryParameters: queryParams,

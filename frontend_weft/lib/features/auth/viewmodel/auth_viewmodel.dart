@@ -26,6 +26,8 @@ class AuthViewModel extends StateNotifier<User?> {
     required BuildContext context,
   }) async {
     try {
+      print("🔐 Starting signup process for: $email");
+      
       final user = await ref.read(authServiceProvider).signup({
         "username": username,
         "name": name,
@@ -35,10 +37,26 @@ class AuthViewModel extends StateNotifier<User?> {
         "branch": branch,
       });
 
+      print("💾 Saving user state and tokens...");
       state = user;
+      
+      // Save user and tokens locally (same as login)
       await ref.read(authLocalRepositoryProvider).saveUser(user);
+      await ref
+          .read(authLocalRepositoryProvider)
+          .saveAccessToken(user.accessToken);
+
+      // Save refresh token if available
+      if (user.refreshToken != null) {
+        await ref
+            .read(authLocalRepositoryProvider)
+            .saveRefreshToken(user.refreshToken!);
+      }
+      
+      print("✅ Signup completed successfully!");
       return true;
     } catch (e) {
+      print("❌ Signup error: $e");
       _showError(context, e.toString());
       return false;
     }

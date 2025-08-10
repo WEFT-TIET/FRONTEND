@@ -285,14 +285,28 @@ class WEFTerResultsPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Name
-        Text(
-          user['name'] ?? 'Unknown',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+        // Name with verification badge
+        Row(
+          children: [
+            Flexible(
+              child: Text(
+                user['name'] ?? 'Unknown',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            if (_isVerifiedUser(user)) ...[
+              const SizedBox(width: 6),
+              const Icon(
+                Icons.verified,
+                color: Color(0xFF10B981),
+                size: 16,
+              ),
+            ],
+          ],
         ),
         
         const SizedBox(height: 4),
@@ -328,6 +342,48 @@ class WEFTerResultsPage extends StatelessWidget {
               ),
           ],
         ),
+        
+        // Skills Row (if available)
+        if (user['skills'] != null && (user['skills'] as List).isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: (user['skills'] as List)
+                .take(3) // Show max 3 skills
+                .map((skill) => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFF6366F1).withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.stars,
+                        color: Color(0xFF6366F1),
+                        size: 10,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        skill.toString(),
+                        style: const TextStyle(
+                          color: Color(0xFF6366F1),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ))
+                .toList(),
+          ),
+        ],
       ],
     );
   }
@@ -407,5 +463,12 @@ class WEFTerResultsPage extends StatelessWidget {
         builder: (BuildContext context) => OtherUserProfilePage(Id: Id),
       ),
     );
+  }
+
+  bool _isVerifiedUser(Map<String, dynamic> user) {
+    final String? email = user['email']?.toString();
+    if (email == null) return false;
+    return email.toLowerCase().endsWith('@thapar.edu') || 
+           email.toLowerCase().contains('thapar.edu');
   }
 }

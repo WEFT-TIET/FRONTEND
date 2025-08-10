@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../viewmodel/auth_viewmodel.dart';
-import '../../navbar/navigation.dart';
 
-class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+class SignupUsernamePage extends StatefulWidget {
+  const SignupUsernamePage({super.key});
 
   @override
-  ConsumerState<LoginPage> createState() => _LoginPageState();
+  State<SignupUsernamePage> createState() => _SignupUsernamePageState();
 }
 
-class _LoginPageState extends ConsumerState<LoginPage> {
+class _SignupUsernamePageState extends State<SignupUsernamePage> {
   final _formKey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final usernameController = TextEditingController();
   bool isLoading = false;
+  Map<String, String>? signupData;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Get the signup data passed from previous screen
+    signupData = ModalRoute.of(context)?.settings.arguments as Map<String, String>?;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +42,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               children: [
                 const SizedBox(height: 20),
                 
+                // Progress indicator
+                _buildProgressIndicator(currentStep: 2, totalSteps: 3),
+                
+                const SizedBox(height: 30),
+                
                 // Title
                 const Text(
-                  'Welcome Back',
+                  'Choose a Username',
                   style: TextStyle(
                     fontSize: 32,
                     color: Colors.white,
@@ -52,7 +61,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 
                 // Subtitle
                 const Text(
-                  'Sign in to your account',
+                  'Pick a unique username for your profile',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey,
@@ -61,51 +70,54 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 
                 const SizedBox(height: 40),
                 
-                // Email field
-                _buildLabel("College Email"),
+                // Username field
+                _buildLabel("Username"),
                 _buildInput(
-                  emailController,
-                  "your.name@college.edu",
+                  usernameController,
+                  "Enter your username",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Username is required';
+                    }
+                    if (value.length < 3) {
+                      return 'Username must be at least 3 characters';
+                    }
+                    if (value.contains(' ')) {
+                      return 'Username cannot contain spaces';
+                    }
+                    if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
+                      return 'Username can only contain letters, numbers, and underscores';
+                    }
+                    return null;
+                  },
                 ),
                 
-                const SizedBox(height: 20),
+                const SizedBox(height: 8),
                 
-                // Password field
-                _buildLabel("Password"),
-                _buildInput(
-                  passwordController,
-                  "Enter your password",
-                  obscure: true,
-                ),
-                
-                const SizedBox(height: 12),
-                
-                // Forgot Password link
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/forgot-password');
-                    },
-                    child: const Text(
-                      "Forgot Password?",
-                      style: TextStyle(
-                        color: Color(0xFF4A5FE4),
-                        fontSize: 14,
-                      ),
-                    ),
+                // Helper text
+                const Text(
+                  'Use letters, numbers, and underscores only',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
                   ),
                 ),
                 
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
                 
-                // Sign In Button
+                // Continue Button
                 SizedBox(
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: isLoading ? null : _handleLogin,
-                    style: _buttonStyle(),
+                    onPressed: isLoading ? null : _handleContinue,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4A5FE4),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                     child: isLoading
                         ? const SizedBox(
                             width: 24,
@@ -116,37 +128,33 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                           )
                         : const Text(
-                            "Sign In",
+                            "Continue",
                             style: TextStyle(
-                              color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                   ),
                 ),
-                
-                const SizedBox(height: 24),
-                
-                // Sign up link
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(
-                        context,
-                        '/signup-initial',
-                      );
-                    },
-                    child: const Text(
-                      "Don't have an account? Sign up",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgressIndicator({required int currentStep, required int totalSteps}) {
+    return Row(
+      children: List.generate(
+        totalSteps,
+        (index) => Expanded(
+          child: Container(
+            margin: EdgeInsets.only(right: index < totalSteps - 1 ? 8 : 0),
+            height: 4,
+            decoration: BoxDecoration(
+              color: index < currentStep ? const Color(0xFF4A5FE4) : Colors.grey.shade700,
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
         ),
@@ -172,6 +180,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     TextEditingController controller,
     String hint, {
     bool obscure = false,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
@@ -194,38 +203,42 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF4A5FE4), width: 2),
         ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1),
+        ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
-      validator: (value) => value!.isEmpty ? 'Required' : null,
+      validator: validator,
     );
   }
 
-  ButtonStyle _buttonStyle() => ElevatedButton.styleFrom(
-    backgroundColor: const Color(0xFF4A5FE4),
-    padding: const EdgeInsets.symmetric(vertical: 16),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  );
-
-  void _handleLogin() async {
+  void _handleContinue() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isLoading = true);
 
-    final success = await ref
-        .read(authViewModelProvider.notifier)
-        .login(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-          context: context,
-        );
+    // Simulate username availability check
+    await Future.delayed(const Duration(seconds: 1));
 
     setState(() => isLoading = false);
 
-    if (success) {
-      Navigator.pushReplacement(
+    // Navigate to profile details with all signup data
+    if (mounted && signupData != null) {
+      Navigator.pushNamed(
         context,
-        MaterialPageRoute(builder: (_) => const BottomNavBar()),
+        '/signup-profile',
+        arguments: {
+          ...signupData!,
+          'username': usernameController.text.trim(),
+        },
       );
     }
+  }
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    super.dispose();
   }
 }

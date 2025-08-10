@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend_weft/core/theme/app_pallete.dart';
 
 class CommentInput extends ConsumerStatefulWidget {
   final Function(String) onSubmit;
@@ -21,6 +20,14 @@ class _CommentInputState extends ConsumerState<CommentInput> {
   final FocusNode _focusNode = FocusNode();
 
   @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
@@ -38,14 +45,8 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppPallete.glassWhite05,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppPallete.glassWhite20, width: 0.5),
-      ),
+    return Padding(
+      padding: const EdgeInsets.all(10),
       child: Row(
         children: [
           Expanded(
@@ -53,17 +54,39 @@ class _CommentInputState extends ConsumerState<CommentInput> {
               controller: _controller,
               focusNode: _focusNode,
               style: const TextStyle(
-                color: AppPallete.textPrimaryDark,
-                fontSize: 14,
+                color: Colors.white,
+                fontSize: 13,
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Add a comment...',
                 hintStyle: TextStyle(
-                  color: AppPallete.whiteColor,
-                  fontSize: 14,
+                  color: Colors.white.withOpacity(0.6),
+                  fontSize: 13,
                 ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Colors.white.withOpacity(0.4),
+                    width: 1,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.05),
               ),
               maxLines: null,
               textInputAction: TextInputAction.send,
@@ -76,24 +99,36 @@ class _CommentInputState extends ConsumerState<CommentInput> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
+                gradient: widget.isLoading 
+                    ? null 
+                    : LinearGradient(
+                        colors: [
+                          Color(0xFF6366F1),
+                          Color(0xFF8B5CF6),
+                        ],
+                      ),
                 color: widget.isLoading 
-                    ? AppPallete.glassWhite20 
-                    : AppPallete.gradient2,
+                    ? Colors.white.withOpacity(0.1)
+                    : null,
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 1,
+                ),
               ),
               child: widget.isLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
+                  ? SizedBox(
+                      width: 14,
+                      height: 14,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppPallete.whiteColor),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : const Icon(
+                  : Icon(
                       Icons.send,
-                      color: AppPallete.whiteColor,
-                      size: 18,
+                      color: Colors.white,
+                      size: 15,
                     ),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/search/view/pages/wefter_results_page.dart';
+import 'package:frontend_weft/features/search/view/pages/skill_based_search_page.dart';
 import 'package:frontend_weft/core/services/user_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/http_client.dart';
@@ -103,7 +104,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                       _buildInputField(
                         controller: _yearController,
                         label: 'Year',
-                        placeholder: 'Ex: 1, 2, 3, 4',
+                        placeholder: 'Ex: 2023, 2024, 2025',
                       ),
 
                       SizedBox(height: 20),
@@ -173,6 +174,57 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                     ),
                                   ],
                                 ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      SizedBox(height: 16),
+                      
+                      // Skills Search Button
+                      Container(
+                        width: double.infinity,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Color(0xFF6366F1).withOpacity(0.5),
+                            width: 1,
+                          ),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SkillBasedSearchPage(),
+                                ),
+                              );
+                            },
+                            child: Center(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.stars,
+                                    color: Color(0xFF6366F1),
+                                    size: 18,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Search by Skills',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF6366F1),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

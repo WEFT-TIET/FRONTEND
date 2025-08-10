@@ -6,9 +6,6 @@ import 'package:frontend_weft/features/messages/view/pages/messages_list_page.da
 
 import 'package:frontend_weft/features/profile/pages/profile_page.dart';
 import 'package:frontend_weft/features/search/view/pages/search.dart';
-import 'package:frontend_weft/features/navbar/gradient_icon.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'dart:math' as math;
 import 'dart:ui';
 
 class BottomNavBar extends StatefulWidget {
@@ -24,7 +21,7 @@ class _BottomNavBarState extends State<BottomNavBar>
   int _selectedIndex = 0;
   
   // Navbar dimensions
-  static const double _sliderHeight = 60.0; // Reduced from 85.0
+  static const double _sliderHeight = 60.0; 
   static const double _circlePadding = 16.0;
 
   // Static pages list
@@ -53,7 +50,7 @@ class _BottomNavBarState extends State<BottomNavBar>
 
   Widget _buildNavbar() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20), // Add horizontal margin
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), // Add horizontal margin
       height: _sliderHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(_sliderHeight / 2),

@@ -31,7 +31,7 @@ void _showLogoutDialog(BuildContext context, WidgetRef ref) {
               await ref.read(authViewModelProvider.notifier).logoutUser();
               Navigator.pushNamedAndRemoveUntil(
                 context,
-                '/login',
+                '/welcome',
                 (route) => false,
               );
             },

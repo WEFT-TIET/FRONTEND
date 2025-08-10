@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../viewmodel/auth_viewmodel.dart';
-import '../../navbar/navigation.dart';
 
-class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+class SignupInitialPage extends StatefulWidget {
+  const SignupInitialPage({super.key});
 
   @override
-  ConsumerState<LoginPage> createState() => _LoginPageState();
+  State<SignupInitialPage> createState() => _SignupInitialPageState();
 }
 
-class _LoginPageState extends ConsumerState<LoginPage> {
+class _SignupInitialPageState extends State<SignupInitialPage> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
   bool isLoading = false;
 
   @override
@@ -40,7 +38,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 
                 // Title
                 const Text(
-                  'Welcome Back',
+                  'Create Account',
                   style: TextStyle(
                     fontSize: 32,
                     color: Colors.white,
@@ -52,7 +50,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 
                 // Subtitle
                 const Text(
-                  'Sign in to your account',
+                  'Enter your college email and create a password',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey,
@@ -66,6 +64,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 _buildInput(
                   emailController,
                   "your.name@college.edu",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Email is required';
+                    }
+                    if (!value.contains('@') || !value.contains('.')) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
                 ),
                 
                 const SizedBox(height: 20),
@@ -76,36 +83,51 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   passwordController,
                   "Enter your password",
                   obscure: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password is required';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
                 ),
                 
-                const SizedBox(height: 12),
+                const SizedBox(height: 20),
                 
-                // Forgot Password link
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/forgot-password');
-                    },
-                    child: const Text(
-                      "Forgot Password?",
-                      style: TextStyle(
-                        color: Color(0xFF4A5FE4),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
+                // Confirm Password field
+                _buildLabel("Confirm Password"),
+                _buildInput(
+                  confirmPasswordController,
+                  "Re-enter your password",
+                  obscure: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm your password';
+                    }
+                    if (value != passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
                 ),
                 
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
                 
-                // Sign In Button
+                // Continue Button
                 SizedBox(
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: isLoading ? null : _handleLogin,
-                    style: _buttonStyle(),
+                    onPressed: isLoading ? null : _handleContinue,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4A5FE4),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                     child: isLoading
                         ? const SizedBox(
                             width: 24,
@@ -116,9 +138,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                           )
                         : const Text(
-                            "Sign In",
+                            "Continue",
                             style: TextStyle(
-                              color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -128,17 +149,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 
                 const SizedBox(height: 24),
                 
-                // Sign up link
+                // Login link
                 Center(
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(
-                        context,
-                        '/signup-initial',
-                      );
+                      Navigator.pushReplacementNamed(context, '/login');
                     },
                     child: const Text(
-                      "Don't have an account? Sign up",
+                      "Already have an account? Log in",
                       style: TextStyle(
                         color: Colors.grey,
                         fontSize: 14,
@@ -172,6 +190,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     TextEditingController controller,
     String hint, {
     bool obscure = false,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
@@ -194,38 +213,44 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF4A5FE4), width: 2),
         ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1),
+        ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
-      validator: (value) => value!.isEmpty ? 'Required' : null,
+      validator: validator,
     );
   }
 
-  ButtonStyle _buttonStyle() => ElevatedButton.styleFrom(
-    backgroundColor: const Color(0xFF4A5FE4),
-    padding: const EdgeInsets.symmetric(vertical: 16),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  );
-
-  void _handleLogin() async {
+  void _handleContinue() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isLoading = true);
 
-    final success = await ref
-        .read(authViewModelProvider.notifier)
-        .login(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-          context: context,
-        );
+    // Simulate API call delay
+    await Future.delayed(const Duration(seconds: 1));
 
     setState(() => isLoading = false);
 
-    if (success) {
-      Navigator.pushReplacement(
+    // Navigate to username setup with email and password
+    if (mounted) {
+      Navigator.pushNamed(
         context,
-        MaterialPageRoute(builder: (_) => const BottomNavBar()),
+        '/signup-username',
+        arguments: {
+          'email': emailController.text.trim(),
+          'password': passwordController.text.trim(),
+        },
       );
     }
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
   }
 }

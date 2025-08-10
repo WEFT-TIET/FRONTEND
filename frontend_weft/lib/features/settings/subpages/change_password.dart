@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/features/settings/services/settings_api_service.dart';
 
-class ChangePasswordPage extends StatefulWidget {
+class ChangePasswordPage extends ConsumerStatefulWidget {
   const ChangePasswordPage({super.key});
 
   @override
-  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
+  ConsumerState<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
 
-class _ChangePasswordPageState extends State<ChangePasswordPage> {
+class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
@@ -27,20 +29,109 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     super.dispose();
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      // Show confirmation dialog
+      final bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: AppPallete.cardColorDark,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: const Text(
+              'Change Password',
+              style: TextStyle(color: AppPallete.textPrimaryDark),
+            ),
+            content: const Text(
+              'Are you sure you want to change your password? You will remain logged in on this device.',
+              style: TextStyle(color: AppPallete.textPrimaryDark),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: AppPallete.textPrimaryDark.withOpacity(0.7)),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppPallete.textPrimaryDark,
+                  foregroundColor: AppPallete.backgroundDark,
+                ),
+                child: const Text('Change Password'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirmed != true) return;
+
       setState(() => _isSubmitting = true);
-      // TODO: Implement password change logic
-      Future.delayed(const Duration(seconds: 2), () {
-        setState(() => _isSubmitting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Password changed successfully!'),
-            backgroundColor: AppPallete.gradient2,
-          ),
-        );
-        Navigator.pop(context);
-      });
+      
+      try {
+        final settingsService = ref.read(settingsApiServiceProvider);
+        final success = await settingsService.changePassword(_newPasswordController.text.trim());
+        
+        if (mounted) {
+          setState(() => _isSubmitting = false);
+          
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text('Password changed successfully!'),
+                  ],
+                ),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 3),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            Navigator.pop(context);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Row(
+                  children: [
+                    Icon(Icons.error, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text('Failed to change password. Please try again.'),
+                  ],
+                ),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 4),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isSubmitting = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text('Error: ${e.toString()}')),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -184,9 +275,64 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       if (value.length < 8) {
                         return 'Password must be at least 8 characters';
                       }
+                      if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) {
+                        return 'Password must contain uppercase, lowercase and number';
+                      }
+                      if (value == _currentPasswordController.text) {
+                        return 'New password must be different from current password';
+                      }
                       return null;
                     },
+                    onChanged: (value) => setState(() {}), // Trigger rebuild for password strength
                   ),
+                  const SizedBox(height: 8),
+
+                  // Password Requirements
+                  if (_newPasswordController.text.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppPallete.cardColorDark.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppPallete.textPrimaryDark.withOpacity(0.2),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Password Requirements:',
+                            style: TextStyle(
+                              color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          _buildRequirement(
+                            'At least 8 characters',
+                            _newPasswordController.text.length >= 8,
+                          ),
+                          _buildRequirement(
+                            'Contains uppercase letter',
+                            RegExp(r'[A-Z]').hasMatch(_newPasswordController.text),
+                          ),
+                          _buildRequirement(
+                            'Contains lowercase letter',
+                            RegExp(r'[a-z]').hasMatch(_newPasswordController.text),
+                          ),
+                          _buildRequirement(
+                            'Contains number',
+                            RegExp(r'\d').hasMatch(_newPasswordController.text),
+                          ),
+                          _buildRequirement(
+                            'Different from current password',
+                            _newPasswordController.text != _currentPasswordController.text && _newPasswordController.text.isNotEmpty,
+                          ),
+                        ],
+                      ),
+                    ),
                   const SizedBox(height: 20),
 
                   // Confirm Password Field
@@ -263,7 +409,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _submitForm,
+                      onPressed: (_isSubmitting || 
+                                 _currentPasswordController.text.isEmpty ||
+                                 _newPasswordController.text.isEmpty ||
+                                 _confirmPasswordController.text.isEmpty ||
+                                 _newPasswordController.text.length < 8 ||
+                                 _newPasswordController.text != _confirmPasswordController.text ||
+                                 _newPasswordController.text == _currentPasswordController.text) 
+                          ? null : _submitForm,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppPallete.textPrimaryDark,
                         foregroundColor: AppPallete.backgroundDark,
@@ -297,6 +450,29 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildRequirement(String text, bool isMet) {
+    return Row(
+      children: [
+        Icon(
+          isMet ? Icons.check_circle : Icons.radio_button_unchecked,
+          size: 16,
+          color: isMet ? Colors.green : AppPallete.textPrimaryDark.withOpacity(0.5),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: isMet ? Colors.green : AppPallete.textPrimaryDark.withOpacity(0.7),
+              fontSize: 11,
+              fontWeight: isMet ? FontWeight.w500 : FontWeight.normal,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
