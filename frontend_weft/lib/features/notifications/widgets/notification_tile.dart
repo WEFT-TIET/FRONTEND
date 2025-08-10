@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/notifications/models/notification_model.dart';
-import 'package:frontend_weft/features/notifications/viewmodel/notification_viewmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class NotificationTile extends ConsumerWidget {
@@ -28,10 +27,10 @@ class NotificationTile extends ConsumerWidget {
           decoration: BoxDecoration(
             color: notification.isRead 
                 ? Colors.transparent 
-                : AppPallete.gradient1.withOpacity(0.1),
+                : AppPallete.gradient1.withValues(alpha: 0.1),
             border: Border(
               bottom: BorderSide(
-                color: AppPallete.greyColor.withOpacity(0.2),
+                color: AppPallete.greyColor.withValues(alpha: 0.2),
                 width: 0.5,
               ),
             ),
@@ -67,14 +66,14 @@ class NotificationTile extends ConsumerWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: AppPallete.gradient1.withOpacity(0.3),
+          color: AppPallete.gradient1.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
       child: ClipOval(
-        child: notification.user?.image_url != null
-            ? Image.asset(
-                notification.user!.image_url!,
+        child: notification.user?.imageUrl != null
+            ? Image.network(
+                notification.user!.imageUrl!,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return _buildDefaultAvatar();
@@ -149,7 +148,7 @@ class NotificationTile extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppPallete.scaffoldBackgroundColorDark.withOpacity(0.5),
+              color: AppPallete.scaffoldBackgroundColorDark.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -185,7 +184,7 @@ class NotificationTile extends ConsumerWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: AppPallete.greyColor.withOpacity(0.3),
+          color: AppPallete.greyColor.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -196,7 +195,7 @@ class NotificationTile extends ConsumerWidget {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(
-              color: AppPallete.greyColor.withOpacity(0.2),
+              color: AppPallete.greyColor.withValues(alpha: 0.2),
               child: Icon(
                 Icons.image,
                 color: AppPallete.greyColor,
@@ -214,7 +213,7 @@ class NotificationTile extends ConsumerWidget {
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: notification.actionColor.withOpacity(0.1),
+        color: notification.actionColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(22),
       ),
       child: Icon(

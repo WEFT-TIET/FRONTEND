@@ -23,7 +23,7 @@ class SettingsSection extends StatelessWidget {
           child: Text(
             title,
             style: TextStyle(
-              color: AppPallete.textPrimaryDark.withOpacity(0.8),
+              color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
               fontSize: 16,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
@@ -32,15 +32,15 @@ class SettingsSection extends StatelessWidget {
         ),
         Container(
           decoration: BoxDecoration(
-            color: AppPallete.cardColorDark.withOpacity(0.4),
+            color: AppPallete.cardColorDark.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: AppPallete.textPrimaryDark.withOpacity(0.2),
+              color: AppPallete.textPrimaryDark.withValues(alpha: 0.2),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),

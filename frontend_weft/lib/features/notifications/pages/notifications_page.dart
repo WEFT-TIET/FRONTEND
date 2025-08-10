@@ -195,7 +195,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppPallete.gradient1.withOpacity(0.1),
+              color: AppPallete.gradient1.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(

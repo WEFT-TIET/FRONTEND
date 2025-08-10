@@ -7,10 +7,10 @@ class BuildingDropdownWidget extends StatefulWidget {
   final Function(String?) onBuildingSelected;
 
   const BuildingDropdownWidget({
-    Key? key,
+    super.key,
     this.selectedBuilding,
     required this.onBuildingSelected,
-  }) : super(key: key);
+  });
 
   @override
   _BuildingDropdownWidgetState createState() => _BuildingDropdownWidgetState();
@@ -97,20 +97,20 @@ class _BuildingDropdownWidgetState extends State<BuildingDropdownWidget>
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
-              color: Color(0xFF3A3E7A).withOpacity(0.6),
+              color: Color(0xFF3A3E7A).withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha: 0.15),
                   blurRadius: 15,
                   offset: Offset(0, 8),
                 ),
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: Offset(0, -2),
                 ),
@@ -131,7 +131,7 @@ class _BuildingDropdownWidgetState extends State<BuildingDropdownWidget>
                       fontSize: 16,
                       color: widget.selectedBuilding != null 
                           ? Colors.white 
-                          : Colors.white.withOpacity(0.6),
+                          : Colors.white.withValues(alpha: 0.6),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -161,20 +161,20 @@ class _BuildingDropdownWidgetState extends State<BuildingDropdownWidget>
                     ? Container(
                         margin: EdgeInsets.only(top: 8),
                         decoration: BoxDecoration(
-                          color: Color(0xFF3A3E7A).withOpacity(0.8),
+                          color: Color(0xFF3A3E7A).withValues(alpha: 0.8),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             width: 1,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 20,
                               offset: Offset(0, 10),
                             ),
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.05),
+                              color: Colors.white.withValues(alpha: 0.05),
                               blurRadius: 10,
                               offset: Offset(0, -5),
                             ),
@@ -187,7 +187,7 @@ class _BuildingDropdownWidgetState extends State<BuildingDropdownWidget>
                               padding: EdgeInsets.all(12),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
+                                  color: Colors.white.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: TextField(
@@ -197,8 +197,8 @@ class _BuildingDropdownWidgetState extends State<BuildingDropdownWidget>
                                   style: TextStyle(color: Colors.white),
                                   decoration: InputDecoration(
                                     hintText: 'Search buildings...',
-                                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                                    prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.6)),
+                                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+                                    prefixIcon: Icon(Icons.search, color: Colors.white.withValues(alpha: 0.6)),
                                     border: InputBorder.none,
                                     contentPadding: EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 14),
@@ -214,7 +214,7 @@ class _BuildingDropdownWidgetState extends State<BuildingDropdownWidget>
                                       child: Text(
                                         'No buildings found',
                                         style: TextStyle(
-                                          color: Colors.white.withOpacity(0.6),
+                                          color: Colors.white.withValues(alpha: 0.6),
                                           fontSize: 16,
                                         ),
                                       ),
@@ -233,11 +233,11 @@ class _BuildingDropdownWidgetState extends State<BuildingDropdownWidget>
                                             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                             decoration: BoxDecoration(
                                               color: isSelected 
-                                                  ? Color(0xFF6366F1).withOpacity(0.2)
+                                                  ? Color(0xFF6366F1).withValues(alpha: 0.2)
                                                   : Colors.transparent,
                                               borderRadius: BorderRadius.circular(12),
                                               border: isSelected
-                                                  ? Border.all(color: Color(0xFF6366F1).withOpacity(0.5))
+                                                  ? Border.all(color: Color(0xFF6366F1).withValues(alpha: 0.5))
                                                   : null,
                                             ),
                                             child: Row(
@@ -248,7 +248,7 @@ class _BuildingDropdownWidgetState extends State<BuildingDropdownWidget>
                                                   decoration: BoxDecoration(
                                                     color: isSelected 
                                                         ? Color(0xFF6366F1)
-                                                        : Colors.white.withOpacity(0.4),
+                                                        : Colors.white.withValues(alpha: 0.4),
                                                     shape: BoxShape.circle,
                                                   ),
                                                 ),
@@ -260,7 +260,7 @@ class _BuildingDropdownWidgetState extends State<BuildingDropdownWidget>
                                                       fontSize: 15,
                                                       color: isSelected 
                                                           ? Colors.white
-                                                          : Colors.white.withOpacity(0.8),
+                                                          : Colors.white.withValues(alpha: 0.8),
                                                       fontWeight: isSelected 
                                                           ? FontWeight.w600
                                                           : FontWeight.w400,

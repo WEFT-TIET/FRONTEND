@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/server_constants.dart';
 import 'package:frontend_weft/core/http_client.dart';
+import 'package:frontend_weft/core/utils/logger.dart';
 import 'package:frontend_weft/features/notifications/models/notification_model.dart';
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
@@ -22,8 +23,8 @@ class NotificationService {
       final url = Uri.parse('$baseUrl/notifications');
       final response = await _httpClient.get(url);
 
-      print("🔔 GET Notifications URL: $url");
-      print("📬 Response (${response.statusCode}): ${response.body}");
+      Logger.debug("GET Notifications URL: $url");
+      Logger.debug("Response (${response.statusCode}): ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -44,12 +45,12 @@ class NotificationService {
             .map((json) => NotificationModel.fromJson(json))
             .toList();
       } else {
-        print("❌ Failed to fetch notifications: ${response.statusCode} - ${response.body}");
+        Logger.error("Failed to fetch notifications: ${response.statusCode} - ${response.body}");
         // Return empty list if backend fails
         return [];
       }
     } catch (e) {
-      print("❌ Error fetching notifications: $e");
+      Logger.error("Error fetching notifications", e);
       // Return empty list if error occurs
       return [];
     }

@@ -100,8 +100,8 @@ class CommentPage extends ConsumerWidget {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                AppPallete.gradient1.withOpacity(0.7),
-                                AppPallete.gradient2.withOpacity(0.7),
+                                AppPallete.gradient1.withValues(alpha: 0.7),
+                                AppPallete.gradient2.withValues(alpha: 0.7),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -109,7 +109,7 @@ class CommentPage extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
+                                color: Colors.black.withValues(alpha: 0.08),
                                 blurRadius: 12,
                                 offset: Offset(0, 4),
                               ),
@@ -130,7 +130,7 @@ class CommentPage extends ConsumerWidget {
                               Text(
                                 'Loading comments...',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -145,8 +145,8 @@ class CommentPage extends ConsumerWidget {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Colors.red.withOpacity(0.7),
-                                AppPallete.gradient2.withOpacity(0.7),
+                                Colors.red.withValues(alpha: 0.7),
+                                AppPallete.gradient2.withValues(alpha: 0.7),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -154,7 +154,7 @@ class CommentPage extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
+                                color: Colors.black.withValues(alpha: 0.08),
                                 blurRadius: 12,
                                 offset: Offset(0, 4),
                               ),
@@ -181,7 +181,7 @@ class CommentPage extends ConsumerWidget {
                               Text(
                                 commentState.error!,
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   fontSize: 12,
                                 ),
                                 textAlign: TextAlign.center,
@@ -192,7 +192,7 @@ class CommentPage extends ConsumerWidget {
                                   ref.read(commentViewModelProvider(post.id).notifier).refreshComments();
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white.withOpacity(0.15),
+                                  backgroundColor: Colors.white.withValues(alpha: 0.15),
                                   foregroundColor: Colors.white,
                                   shadowColor: Colors.transparent,
                                   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
@@ -219,8 +219,8 @@ class CommentPage extends ConsumerWidget {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                AppPallete.gradient1.withOpacity(0.7),
-                                AppPallete.gradient2.withOpacity(0.7),
+                                AppPallete.gradient1.withValues(alpha: 0.7),
+                                AppPallete.gradient2.withValues(alpha: 0.7),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -228,7 +228,7 @@ class CommentPage extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
+                                color: Colors.black.withValues(alpha: 0.08),
                                 blurRadius: 12,
                                 offset: Offset(0, 4),
                               ),
@@ -240,7 +240,7 @@ class CommentPage extends ConsumerWidget {
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.12),
+                                  color: Colors.white.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 child: Icon(
@@ -262,7 +262,7 @@ class CommentPage extends ConsumerWidget {
                               Text(
                                 'Be the first to comment!',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.85),
+                                  color: Colors.white.withValues(alpha: 0.85),
                                   fontSize: 12,
                                 ),
                               ),

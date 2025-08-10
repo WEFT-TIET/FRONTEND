@@ -123,7 +123,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                 right: 0,
                 child: Container(
                   padding: const EdgeInsets.all(16),
-                  color: Colors.red.withOpacity(0.9),
+                  color: Colors.red.withValues(alpha: 0.9),
                   child: Text(
                     _errorMessage!,
                     style: const TextStyle(color: Colors.white),
@@ -142,14 +142,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: const Color(0xFF2A2D5A).withOpacity(0.8),
+        color: const Color(0xFF2A2D5A).withValues(alpha: 0.8),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 25,
             offset: const Offset(0, 15),
           ),
@@ -164,11 +164,11 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 border: Border.all(color: const Color(0xFF6366F1), width: 3),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),
@@ -183,27 +183,27 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                         fit: BoxFit.cover,
                         width: 100,
                         height: 100,
-                        errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+                        errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
                       )
-                    else if (widget.user.image_url != null && widget.user.image_url!.startsWith('http'))
+                    else if (widget.user.imageUrl != null && widget.user.imageUrl!.startsWith('http'))
                       Image.network(
-                        widget.user.image_url!,
+                        widget.user.imageUrl!,
                         fit: BoxFit.cover,
                         width: 100,
                         height: 100,
-                        errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+                        errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
                       )
                     else
                       Image.asset(
-                        widget.user.image_url ?? 'lib/core/assets/profile_photo.jpeg',
+                        widget.user.imageUrl ?? 'lib/core/assets/profile_photo.jpeg',
                         fit: BoxFit.cover,
                         width: 100,
                         height: 100,
-                        errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+                        errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
                       ),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
@@ -223,7 +223,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           Text(
             'Tap to change photo',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 14,
             ),
           ),
@@ -236,12 +236,12 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [const Color(0xFF6366F1).withOpacity(0.3), const Color(0xFF8B5CF6).withOpacity(0.3)],
+          colors: [const Color(0xFF6366F1).withValues(alpha: 0.3), const Color(0xFF8B5CF6).withValues(alpha: 0.3)],
         ),
       ),
       child: Icon(
         Icons.person,
-        color: Colors.white.withOpacity(0.8),
+        color: Colors.white.withValues(alpha: 0.8),
         size: 50,
       ),
     );
@@ -252,14 +252,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: const Color(0xFF2A2D5A).withOpacity(0.8),
+        color: const Color(0xFF2A2D5A).withValues(alpha: 0.8),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 25,
             offset: const Offset(0, 15),
           ),
@@ -298,7 +298,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -306,9 +306,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1A1D3A).withOpacity(0.8),
+            color: const Color(0xFF1A1D3A).withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withOpacity(0.2)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
           child: TextFormField(
             controller: controller,
@@ -319,9 +319,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             ),
             decoration: InputDecoration(
               isDense: true,
-              prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7), size: 20),
+              prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.7), size: 20),
               prefixText: prefix,
-              prefixStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+              prefixStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -353,7 +353,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         year: _yearController.text,
         branch: _branchController.text,
         instagramId: _instagramController.text.isEmpty ? null : _instagramController.text,
-        image_url: _updatedImageUrl ?? widget.user.image_url,
+        imageUrl: _updatedImageUrl ?? widget.user.imageUrl,
         skills: widget.user.skills, // Preserve existing skills
       );
 

@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_weft/core/utils/logger.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_local_repository.dart';
 
 final httpClientProvider = Provider<AppHttpClient>((ref) {
@@ -29,8 +30,8 @@ class AppHttpClient {
       headers['Cookie'] = 'AccessToken=$token';
     }
 
-    print("🔑 Token included in Cookie: ${token != null ? 'Yes' : 'No'}");
-    print("📤 Headers being sent: $headers");
+    Logger.debug("Token included in Cookie: ${token != null ? 'Yes' : 'No'}");
+    Logger.debug("Headers being sent: $headers");
     
     return headers;
   }

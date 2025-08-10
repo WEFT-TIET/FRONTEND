@@ -42,14 +42,14 @@ class _SkillsDialogState extends State<SkillsDialog> {
         constraints: const BoxConstraints(maxHeight: 600, maxWidth: 400),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: const Color(0xFF2A2D5A).withOpacity(0.95),
+          color: const Color(0xFF2A2D5A).withValues(alpha: 0.95),
           border: Border.all(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 25,
               offset: const Offset(0, 15),
             ),
@@ -67,7 +67,7 @@ class _SkillsDialogState extends State<SkillsDialog> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6366F1).withOpacity(0.2),
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
@@ -98,19 +98,19 @@ class _SkillsDialogState extends State<SkillsDialog> {
               // Add skill field
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A1D3A).withOpacity(0.8),
+                  color: const Color(0xFF1A1D3A).withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                 ),
                 child: TextField(
                   controller: _skillController,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Add a skill...',
-                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                     prefixIcon: Icon(
                       Icons.add,
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                     ),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.send, color: Color(0xFF6366F1)),
@@ -132,7 +132,7 @@ class _SkillsDialogState extends State<SkillsDialog> {
                 Text(
                   'Your Skills (${_skills.length})',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -155,7 +155,7 @@ class _SkillsDialogState extends State<SkillsDialog> {
               Text(
                 'Popular Skills',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -181,8 +181,8 @@ class _SkillsDialogState extends State<SkillsDialog> {
                   Expanded(
                     child: _buildActionButton(
                       'Cancel',
-                      Colors.white.withOpacity(0.1),
-                      Colors.white.withOpacity(0.7),
+                      Colors.white.withValues(alpha: 0.1),
+                      Colors.white.withValues(alpha: 0.7),
                       () => Navigator.pop(context),
                     ),
                   ),
@@ -227,13 +227,13 @@ class _SkillsDialogState extends State<SkillsDialog> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: isSelected
-                ? const Color(0xFF6366F1).withOpacity(0.8)
-                : Colors.white.withOpacity(0.1),
+                ? const Color(0xFF6366F1).withValues(alpha: 0.8)
+                : Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isSelected
                   ? const Color(0xFF6366F1)
-                  : Colors.white.withOpacity(0.3),
+                  : Colors.white.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -275,7 +275,7 @@ class _SkillsDialogState extends State<SkillsDialog> {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withValues(alpha: 0.15),
           width: 1,
         ),
       ),

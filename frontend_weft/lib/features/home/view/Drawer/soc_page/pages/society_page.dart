@@ -82,15 +82,15 @@ class SocietyCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppPallete.whiteColor.withOpacity(0.15),
+        color: AppPallete.whiteColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppPallete.whiteColor.withOpacity(0.3),
+          color: AppPallete.whiteColor.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: Offset(0, 5),
           ),
@@ -156,7 +156,7 @@ class SocietyCard extends StatelessWidget {
                 style: GoogleFonts.getFont(
                   'Oswald',
                   fontSize: 14,
-                  color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                  color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
                 ),
               ),
             ],
@@ -229,15 +229,15 @@ class SocietyDetailPage extends StatelessWidget {
                         width: double.infinity,
                         padding: EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: AppPallete.whiteColor.withOpacity(0.15),
+                          color: AppPallete.whiteColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: AppPallete.whiteColor.withOpacity(0.3),
+                            color: AppPallete.whiteColor.withValues(alpha: 0.3),
                             width: 1,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 10,
                               offset: Offset(0, 5),
                             ),
@@ -256,7 +256,7 @@ class SocietyDetailPage extends StatelessWidget {
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppPallete.gradient1.withOpacity(0.4),
+                                    color: AppPallete.gradient1.withValues(alpha: 0.4),
                                     blurRadius: 15,
                                     offset: Offset(0, 8),
                                   ),
@@ -305,10 +305,10 @@ class SocietyDetailPage extends StatelessWidget {
                         width: double.infinity,
                         padding: EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: AppPallete.whiteColor.withOpacity(0.1),
+                          color: AppPallete.whiteColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: AppPallete.whiteColor.withOpacity(0.2),
+                            color: AppPallete.whiteColor.withValues(alpha: 0.2),
                             width: 1,
                           ),
                         ),
@@ -317,7 +317,7 @@ class SocietyDetailPage extends StatelessWidget {
                           style: GoogleFonts.getFont(
                             'Oswald',
                             fontSize: 16,
-                            color: AppPallete.textPrimaryDark.withOpacity(0.9),
+                            color: AppPallete.textPrimaryDark.withValues(alpha: 0.9),
                             height: 1.5,
                           ),
                         ),
@@ -331,10 +331,10 @@ class SocietyDetailPage extends StatelessWidget {
                           width: double.infinity,
                           padding: EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: AppPallete.whiteColor.withOpacity(0.1),
+                            color: AppPallete.whiteColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: AppPallete.whiteColor.withOpacity(0.2),
+                              color: AppPallete.whiteColor.withValues(alpha: 0.2),
                               width: 1,
                             ),
                           ),
@@ -356,7 +356,7 @@ class SocietyDetailPage extends StatelessWidget {
                                 style: GoogleFonts.getFont(
                                   'Oswald',
                                   fontSize: 14,
-                                  color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                                  color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
                                 ),
                               ),
                               SizedBox(height: 8),

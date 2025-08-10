@@ -21,7 +21,7 @@ class WeftItemWidget extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: AppPallete.glassWhite10.withOpacity(0.8), // Simplified decoration
+        color: AppPallete.glassWhite10.withValues(alpha: 0.8), // Simplified decoration
         border: Border.all(
           color: AppPallete.glassWhite20,
           width: 1,

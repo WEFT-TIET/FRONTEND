@@ -362,10 +362,10 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 width: 1,
                               ),
                             ),
@@ -409,17 +409,17 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.4),
+                            color: Colors.white.withValues(alpha: 0.4),
                             width: 2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 20,
                               offset: Offset(0, 10),
                             ),
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               blurRadius: 15,
                               offset: Offset(0, -5),
                             ),
@@ -451,20 +451,20 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFF3A3E7A).withOpacity(0.6),
+        color: Color(0xFF3A3E7A).withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withValues(alpha: 0.3),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 15,
             offset: Offset(0, 8),
           ),
           BoxShadow(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: Offset(0, -2),
           ),
@@ -479,7 +479,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
           const SizedBox(height: 4),
           Text(
             DateFormat('MMMM dd, yyyy').format(selectedDate),
-            style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
           ),
           const SizedBox(height: 16),
           Row(
@@ -490,7 +490,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -500,7 +500,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                       Text(
                         DateFormat('EEE').format(selectedDate.subtract(const Duration(days: 1))),
                         style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 14),
                       ),
                     ],
@@ -508,13 +508,13 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                 ),
               ),
               Text('Swipe to navigate',
-                  style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12)),
               GestureDetector(
                 onTap: () => _changeDate(1),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -522,7 +522,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                       Text(
                         DateFormat('EEE').format(selectedDate.add(const Duration(days: 1))),
                         style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 14),
                       ),
                       const SizedBox(width: 4),
@@ -607,7 +607,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
         border: Border.all(color: borderColor, width: 2),
         borderRadius: BorderRadius.circular(12),
         color: cls.status == ClassStatus.live
-            ? Color(0xFF10B981).withOpacity(0.05)
+            ? Color(0xFF10B981).withValues(alpha: 0.05)
             : Colors.transparent,
       ),
       child: Column(
@@ -644,7 +644,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                         ? () => _markAttendance(cls, true)
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: recorded == true ? Color(0xFF10B981) : Color(0xFF10B981).withOpacity(0.9),
+                      backgroundColor: recorded == true ? Color(0xFF10B981) : Color(0xFF10B981).withValues(alpha: 0.9),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -660,7 +660,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                         ? () => _markAttendance(cls, false)
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: recorded == false ? Color(0xFFEF4444) : Color(0xFFEF4444).withOpacity(0.9),
+                      backgroundColor: recorded == false ? Color(0xFFEF4444) : Color(0xFFEF4444).withValues(alpha: 0.9),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -676,7 +676,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: recorded ? Color(0xFF10B981).withOpacity(0.1) : Color(0xFFEF4444).withOpacity(0.1),
+                    color: recorded ? Color(0xFF10B981).withValues(alpha: 0.1) : Color(0xFFEF4444).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -733,20 +733,20 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
-              color: Color(0xFF3A3E7A).withOpacity(0.6),
+              color: Color(0xFF3A3E7A).withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha: 0.15),
                   blurRadius: 15,
                   offset: Offset(0, 8),
                 ),
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: Offset(0, -2),
                 ),
@@ -799,20 +799,20 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                     ? Container(
                         margin: EdgeInsets.only(top: 8),
                         decoration: BoxDecoration(
-                          color: Color(0xFF3A3E7A).withOpacity(0.8),
+                          color: Color(0xFF3A3E7A).withValues(alpha: 0.8),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             width: 1,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 20,
                               offset: Offset(0, 10),
                             ),
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.05),
+                              color: Colors.white.withValues(alpha: 0.05),
                               blurRadius: 10,
                               offset: Offset(0, -5),
                             ),
@@ -825,7 +825,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                               padding: EdgeInsets.all(12),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
+                                  color: Colors.white.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: TextField(
@@ -839,8 +839,8 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                                   style: TextStyle(color: Colors.white),
                                   decoration: InputDecoration(
                                     hintText: 'Search subgroups...',
-                                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                                    prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.6)),
+                                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+                                    prefixIcon: Icon(Icons.search, color: Colors.white.withValues(alpha: 0.6)),
                                     border: InputBorder.none,
                                     contentPadding: EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 14),
@@ -856,7 +856,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                                       child: Text(
                                         'No subgroups found',
                                         style: TextStyle(
-                                          color: Colors.white.withOpacity(0.6),
+                                          color: Colors.white.withValues(alpha: 0.6),
                                           fontSize: 16,
                                         ),
                                       ),
@@ -883,11 +883,11 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                                             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                             decoration: BoxDecoration(
                                               color: isSelected 
-                                                  ? Color(0xFF6366F1).withOpacity(0.2)
+                                                  ? Color(0xFF6366F1).withValues(alpha: 0.2)
                                                   : Colors.transparent,
                                               borderRadius: BorderRadius.circular(12),
                                               border: isSelected
-                                                  ? Border.all(color: Color(0xFF6366F1).withOpacity(0.5))
+                                                  ? Border.all(color: Color(0xFF6366F1).withValues(alpha: 0.5))
                                                   : null,
                                             ),
                                             child: Row(
@@ -898,7 +898,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                                                   decoration: BoxDecoration(
                                                     color: isSelected 
                                                         ? Color(0xFF6366F1)
-                                                        : Colors.white.withOpacity(0.4),
+                                                        : Colors.white.withValues(alpha: 0.4),
                                                     shape: BoxShape.circle,
                                                   ),
                                                 ),
@@ -910,7 +910,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                                                       fontSize: 15,
                                                       color: isSelected 
                                                           ? Colors.white
-                                                          : Colors.white.withOpacity(0.8),
+                                                          : Colors.white.withValues(alpha: 0.8),
                                                       fontWeight: isSelected 
                                                           ? FontWeight.w600
                                                           : FontWeight.w400,

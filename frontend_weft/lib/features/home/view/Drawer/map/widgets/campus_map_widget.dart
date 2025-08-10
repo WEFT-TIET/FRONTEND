@@ -132,9 +132,9 @@ class _CampusMapWidgetState extends State<CampusMapWidget> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.8),
+          color: Colors.black.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacity(0.3)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,14 +143,14 @@ class _CampusMapWidgetState extends State<CampusMapWidget> {
             Text(
               'GPS: ${_currentPosition!.latitude.toStringAsFixed(6)}, ${_currentPosition!.longitude.toStringAsFixed(6)}',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 fontSize: 10,
               ),
             ),
             Text(
               'SVG: ${_userLocationOnMap!.dx.toStringAsFixed(1)}, ${_userLocationOnMap!.dy.toStringAsFixed(1)}',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 fontSize: 10,
               ),
             ),
@@ -194,17 +194,17 @@ class _CampusMapWidgetState extends State<CampusMapWidget> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
                 width: 2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 20,
                   offset: Offset(0, 10),
                 ),
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   blurRadius: 15,
                   offset: Offset(0, -5),
                 ),

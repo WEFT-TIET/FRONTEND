@@ -41,20 +41,20 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               child: Container(
                 constraints: BoxConstraints(maxWidth: 400),
                 decoration: BoxDecoration(
-                  color: Color(0xFF3A3E7A).withOpacity(0.6),
+                  color: Color(0xFF3A3E7A).withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 25,
                       offset: Offset(0, 15),
                     ),
                     BoxShadow(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       blurRadius: 10,
                       offset: Offset(0, -5),
                     ),
@@ -77,7 +77,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                       Text(
                         'Enter the details below to find your WEFTer.',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 16,
                         ),
                         textAlign: TextAlign.center,
@@ -125,12 +125,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: Color(0xFF6366F1).withOpacity(0.25),
+                              color: Color(0xFF6366F1).withValues(alpha: 0.25),
                               blurRadius: 8,
                               offset: Offset(0, 4),
                             ),
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 12,
                               offset: Offset(0, 2),
                             ),
@@ -140,8 +140,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           color: Colors.transparent,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(14),
-                            splashColor: Colors.white.withOpacity(0.1),
-                            highlightColor: Colors.white.withOpacity(0.05),
+                            splashColor: Colors.white.withValues(alpha: 0.1),
+                            highlightColor: Colors.white.withValues(alpha: 0.05),
                             onTap: () {
                               _findWEFTer();
                             },
@@ -149,7 +149,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.15),
+                                  color: Colors.white.withValues(alpha: 0.15),
                                   width: 1,
                                 ),
                               ),
@@ -187,10 +187,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         width: double.infinity,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Color(0xFF6366F1).withOpacity(0.5),
+                            color: Color(0xFF6366F1).withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -260,7 +260,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: TextField(
@@ -268,7 +268,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: placeholder,
-              hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 16,

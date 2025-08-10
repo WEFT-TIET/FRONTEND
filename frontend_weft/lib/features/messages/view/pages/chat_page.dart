@@ -89,7 +89,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                 'Connecting...',
                 style: TextStyle(fontSize: 12, color: Colors.orange),
               ),
-              error: (_, __) => const Text(
+              error: (error, stackTrace) => const Text(
                 'Offline',
                 style: TextStyle(fontSize: 12, color: Colors.red),
               ),
@@ -192,7 +192,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: Colors.grey.withValues(alpha: 0.2),
                   spreadRadius: 1,
                   blurRadius: 3,
                   offset: const Offset(0, -1),

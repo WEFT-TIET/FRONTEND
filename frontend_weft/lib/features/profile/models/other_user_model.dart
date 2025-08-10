@@ -7,7 +7,7 @@ class OtherUserModel {
   final String username;
   final String year;
   final String branch;
-  final String? image_url;
+  final String? imageUrl;
   final String? email;
   final String? instagramId;
   final List<Post> posts;
@@ -19,7 +19,7 @@ class OtherUserModel {
     required this.username,
     required this.year,
     required this.branch,
-    this.image_url,
+    this.imageUrl,
     this.email,
     this.instagramId,
     this.posts = const [],
@@ -39,7 +39,7 @@ class OtherUserModel {
     String? username,
     String? year,
     String? branch,
-    String? image_url,
+    String? imageUrl,
     String? email,
     String? instagramId,
     List<Post>? posts,
@@ -51,7 +51,7 @@ class OtherUserModel {
       username: username ?? this.username,
       year: year ?? this.year,
       branch: branch ?? this.branch,
-      image_url: image_url ?? this.image_url,
+      imageUrl: imageUrl ?? this.imageUrl,
       email: email ?? this.email,
       instagramId: instagramId ?? this.instagramId,
       posts: posts ?? this.posts,
@@ -66,7 +66,7 @@ class OtherUserModel {
       'username': username,
       'year': year,
       'branch': branch,
-      'image_url': image_url,
+      'image_url': imageUrl,
       'email': email,
       'instagramId': instagramId,
       'posts': posts.map((post) => post.toJson()).toList(),
@@ -81,7 +81,7 @@ class OtherUserModel {
       username: json['username'] ?? '',
       year: json['year']?.toString() ?? '',
       branch: json['branch'] ?? '',
-      image_url: json['image_url'],
+      imageUrl: json['image_url'],
       email: json['email'],
       instagramId: json['instagramId'],
       posts: (json['posts'] as List<dynamic>? ?? [])
@@ -103,7 +103,7 @@ class OtherUserModel {
       username: userMap['username'] ?? 'unknown',
       year: userMap['year']?.toString() ?? '2024',
       branch: userMap['branch'] ?? 'COE',
-      image_url: userMap['image_url'],
+      imageUrl: userMap['image_url'],
       email: userMap['email'],
       instagramId: userMap['instagramId'],
       posts: [], // Empty posts for now

@@ -53,7 +53,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                 onPressed: () => Navigator.of(context).pop(false),
                 child: Text(
                   'Cancel',
-                  style: TextStyle(color: AppPallete.textPrimaryDark.withOpacity(0.7)),
+                  style: TextStyle(color: AppPallete.textPrimaryDark.withValues(alpha: 0.7)),
                 ),
               ),
               ElevatedButton(
@@ -181,20 +181,20 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                     decoration: InputDecoration(
                       labelText: 'Current Password',
                       labelStyle: TextStyle(
-                        color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                        color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
                       ),
                       filled: true,
-                      fillColor: AppPallete.cardColorDark.withOpacity(0.2),
+                      fillColor: AppPallete.cardColorDark.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppPallete.textPrimaryDark.withOpacity(0.4),
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.4),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppPallete.textPrimaryDark.withOpacity(0.4),
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.4),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -209,7 +209,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                           _obscureCurrentPassword
                               ? Icons.visibility_off
                               : Icons.visibility,
-                          color: AppPallete.textPrimaryDark.withOpacity(0.6),
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.6),
                         ),
                         onPressed: () => setState(() {
                           _obscureCurrentPassword = !_obscureCurrentPassword;
@@ -233,20 +233,20 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                     decoration: InputDecoration(
                       labelText: 'New Password',
                       labelStyle: TextStyle(
-                        color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                        color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
                       ),
                       filled: true,
-                      fillColor: AppPallete.cardColorDark.withOpacity(0.2),
+                      fillColor: AppPallete.cardColorDark.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppPallete.textPrimaryDark.withOpacity(0.4),
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.4),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppPallete.textPrimaryDark.withOpacity(0.4),
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.4),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -261,7 +261,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                           _obscureNewPassword
                               ? Icons.visibility_off
                               : Icons.visibility,
-                          color: AppPallete.textPrimaryDark.withOpacity(0.6),
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.6),
                         ),
                         onPressed: () => setState(() {
                           _obscureNewPassword = !_obscureNewPassword;
@@ -292,10 +292,10 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppPallete.cardColorDark.withOpacity(0.1),
+                        color: AppPallete.cardColorDark.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: AppPallete.textPrimaryDark.withOpacity(0.2),
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.2),
                         ),
                       ),
                       child: Column(
@@ -304,7 +304,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                           Text(
                             'Password Requirements:',
                             style: TextStyle(
-                              color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                              color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -343,20 +343,20 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                     decoration: InputDecoration(
                       labelText: 'Confirm New Password',
                       labelStyle: TextStyle(
-                        color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                        color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
                       ),
                       filled: true,
-                      fillColor: AppPallete.cardColorDark.withOpacity(0.2),
+                      fillColor: AppPallete.cardColorDark.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppPallete.textPrimaryDark.withOpacity(0.4),
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.4),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppPallete.textPrimaryDark.withOpacity(0.4),
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.4),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -371,7 +371,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                           _obscureConfirmPassword
                               ? Icons.visibility_off
                               : Icons.visibility,
-                          color: AppPallete.textPrimaryDark.withOpacity(0.6),
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.6),
                         ),
                         onPressed: () => setState(() {
                           _obscureConfirmPassword = !_obscureConfirmPassword;
@@ -397,7 +397,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                       child: Text(
                         'Forgot Password?',
                         style: TextStyle(
-                          color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
                           fontSize: 13,
                         ),
                       ),
@@ -459,14 +459,14 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
         Icon(
           isMet ? Icons.check_circle : Icons.radio_button_unchecked,
           size: 16,
-          color: isMet ? Colors.green : AppPallete.textPrimaryDark.withOpacity(0.5),
+          color: isMet ? Colors.green : AppPallete.textPrimaryDark.withValues(alpha: 0.5),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
-              color: isMet ? Colors.green : AppPallete.textPrimaryDark.withOpacity(0.7),
+              color: isMet ? Colors.green : AppPallete.textPrimaryDark.withValues(alpha: 0.7),
               fontSize: 11,
               fontWeight: isMet ? FontWeight.w500 : FontWeight.normal,
             ),

@@ -116,7 +116,7 @@ class SearchUserTile extends StatelessWidget {
             ? Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppPallete.secondaryDark.withOpacity(0.2),
+                  color: AppPallete.secondaryDark.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: AppPallete.secondaryDark,

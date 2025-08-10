@@ -47,10 +47,10 @@ class AboutUsPage extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppPallete.cardColorDark.withOpacity(0.3),
+                    color: AppPallete.cardColorDark.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppPallete.textPrimaryDark.withOpacity(0.2),
+                      color: AppPallete.textPrimaryDark.withValues(alpha: 0.2),
                     ),
                   ),
                   child: const Column(
@@ -112,10 +112,10 @@ class AboutUsPage extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppPallete.cardColorDark.withOpacity(0.3),
+                    color: AppPallete.cardColorDark.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppPallete.textPrimaryDark.withOpacity(0.2),
+                      color: AppPallete.textPrimaryDark.withValues(alpha: 0.2),
                     ),
                   ),
                   child: const Column(
@@ -195,10 +195,10 @@ class TeamMemberCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppPallete.cardColorDark.withOpacity(0.4),
+        color: AppPallete.cardColorDark.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppPallete.textPrimaryDark.withOpacity(0.2),
+          color: AppPallete.textPrimaryDark.withValues(alpha: 0.2),
         ),
       ),
       child: Padding(
@@ -213,7 +213,7 @@ class TeamMemberCard extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppPallete.textPrimaryDark.withOpacity(0.3),
+                  color: AppPallete.textPrimaryDark.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -250,7 +250,7 @@ class TeamMemberCard extends StatelessWidget {
             Text(
               member.role,
               style: TextStyle(
-                color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -264,13 +264,13 @@ class TeamMemberCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: AppPallete.textPrimaryDark.withOpacity(0.1),
+                color: AppPallete.textPrimaryDark.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 member.branch,
                 style: TextStyle(
-                  color: AppPallete.textPrimaryDark.withOpacity(0.9),
+                  color: AppPallete.textPrimaryDark.withValues(alpha: 0.9),
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
                 ),
@@ -319,11 +319,11 @@ class TeamMemberCard extends StatelessWidget {
       height: 60,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppPallete.textPrimaryDark.withOpacity(0.1),
+        color: AppPallete.textPrimaryDark.withValues(alpha: 0.1),
       ),
       child: Icon(
         Icons.person,
-        color: AppPallete.textPrimaryDark.withOpacity(0.6),
+        color: AppPallete.textPrimaryDark.withValues(alpha: 0.6),
         size: 30,
       ),
     );

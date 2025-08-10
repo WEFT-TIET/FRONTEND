@@ -89,10 +89,10 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
@@ -132,10 +132,10 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withOpacity(0.2),
+                color: const Color(0xFF6366F1).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: const Color(0xFF6366F1).withOpacity(0.3),
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -162,7 +162,7 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
                   Text(
                     'Add and manage your technical skills',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 14,
                     ),
                   ),
@@ -178,15 +178,15 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
   Widget _buildAddSkillField() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF3A3E7A).withOpacity(0.6),
+        color: const Color(0xFF3A3E7A).withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withValues(alpha: 0.3),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -198,12 +198,12 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
         decoration: InputDecoration(
           hintText: 'Add a new skill...',
           hintStyle: TextStyle(
-            color: Colors.white.withOpacity(0.6),
+            color: Colors.white.withValues(alpha: 0.6),
             fontSize: 16,
           ),
           prefixIcon: Icon(
             Icons.add,
-            color: Colors.white.withOpacity(0.6),
+            color: Colors.white.withValues(alpha: 0.6),
             size: 22,
           ),
           suffixIcon: Container(
@@ -244,7 +244,7 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
               Text(
                 'Your Skills',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
@@ -253,7 +253,7 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withOpacity(0.2),
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -277,14 +277,14 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
                   children: [
                     Icon(
                       Icons.stars_outlined,
-                      color: Colors.white.withOpacity(0.4),
+                      color: Colors.white.withValues(alpha: 0.4),
                       size: 64,
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'No skills added yet',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
                       ),
@@ -293,7 +293,7 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
                     Text(
                       'Add your first skill above',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withValues(alpha: 0.5),
                         fontSize: 14,
                       ),
                     ),
@@ -306,10 +306,10 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3A3E7A).withOpacity(0.6),
+                  color: const Color(0xFF3A3E7A).withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                 ),

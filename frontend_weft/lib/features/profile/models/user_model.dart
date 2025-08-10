@@ -6,7 +6,7 @@ class UserModel {
   final String username;
   final String year;
   final String branch;
-  final String? image_url;
+  final String? imageUrl;
   final String? email;
   final String? instagramId;
   final List<Post> posts;
@@ -17,7 +17,7 @@ class UserModel {
     required this.username,
     required this.year,
     required this.branch,
-    this.image_url,
+    this.imageUrl,
     this.email,
     this.instagramId,
     this.posts = const [],
@@ -36,7 +36,7 @@ class UserModel {
     String? username,
     String? year,
     String? branch,
-    String? image_url,
+    String? imageUrl,
     String? email,
     String? instagramId,
     List<Post>? posts,
@@ -47,7 +47,7 @@ class UserModel {
       username: username ?? this.username,
       year: year ?? this.year,
       branch: branch ?? this.branch,
-      image_url: image_url ?? this.image_url,
+      imageUrl: imageUrl ?? this.imageUrl,
       email: email ?? this.email,
       instagramId: instagramId ?? this.instagramId,
       posts: posts ?? this.posts,
@@ -61,7 +61,7 @@ class UserModel {
       'username': username,
       'year': year,
       'branch': branch,
-      'image_url': image_url,
+      'image_url': imageUrl,
       'email': email,
       'instagramId': instagramId,
       'posts': posts.map((post) => post.toJson()).toList(),
@@ -75,7 +75,7 @@ class UserModel {
       username: json['username'] ?? '',
       year: json['year'] ?? '',
       branch: json['branch'] ?? '',
-      image_url: json['image_url'],
+      imageUrl: json['image_url'],
       email: json['email'],
       instagramId: json['instagramId'],
       posts: (json['posts'] as List<dynamic>? ?? [])

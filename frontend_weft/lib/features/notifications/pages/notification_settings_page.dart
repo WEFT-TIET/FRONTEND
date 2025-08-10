@@ -160,10 +160,10 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: AppPallete.scaffoldBackgroundColorDark.withOpacity(0.3),
+        color: AppPallete.scaffoldBackgroundColorDark.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppPallete.greyColor.withOpacity(0.2),
+          color: AppPallete.greyColor.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -174,7 +174,7 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: (iconColor ?? AppPallete.gradient1).withOpacity(0.1),
+                  color: (iconColor ?? AppPallete.gradient1).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Icon(
@@ -205,9 +205,9 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
           value: value,
           onChanged: onChanged,
           activeColor: AppPallete.gradient1,
-          activeTrackColor: AppPallete.gradient1.withOpacity(0.3),
+          activeTrackColor: AppPallete.gradient1.withValues(alpha: 0.3),
           inactiveThumbColor: AppPallete.greyColor,
-          inactiveTrackColor: AppPallete.greyColor.withOpacity(0.3),
+          inactiveTrackColor: AppPallete.greyColor.withValues(alpha: 0.3),
         ),
       ),
     );
@@ -227,7 +227,7 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: AppPallete.gradient1.withOpacity(0.3),
+            color: AppPallete.gradient1.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),

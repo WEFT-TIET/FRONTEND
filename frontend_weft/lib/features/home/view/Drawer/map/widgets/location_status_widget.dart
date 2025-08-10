@@ -24,10 +24,10 @@ class LocationStatusWidget extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Color(0xFF6366F1).withOpacity(0.2),
+                color: Color(0xFF6366F1).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Color(0xFF6366F1).withOpacity(0.4),
+                  color: Color(0xFF6366F1).withValues(alpha: 0.4),
                 ),
               ),
               child: Icon(
@@ -47,9 +47,9 @@ class LocationStatusWidget extends StatelessWidget {
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.orange.withOpacity(0.2),
+            color: Colors.orange.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.orange.withOpacity(0.4)),
+            border: Border.all(color: Colors.orange.withValues(alpha: 0.4)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -75,9 +75,9 @@ class LocationStatusWidget extends StatelessWidget {
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.2),
+            color: Colors.red.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.red.withOpacity(0.4)),
+            border: Border.all(color: Colors.red.withValues(alpha: 0.4)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -96,9 +96,9 @@ class LocationStatusWidget extends StatelessWidget {
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.amber.withOpacity(0.2),
+            color: Colors.amber.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.amber.withOpacity(0.4)),
+            border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -117,9 +117,9 @@ class LocationStatusWidget extends StatelessWidget {
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.green.withOpacity(0.2),
+            color: Colors.green.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.green.withOpacity(0.4)),
+            border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

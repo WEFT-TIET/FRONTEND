@@ -246,7 +246,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppPallete.gradient1.withOpacity(0.1),
+              AppPallete.gradient1.withValues(alpha: 0.1),
               AppPallete.scaffoldBackgroundColorDark,
             ],
           ),
@@ -302,14 +302,14 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
               children: [
                 Icon(
                   icon,
-                  color: isSelected ? Colors.white : AppPallete.textPrimaryDark.withOpacity(0.7),
+                  color: isSelected ? Colors.white : AppPallete.textPrimaryDark.withValues(alpha: 0.7),
                   size: 20,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   label,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : AppPallete.textPrimaryDark.withOpacity(0.7),
+                    color: isSelected ? Colors.white : AppPallete.textPrimaryDark.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
@@ -341,7 +341,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
         decoration: InputDecoration(
           hintText: _isPollMode ? 'What\'s your question?' : 'Give your post a title...',
           hintStyle: TextStyle(
-            color: AppPallete.textPrimaryDark.withOpacity(0.5),
+            color: AppPallete.textPrimaryDark.withValues(alpha: 0.5),
             fontSize: 16,
           ),
           border: OutlineInputBorder(
@@ -353,7 +353,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
             margin: const EdgeInsets.all(12),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppPallete.gradient2.withOpacity(0.2),
+              color: AppPallete.gradient2.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -392,7 +392,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
               ? 'Add some context to your poll...' 
               : 'Share your thoughts, experiences, or ask the community...',
           hintStyle: TextStyle(
-            color: AppPallete.textPrimaryDark.withOpacity(0.5),
+            color: AppPallete.textPrimaryDark.withValues(alpha: 0.5),
             fontSize: 16,
           ),
           border: OutlineInputBorder(
@@ -533,7 +533,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
                 Text(
                   label,
                   style: TextStyle(
-                    color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                    color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -580,9 +580,9 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: AppPallete.gradient2.withOpacity(0.2),
+                                color: AppPallete.gradient2.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppPallete.gradient2.withOpacity(0.3)),
+                                border: Border.all(color: AppPallete.gradient2.withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -672,7 +672,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            color: AppPallete.textPrimaryDark.withOpacity(0.5),
+            color: AppPallete.textPrimaryDark.withValues(alpha: 0.5),
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -683,7 +683,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
             margin: const EdgeInsets.all(8),
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: AppPallete.gradient2.withOpacity(0.2),
+              color: AppPallete.gradient2.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(
@@ -696,7 +696,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
               ? IconButton(
                   icon: Icon(
                     Icons.remove_circle,
-                    color: AppPallete.red.withOpacity(0.7),
+                    color: AppPallete.red.withValues(alpha: 0.7),
                     size: 20,
                   ),
                   onPressed: () => _removePollOption(index),
@@ -760,12 +760,12 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: AppPallete.textPrimaryDark.withOpacity(0.7), size: 20),
+                Icon(icon, color: AppPallete.textPrimaryDark.withValues(alpha: 0.7), size: 20),
                 const SizedBox(width: 8),
                 Text(
                   text,
                   style: TextStyle(
-                    color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                    color: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
@@ -790,7 +790,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppPallete.gradient2.withOpacity(0.3),
+            color: AppPallete.gradient2.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),

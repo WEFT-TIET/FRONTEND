@@ -54,7 +54,7 @@ class HelpCenterPage extends StatelessWidget {
                 Text(
                   'Find answers or contact our support team',
                   style: TextStyle(
-                    color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                    color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
                     fontSize: 16,
                   ),
                 ),
@@ -141,10 +141,10 @@ class HelpCenterPage extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppPallete.cardColorDark.withOpacity(0.3),
+        color: AppPallete.cardColorDark.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppPallete.textPrimaryDark.withOpacity(0.2),
+          color: AppPallete.textPrimaryDark.withValues(alpha: 0.2),
         ),
       ),
       child: ExpansionTile(
@@ -162,7 +162,7 @@ class HelpCenterPage extends StatelessWidget {
           Text(
             answer,
             style: TextStyle(
-              color: AppPallete.textPrimaryDark.withOpacity(0.8),
+              color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
               height: 1.5,
             ),
           ),
@@ -182,10 +182,10 @@ class HelpCenterPage extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppPallete.cardColorDark.withOpacity(0.3),
+        color: AppPallete.cardColorDark.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppPallete.textPrimaryDark.withOpacity(0.2),
+          color: AppPallete.textPrimaryDark.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -193,7 +193,7 @@ class HelpCenterPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppPallete.cardColorDark.withOpacity(0.3),
+              color: AppPallete.cardColorDark.withValues(alpha: 0.3),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -226,7 +226,7 @@ class HelpCenterPage extends StatelessWidget {
                 Text(
                   info,
                   style: TextStyle(
-                    color: AppPallete.textPrimaryDark.withOpacity(0.6),
+                    color: AppPallete.textPrimaryDark.withValues(alpha: 0.6),
                     fontSize: 12,
                   ),
                 ),

@@ -18,7 +18,7 @@ class ProfileService {
     username: 'rudra_yadav',
     year: '',
     branch: 'COE',
-    image_url: 'lib/core/assets/profile_photo.jpeg',
+    imageUrl: 'lib/core/assets/profile_photo.jpeg',
   );
 
   List<WeftModel> get _userWeftsData => [
@@ -91,7 +91,7 @@ class ProfileService {
     _isLoading = true;
     try {
       await Future.delayed(const Duration(milliseconds: 500));
-      _cachedUser = _cachedUser!.copyWith(image_url: imagePath);
+      _cachedUser = _cachedUser!.copyWith(imageUrl: imagePath);
     } finally {
       _isLoading = false;
     }

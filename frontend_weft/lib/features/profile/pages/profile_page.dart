@@ -181,7 +181,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                   child: Text(
                                     'No wefts yet.',
                                     style: TextStyle(
-                                      color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                                      color: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
                                       fontSize: 16,
                                     ),
                                   ),
@@ -247,7 +247,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                   Center(
                     child: Container(
                       padding: const EdgeInsets.all(16),
-                      color: Colors.red.withOpacity(0.8),
+                      color: Colors.red.withValues(alpha: 0.8),
                       child: Text(_errorMessage!, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
@@ -270,19 +270,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         // Darker glassmorphism effect
-        color: const Color(0xFF2A2D5A).withOpacity(0.8),
+        color: const Color(0xFF2A2D5A).withValues(alpha: 0.8),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 25,
             offset: const Offset(0, 15),
           ),
           BoxShadow(
-            color: Colors.white.withOpacity(0.05),
+            color: Colors.white.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -310,7 +310,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
             onTap: () {
               showProfileImageViewer(
                 context,
-                imageUrl: user.image_url,
+                imageUrl: user.imageUrl,
                 userName: user.name,
                 onEditPressed: () => _navigateToEditProfile(user),
                 isEditing: false,
@@ -322,30 +322,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 // Enhanced glassmorphism for profile image
-                color: Colors.white.withOpacity(0.1),
-                border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
+                color: Colors.white.withValues(alpha: 0.1),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, -2),
                   ),
                 ],
               ),
               child: ClipOval(
-                child: (user.image_url != null && user.image_url!.startsWith('http'))
+                child: (user.imageUrl != null && user.imageUrl!.startsWith('http'))
                     ? Image.network(
-                        user.image_url!,
+                        user.imageUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+                        errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
                       )
                     : Image.asset(
-                        user.image_url ?? 'lib/core/assets/profile_photo.jpeg',
+                        user.imageUrl ?? 'lib/core/assets/profile_photo.jpeg',
                         fit: BoxFit.cover,
                         cacheWidth: 200,
                         cacheHeight: 200,
@@ -400,7 +400,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                             '@${user.username}',
                             key: const ValueKey('username_text'),
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
@@ -415,10 +415,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF6366F1).withOpacity(0.2),
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: const Color(0xFF6366F1).withOpacity(0.5),
+                          color: const Color(0xFF6366F1).withValues(alpha: 0.5),
                           width: 1,
                         ),
                       ),
@@ -457,12 +457,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [const Color(0xFF6366F1).withOpacity(0.3), const Color(0xFF8B5CF6).withOpacity(0.3)],
+          colors: [const Color(0xFF6366F1).withValues(alpha: 0.3), const Color(0xFF8B5CF6).withValues(alpha: 0.3)],
         ),
       ),
       child: Icon(
         Icons.person,
-        color: Colors.white.withOpacity(0.8),
+        color: Colors.white.withValues(alpha: 0.8),
         size: 40,
       ),
     );
@@ -473,15 +473,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -499,7 +499,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.white.withOpacity(0.3),
+                  Colors.white.withValues(alpha: 0.3),
                   Colors.transparent,
                 ],
               ),
@@ -515,7 +515,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.white.withOpacity(0.3),
+                  Colors.white.withValues(alpha: 0.3),
                   Colors.transparent,
                 ],
               ),
@@ -534,7 +534,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         Text(
           title,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             fontSize: 12,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.5,
@@ -561,7 +561,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         Text(
           'Instagram',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             fontSize: 12,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.5,
@@ -574,12 +574,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: user.instagramId != null && user.instagramId!.isNotEmpty 
-                  ? const Color(0xFFE4405F).withOpacity(0.2)
+                  ? const Color(0xFFE4405F).withValues(alpha: 0.2)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
               border: user.instagramId != null && user.instagramId!.isNotEmpty 
                   ? Border.all(
-                      color: const Color(0xFFE4405F).withOpacity(0.5),
+                      color: const Color(0xFFE4405F).withValues(alpha: 0.5),
                       width: 1,
                     )
                   : null,
@@ -604,7 +604,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     style: TextStyle(
                       color: user.instagramId != null && user.instagramId!.isNotEmpty 
                           ? const Color(0xFFE4405F)
-                          : Colors.white.withOpacity(0.5),
+                          : Colors.white.withValues(alpha: 0.5),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.3,
@@ -628,7 +628,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         Expanded(
           child: _buildActionButton(
             'Edit',
-            Colors.white.withOpacity(0.15),
+            Colors.white.withValues(alpha: 0.15),
             Colors.white,
             () => _navigateToEditProfile(user),
             icon: Icons.edit,
@@ -638,7 +638,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         Expanded(
           child: _buildActionButton(
             'Share',
-            Colors.white.withOpacity(0.15),
+            Colors.white.withValues(alpha: 0.15),
             Colors.white,
             _shareProfile,
             icon: Icons.share,
@@ -659,15 +659,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1D3A).withOpacity(0.8),
+        color: const Color(0xFF1A1D3A).withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withValues(alpha: 0.15),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -678,7 +678,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(12),
-          splashColor: Colors.white.withOpacity(0.1),
+          splashColor: Colors.white.withValues(alpha: 0.1),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(

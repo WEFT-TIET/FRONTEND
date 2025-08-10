@@ -77,7 +77,7 @@ class _CommentCardState extends State<CommentCard> {
                     Text(
                       _formatTimeAgo(widget.comment.createdAt),
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
+                        color: Colors.white.withValues(alpha: 0.6),
                         fontSize: 12,
                       ),
                     ),
@@ -90,7 +90,7 @@ class _CommentCardState extends State<CommentCard> {
                 Text(
                   displayText,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 14,
                     fontWeight: FontWeight.normal,
                     height: 1.4,
@@ -110,7 +110,7 @@ class _CommentCardState extends State<CommentCard> {
                       child: Text(
                         _isExpanded ? 'Show less' : 'more',
                         style: TextStyle(
-                          color: Color(0xFF8B5CF6).withOpacity(0.8),
+                          color: Color(0xFF8B5CF6).withValues(alpha: 0.8),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),

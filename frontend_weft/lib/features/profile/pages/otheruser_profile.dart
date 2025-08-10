@@ -159,10 +159,10 @@ return Container(
                   leading: Container(
                     margin: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
+                      color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
@@ -186,10 +186,10 @@ return Container(
 return Container(
                             margin: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 width: 1,
                               ),
                             ),
@@ -252,7 +252,7 @@ return Container(
                                   'No wefts yet.',
                                   style: TextStyle(
                                     color: AppPallete.textPrimaryDark
-                                        .withOpacity(0.7),
+                                        .withValues(alpha: 0.7),
                                     fontSize: 16,
                                   ),
                                 ),
@@ -314,7 +314,7 @@ return bDate.compareTo(aDate);
                   padding: const EdgeInsets.all(16),
                   margin: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.8),
+                    color: Colors.red.withValues(alpha: 0.8),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -351,19 +351,19 @@ return bDate.compareTo(aDate);
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: const Color(0xFF2A2D5A).withOpacity(0.8),
+        color: const Color(0xFF2A2D5A).withValues(alpha: 0.8),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 25,
             offset: const Offset(0, 15),
           ),
           BoxShadow(
-            color: Colors.white.withOpacity(0.05),
+            color: Colors.white.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -390,7 +390,7 @@ Widget _buildProfileHeader(OtherUserModel user) {
             onTap: () {
               showProfileImageViewer(
                 context,
-                imageUrl: user.image_url,
+                imageUrl: user.imageUrl,
                 userName: user.name,
                 onEditPressed: null,
                 isEditing: false,
@@ -401,16 +401,16 @@ Widget _buildProfileHeader(OtherUserModel user) {
               height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.1),
-                border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
+                color: Colors.white.withValues(alpha: 0.1),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, -2),
                   ),
@@ -418,14 +418,14 @@ Widget _buildProfileHeader(OtherUserModel user) {
               ),
               child: ClipOval(
                 child:
-                    (user.image_url != null && user.image_url!.startsWith('http'))
+                    (user.imageUrl != null && user.imageUrl!.startsWith('http'))
                         ? Image.network(
-                            user.image_url!,
+                            user.imageUrl!,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+                            errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
                           )
                         : Image.asset(
-                            user.image_url ??
+                            user.imageUrl ??
                                 'lib/core/assets/profile_photo.jpeg',
                             fit: BoxFit.cover,
                             cacheWidth: 200,
@@ -474,7 +474,7 @@ Widget _buildProfileHeader(OtherUserModel user) {
                         Text(
                           '@${user.username}',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
@@ -496,10 +496,10 @@ Widget _buildProfileHeader(OtherUserModel user) {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF6366F1).withOpacity(0.2),
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: const Color(0xFF6366F1).withOpacity(0.5),
+                          color: const Color(0xFF6366F1).withValues(alpha: 0.5),
                           width: 1,
                         ),
                       ),
@@ -538,14 +538,14 @@ Widget _buildProfileHeader(OtherUserModel user) {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF6366F1).withOpacity(0.3),
-            const Color(0xFF8B5CF6).withOpacity(0.3)
+            const Color(0xFF6366F1).withValues(alpha: 0.3),
+            const Color(0xFF8B5CF6).withValues(alpha: 0.3)
           ],
         ),
       ),
       child: Icon(
         Icons.person,
-        color: Colors.white.withOpacity(0.8),
+        color: Colors.white.withValues(alpha: 0.8),
         size: 40,
       ),
     );
@@ -555,15 +555,15 @@ Widget _buildAcademicDetails(OtherUserModel user) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -581,7 +581,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.white.withOpacity(0.3),
+                  Colors.white.withValues(alpha: 0.3),
                   Colors.transparent,
                 ],
               ),
@@ -597,7 +597,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.white.withOpacity(0.3),
+                  Colors.white.withValues(alpha: 0.3),
                   Colors.transparent,
                 ],
               ),
@@ -615,7 +615,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
         Text(
           title,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             fontSize: 12,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.5,
@@ -642,7 +642,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
         Text(
           'Instagram',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             fontSize: 12,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.5,
@@ -655,12 +655,12 @@ Widget _buildAcademicDetails(OtherUserModel user) {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: instagramId != null && instagramId.isNotEmpty 
-                  ? const Color(0xFFE4405F).withOpacity(0.2)
+                  ? const Color(0xFFE4405F).withValues(alpha: 0.2)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
               border: instagramId != null && instagramId.isNotEmpty 
                   ? Border.all(
-                      color: const Color(0xFFE4405F).withOpacity(0.5),
+                      color: const Color(0xFFE4405F).withValues(alpha: 0.5),
                       width: 1,
                     )
                   : null,
@@ -685,7 +685,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
                     style: TextStyle(
                       color: instagramId != null && instagramId.isNotEmpty 
                           ? const Color(0xFFE4405F)
-                          : Colors.white.withOpacity(0.5),
+                          : Colors.white.withValues(alpha: 0.5),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.3,
@@ -715,7 +715,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
               Expanded(
                 child: _buildActionButton(
                   'Share',
-                  Colors.white.withOpacity(0.15),
+                  Colors.white.withValues(alpha: 0.15),
                   Colors.white,
                   _shareProfile,
                   icon: Icons.share,
@@ -734,7 +734,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
             Expanded(
               child: _buildActionButton(
                 'Share',
-                Colors.white.withOpacity(0.15),
+                Colors.white.withValues(alpha: 0.15),
                 Colors.white,
                 _shareProfile,
                 icon: Icons.share,
@@ -812,15 +812,15 @@ Widget _buildAcademicDetails(OtherUserModel user) {
       child: Container(
         height: 48,
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1D3A).withOpacity(onPressed == null ? 0.4 : 0.8),
+          color: const Color(0xFF1A1D3A).withValues(alpha: onPressed == null ? 0.4 : 0.8),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.white.withOpacity(onPressed == null ? 0.1 : 0.15),
+            color: Colors.white.withValues(alpha: onPressed == null ? 0.1 : 0.15),
             width: 1,
           ),
           boxShadow: onPressed == null ? [] : [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withValues(alpha: 0.15),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -831,7 +831,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
           child: InkWell(
             onTap: onPressed,
             borderRadius: BorderRadius.circular(12),
-            splashColor: onPressed == null ? null : Colors.white.withOpacity(0.1),
+            splashColor: onPressed == null ? null : Colors.white.withValues(alpha: 0.1),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(
@@ -844,7 +844,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.white.withOpacity(0.7),
+                          Colors.white.withValues(alpha: 0.7),
                         ),
                       ),
                     )
@@ -853,7 +853,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
                       children: [
                         Icon(
                           buttonIcon,
-                          color: iconColor ?? Colors.white.withOpacity(onPressed == null ? 0.5 : 1.0),
+                          color: iconColor ?? Colors.white.withValues(alpha: onPressed == null ? 0.5 : 1.0),
                           size: 18,
                         ),
                         // Small connection indicator dot
@@ -877,7 +877,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
                     child: Text(
                       buttonText,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(onPressed == null ? 0.5 : 1.0),
+                        color: Colors.white.withValues(alpha: onPressed == null ? 0.5 : 1.0),
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -905,15 +905,15 @@ Widget _buildActionButton(
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1D3A).withOpacity(isDisabled ? 0.4 : 0.8),
+        color: const Color(0xFF1A1D3A).withValues(alpha: isDisabled ? 0.4 : 0.8),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withOpacity(isDisabled ? 0.1 : 0.15),
+          color: Colors.white.withValues(alpha: isDisabled ? 0.1 : 0.15),
           width: 1,
         ),
         boxShadow: isDisabled ? [] : [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -924,7 +924,7 @@ Widget _buildActionButton(
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(12),
-          splashColor: isDisabled ? null : Colors.white.withOpacity(0.1),
+          splashColor: isDisabled ? null : Colors.white.withValues(alpha: 0.1),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
@@ -933,7 +933,7 @@ Widget _buildActionButton(
                 if (icon != null) ...[
                   Icon(
                     icon, 
-                    color: textColor.withOpacity(isDisabled ? 0.5 : 1.0), 
+                    color: textColor.withValues(alpha: isDisabled ? 0.5 : 1.0), 
                     size: 18,
                   ),
                   const SizedBox(width: 6),
@@ -942,7 +942,7 @@ Widget _buildActionButton(
                   child: Text(
                     text,
                     style: TextStyle(
-                      color: textColor.withOpacity(isDisabled ? 0.5 : 1.0),
+                      color: textColor.withValues(alpha: isDisabled ? 0.5 : 1.0),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -990,7 +990,7 @@ Widget _buildActionButton(
         final newConversation = ConversationSummary(
           userId: receiverId,
           userName: user.name,
-          userAvatar: user.image_url,
+          userAvatar: user.imageUrl,
           lastActivity: DateTime.now(),
           isOnline: false, // We don't have online status from profile
         );
@@ -1032,12 +1032,12 @@ Widget _buildActionButton(
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF3A3E7A).withOpacity(0.95),
+          color: const Color(0xFF3A3E7A).withValues(alpha: 0.95),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          border: Border.all(color: Colors.white.withOpacity(0.2)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 25,
               offset: const Offset(0, -10),
             ),
@@ -1051,7 +1051,7 @@ Widget _buildActionButton(
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

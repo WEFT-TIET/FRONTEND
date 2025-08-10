@@ -58,18 +58,18 @@ class _BottomNavBarState extends State<BottomNavBar>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withOpacity(0.2),
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
+            Colors.white.withValues(alpha: 0.2),
+            Colors.white.withValues(alpha: 0.1),
+            Colors.white.withValues(alpha: 0.05),
           ],
         ),
         border: Border.all(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -86,8 +86,8 @@ class _BottomNavBarState extends State<BottomNavBar>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Colors.white.withOpacity(0.1),
-                  Colors.white.withOpacity(0.05),
+                  Colors.white.withValues(alpha: 0.1),
+                  Colors.white.withValues(alpha: 0.05),
                 ],
               ),
             ),
@@ -126,20 +126,20 @@ class _BottomNavBarState extends State<BottomNavBar>
                 )
               : LinearGradient(
                   colors: [
-                    Colors.white.withOpacity(0.3),
-                    Colors.white.withOpacity(0.2),
+                    Colors.white.withValues(alpha: 0.3),
+                    Colors.white.withValues(alpha: 0.2),
                   ],
                 ),
           border: Border.all(
             color: isSelected
-                ? Colors.white.withOpacity(0.8)
-                : Colors.white.withOpacity(0.4),
+                ? Colors.white.withValues(alpha: 0.8)
+                : Colors.white.withValues(alpha: 0.4),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppPallete.gradient2.withOpacity(0.4),
+                    color: AppPallete.gradient2.withValues(alpha: 0.4),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -149,7 +149,7 @@ class _BottomNavBarState extends State<BottomNavBar>
         child: Icon(
           isSelected ? item.activeIcon : item.icon,
           size: 20, // Reduced from 24
-          color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
+          color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.7),
         ),
       ),
     );

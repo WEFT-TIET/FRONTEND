@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 
-void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+void showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

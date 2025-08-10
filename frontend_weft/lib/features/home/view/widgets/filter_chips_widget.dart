@@ -32,9 +32,9 @@ class FilterChipsWidget extends StatelessWidget {
               label: Text(filter),
               selected: isSelected,
               onSelected: (selected) => onFilterChanged(filter),
-              backgroundColor: AppPallete.whiteColor.withOpacity(0.2),
-              selectedColor: AppPallete.gradient1.withOpacity(0.8),
-              checkmarkColor: const Color.fromARGB(255, 255, 165, 0).withOpacity(0.8),
+              backgroundColor: AppPallete.whiteColor.withValues(alpha: 0.2),
+              selectedColor: AppPallete.gradient1.withValues(alpha: 0.8),
+              checkmarkColor: const Color.fromARGB(255, 255, 165, 0).withValues(alpha: 0.8),
               labelStyle: TextStyle(
                 color: isSelected
                     ? AppPallete.whiteColor
@@ -44,7 +44,7 @@ class FilterChipsWidget extends StatelessWidget {
               side: BorderSide(
                 color: isSelected
                     ? const Color.fromARGB(255, 255, 255, 255)
-                    : AppPallete.textPrimaryDark.withOpacity(0.3),
+                    : AppPallete.textPrimaryDark.withValues(alpha: 0.3),
               ),
             ),
           );

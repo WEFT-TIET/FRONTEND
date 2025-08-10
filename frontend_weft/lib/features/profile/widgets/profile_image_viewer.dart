@@ -84,7 +84,7 @@ class _ProfileImageViewerState extends State<ProfileImageViewer>
                 children: [
                   // Background overlay
                   Container(
-                    color: Colors.black.withOpacity(0.9),
+                    color: Colors.black.withValues(alpha: 0.9),
                   ),
                   
                   // Main content
@@ -116,12 +116,12 @@ class _ProfileImageViewerState extends State<ProfileImageViewer>
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.3),
+                                  color: Colors.white.withValues(alpha: 0.3),
                                   width: 2,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.5),
+                                    color: Colors.black.withValues(alpha: 0.5),
                                     blurRadius: 20,
                                     spreadRadius: 5,
                                   ),
@@ -145,7 +145,7 @@ class _ProfileImageViewerState extends State<ProfileImageViewer>
                         Text(
                           'Tap anywhere to close',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
+                            color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 14,
                           ),
                         ),
@@ -200,10 +200,10 @@ class _ProfileImageViewerState extends State<ProfileImageViewer>
 
   Widget _buildDefaultAvatar() {
     return Container(
-      color: AppPallete.cardColorDark.withOpacity(0.3),
+      color: AppPallete.cardColorDark.withValues(alpha: 0.3),
       child: Icon(
         Icons.person,
-        color: Colors.white.withOpacity(0.7),
+        color: Colors.white.withValues(alpha: 0.7),
         size: 120,
       ),
     );
@@ -212,7 +212,7 @@ class _ProfileImageViewerState extends State<ProfileImageViewer>
   Widget _buildCloseButton() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.5),
+        color: Colors.black.withValues(alpha: 0.5),
         shape: BoxShape.circle,
       ),
       child: IconButton(
@@ -229,9 +229,9 @@ class _ProfileImageViewerState extends State<ProfileImageViewer>
   Widget _buildEditButton() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,

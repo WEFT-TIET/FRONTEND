@@ -60,33 +60,33 @@ class _CommentInputState extends ConsumerState<CommentInput> {
               decoration: InputDecoration(
                 hintText: 'Add a comment...',
                 hintStyle: TextStyle(
-                  color: Colors.white.withOpacity(0.6),
+                  color: Colors.white.withValues(alpha: 0.6),
                   fontSize: 13,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: Colors.white.withOpacity(0.4),
+                    color: Colors.white.withValues(alpha: 0.4),
                     width: 1,
                   ),
                 ),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.05),
+                fillColor: Colors.white.withValues(alpha: 0.05),
               ),
               maxLines: null,
               textInputAction: TextInputAction.send,
@@ -108,11 +108,11 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                         ],
                       ),
                 color: widget.isLoading 
-                    ? Colors.white.withOpacity(0.1)
+                    ? Colors.white.withValues(alpha: 0.1)
                     : null,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),

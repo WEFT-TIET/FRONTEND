@@ -165,7 +165,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide(
-                        color: AppPallete.gradient1.withOpacity(0.3),
+                        color: AppPallete.gradient1.withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
@@ -194,7 +194,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: AppPallete.red.withOpacity(0.2),
+                                    color: AppPallete.red.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Icon(
@@ -227,7 +227,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: Colors.orange.withOpacity(0.2),
+                                    color: Colors.orange.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Icon(
@@ -258,7 +258,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: AppPallete.red.withOpacity(0.2),
+                                    color: AppPallete.red.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Icon(
@@ -423,7 +423,7 @@ class _PostCardState extends ConsumerState<PostCard> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: AppPallete.red.withOpacity(0.3),
+              color: AppPallete.red.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -432,7 +432,7 @@ class _PostCardState extends ConsumerState<PostCard> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppPallete.red.withOpacity(0.2),
+                  color: AppPallete.red.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -455,10 +455,10 @@ class _PostCardState extends ConsumerState<PostCard> {
           content: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppPallete.gradient3.withOpacity(0.2),
+              color: AppPallete.gradient3.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppPallete.gradient1.withOpacity(0.3),
+                color: AppPallete.gradient1.withValues(alpha: 0.3),
                 width: 0.5,
               ),
             ),
@@ -467,7 +467,7 @@ class _PostCardState extends ConsumerState<PostCard> {
               children: [
                 Icon(
                   Icons.warning_amber_rounded,
-                  color: AppPallete.red.withOpacity(0.8),
+                  color: AppPallete.red.withValues(alpha: 0.8),
                   size: 32,
                 ),
                 const SizedBox(height: 12),
@@ -484,7 +484,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                 Text(
                   'This action cannot be undone. The post will be permanently removed from WEFT.',
                   style: TextStyle(
-                    color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                    color: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
                     fontSize: 14,
                   ),
                   textAlign: TextAlign.center,
@@ -498,7 +498,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
-                foregroundColor: AppPallete.textPrimaryDark.withOpacity(0.7),
+                foregroundColor: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -598,7 +598,7 @@ class _PostCardState extends ConsumerState<PostCard> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: AppPallete.gradient1.withOpacity(0.3),
+              color: AppPallete.gradient1.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -607,7 +607,7 @@ class _PostCardState extends ConsumerState<PostCard> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.2),
+                  color: Colors.orange.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -634,7 +634,7 @@ class _PostCardState extends ConsumerState<PostCard> {
               Text(
                 'Why are you reporting this post?',
                 style: TextStyle(
-                  color: AppPallete.textPrimaryDark.withOpacity(0.8),
+                  color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
                   fontSize: 14,
                 ),
               ),
@@ -652,7 +652,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
-                foregroundColor: AppPallete.textPrimaryDark.withOpacity(0.7),
+                foregroundColor: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
               child: const Text(
@@ -682,10 +682,10 @@ class _PostCardState extends ConsumerState<PostCard> {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
           margin: const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
-            color: AppPallete.gradient3.withOpacity(0.3),
+            color: AppPallete.gradient3.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: AppPallete.gradient1.withOpacity(0.2),
+              color: AppPallete.gradient1.withValues(alpha: 0.2),
               width: 0.5,
             ),
           ),
@@ -709,7 +709,7 @@ class _PostCardState extends ConsumerState<PostCard> {
               ),
               Icon(
                 Icons.arrow_forward_ios,
-                color: AppPallete.textPrimaryDark.withOpacity(0.3),
+                color: AppPallete.textPrimaryDark.withValues(alpha: 0.3),
                 size: 14,
               ),
             ],
@@ -728,7 +728,7 @@ class _PostCardState extends ConsumerState<PostCard> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: AppPallete.red.withOpacity(0.3),
+              color: AppPallete.red.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -737,7 +737,7 @@ class _PostCardState extends ConsumerState<PostCard> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppPallete.red.withOpacity(0.2),
+                  color: AppPallete.red.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -760,10 +760,10 @@ class _PostCardState extends ConsumerState<PostCard> {
           content: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppPallete.gradient3.withOpacity(0.2),
+              color: AppPallete.gradient3.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppPallete.gradient1.withOpacity(0.3),
+                color: AppPallete.gradient1.withValues(alpha: 0.3),
                 width: 0.5,
               ),
             ),
@@ -772,7 +772,7 @@ class _PostCardState extends ConsumerState<PostCard> {
               children: [
                 Icon(
                   Icons.person_off,
-                  color: AppPallete.red.withOpacity(0.8),
+                  color: AppPallete.red.withValues(alpha: 0.8),
                   size: 32,
                 ),
                 const SizedBox(height: 12),
@@ -789,7 +789,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                 Text(
                   'You won\'t see their posts anymore and they won\'t be able to interact with your content.',
                   style: TextStyle(
-                    color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                    color: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
                     fontSize: 14,
                   ),
                   textAlign: TextAlign.center,
@@ -803,7 +803,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
-                foregroundColor: AppPallete.textPrimaryDark.withOpacity(0.7),
+                foregroundColor: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

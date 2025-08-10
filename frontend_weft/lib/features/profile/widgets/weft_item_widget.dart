@@ -20,9 +20,9 @@ class WeftItemWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: const Color(0xFF3A3D5F).withOpacity(0.6), // Solid color, no glass effect
+        color: const Color(0xFF3A3D5F).withValues(alpha: 0.6), // Solid color, no glass effect
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -41,14 +41,14 @@ class WeftItemWidget extends StatelessWidget {
                   Text(
                     weft.date,
                     style: TextStyle(
-                      color: AppPallete.profileTextSecondary.withOpacity(0.8),
+                      color: AppPallete.profileTextSecondary.withValues(alpha: 0.8),
                       fontSize: 14,
                     ),
                   ),
                   Text(
                     weft.time,
                     style: TextStyle(
-                      color: AppPallete.profileTextSecondary.withOpacity(0.8),
+                      color: AppPallete.profileTextSecondary.withValues(alpha: 0.8),
                       fontSize: 14,
                     ),
                   ),
@@ -102,7 +102,7 @@ class WeftItemWidget extends StatelessWidget {
     required VoidCallback? onTap,
   }) {
     return Material(
-      color: AppPallete.profileCardBackground.withOpacity(0.8),
+      color: AppPallete.profileCardBackground.withValues(alpha: 0.8),
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,

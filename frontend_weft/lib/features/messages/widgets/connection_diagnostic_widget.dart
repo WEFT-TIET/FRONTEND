@@ -264,8 +264,8 @@ class _ConnectionDiagnosticWidgetState extends ConsumerState<ConnectionDiagnosti
                           return Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: isError ? Colors.red.withOpacity(0.1) : 
-                                     isSuccess ? Colors.green.withOpacity(0.1) : null,
+                              color: isError ? Colors.red.withValues(alpha: 0.1) : 
+                                     isSuccess ? Colors.green.withValues(alpha: 0.1) : null,
                             ),
                             child: Text(
                               log,

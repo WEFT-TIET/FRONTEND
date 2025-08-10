@@ -305,7 +305,7 @@ class _HomePageState extends ConsumerState<HomePage>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppPallete.gradient1.withOpacity(0.3),
+              color: AppPallete.gradient1.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(20),
             ),
             child: CircularProgressIndicator(
@@ -319,7 +319,7 @@ class _HomePageState extends ConsumerState<HomePage>
             'Loading posts...',
             style: GoogleFonts.getFont(
               'Oswald',
-              color: AppPallete.textPrimaryDark.withOpacity(0.7),
+              color: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
               fontSize: 16,
             ),
           ),
@@ -336,13 +336,13 @@ class _HomePageState extends ConsumerState<HomePage>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppPallete.red.withOpacity(0.1),
+              color: AppPallete.red.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(
               Icons.error_outline,
               size: 64,
-              color: AppPallete.red.withOpacity(0.7),
+              color: AppPallete.red.withValues(alpha: 0.7),
             ),
           ),
           const SizedBox(height: 16),
@@ -360,7 +360,7 @@ class _HomePageState extends ConsumerState<HomePage>
             'Don\'t worry, we\'ll fix this!',
             style: GoogleFonts.getFont(
               'Oswald',
-              color: AppPallete.textPrimaryDark.withOpacity(0.7),
+              color: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
               fontSize: 14,
             ),
             textAlign: TextAlign.center,
@@ -400,13 +400,13 @@ class _HomePageState extends ConsumerState<HomePage>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppPallete.whiteColor.withOpacity(0.1),
+              color: AppPallete.whiteColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(
               _searchQuery.isEmpty ? Icons.post_add : Icons.search_off,
               size: 64,
-              color: AppPallete.textPrimaryDark.withOpacity(0.5),
+              color: AppPallete.textPrimaryDark.withValues(alpha: 0.5),
             ),
           ),
           const SizedBox(height: 16),
@@ -414,7 +414,7 @@ class _HomePageState extends ConsumerState<HomePage>
             _searchQuery.isEmpty ? 'No posts yet' : 'No matching posts found',
             style: GoogleFonts.getFont(
               'Oswald',
-              color: AppPallete.textPrimaryDark.withOpacity(0.7),
+              color: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
@@ -426,7 +426,7 @@ class _HomePageState extends ConsumerState<HomePage>
                 : 'Try a different search term',
             style: GoogleFonts.getFont(
               'Oswald',
-              color: AppPallete.textPrimaryDark.withOpacity(0.5),
+              color: AppPallete.textPrimaryDark.withValues(alpha: 0.5),
               fontSize: 14,
             ),
           ),

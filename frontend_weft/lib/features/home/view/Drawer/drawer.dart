@@ -99,7 +99,7 @@ class DrawerWidget extends StatelessWidget {
         leading: Container(
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppPallete.profileAccent.withOpacity(0.2),
+            color: AppPallete.profileAccent.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: AppPallete.profileAccent, size: 20),

@@ -98,10 +98,10 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
@@ -141,10 +141,10 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withOpacity(0.2),
+                color: const Color(0xFF6366F1).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: const Color(0xFF6366F1).withOpacity(0.3),
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -187,15 +187,15 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
   Widget _buildSearchField() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF3A3E7A).withOpacity(0.6),
+        color: const Color(0xFF3A3E7A).withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withValues(alpha: 0.3),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -207,12 +207,12 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
         decoration: InputDecoration(
           hintText: 'Enter skills separated by commas (e.g., Python, ML, React)...',
           hintStyle: TextStyle(
-            color: Colors.white.withOpacity(0.6),
+            color: Colors.white.withValues(alpha: 0.6),
             fontSize: 16,
           ),
           prefixIcon: Icon(
             Icons.search,
-            color: Colors.white.withOpacity(0.6),
+            color: Colors.white.withValues(alpha: 0.6),
             size: 22,
           ),
           suffixIcon: Container(
@@ -241,7 +241,7 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
         Text(
           'Popular Skills',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -250,7 +250,7 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
         Text(
           'Tap to add skills to your search',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.6),
+            color: Colors.white.withValues(alpha: 0.6),
             fontSize: 14,
           ),
         ),
@@ -273,15 +273,15 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -318,7 +318,7 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
         Text(
           'Selected Skills',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -328,10 +328,10 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF3A3E7A).withOpacity(0.4),
+            color: const Color(0xFF3A3E7A).withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -349,10 +349,10 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF6366F1).withOpacity(0.3),
+        color: const Color(0xFF6366F1).withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF6366F1).withOpacity(0.5),
+          color: const Color(0xFF6366F1).withValues(alpha: 0.5),
           width: 1,
         ),
       ),
