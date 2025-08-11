@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/core/mixins/keyboard_dismissal_mixin.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
@@ -17,7 +18,7 @@ class EditProfilePage extends ConsumerStatefulWidget {
   ConsumerState<EditProfilePage> createState() => _EditProfilePageState();
 }
 
-class _EditProfilePageState extends ConsumerState<EditProfilePage> {
+class _EditProfilePageState extends ConsumerState<EditProfilePage> with KeyboardDismissalMixin {
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -50,26 +51,27 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppPallete.gradient1,
-            AppPallete.gradient2,
-            AppPallete.gradient3,
-          ],
+    return addKeyboardDismissal(
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppPallete.gradient1,
+              AppPallete.gradient2,
+              AppPallete.gradient3,
+            ],
+          ),
         ),
-      ),
-      child: Scaffold(
-        backgroundColor: AppPallete.transperantColor,
-        appBar: AppBar(
+        child: Scaffold(
           backgroundColor: AppPallete.transperantColor,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppPallete.textPrimaryDark),
-            onPressed: () => Navigator.of(context).pop(),
+          appBar: AppBar(
+            backgroundColor: AppPallete.transperantColor,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: AppPallete.textPrimaryDark),
+              onPressed: () => Navigator.of(context).pop(),
           ),
           title: const Text(
             'Edit Profile',
@@ -134,7 +136,8 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           ],
         ),
       ),
-    );
+    ), // Container closing
+    ); // addKeyboardDismissal closing
   }
 
   Widget _buildProfileImageSection() {

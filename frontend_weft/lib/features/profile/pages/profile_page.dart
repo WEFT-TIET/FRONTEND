@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/core/utils/responsive_utils.dart';
+import 'package:frontend_weft/core/utils/responsive_text_styles.dart';
+import 'package:frontend_weft/core/widgets/responsive_profile_name.dart';
 import 'package:frontend_weft/features/post/view/pages/create_post_page.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
@@ -89,19 +92,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           backgroundColor: AppPallete.transperantColor,
           elevation: 0,
           leading: _buildCustomBackButton(context),
-          title: const Text(
+          title: Text(
             'WEFT',
-            style: TextStyle(
+            style: ResponsiveTextStyles.getHeading1(context).copyWith(
               color: AppPallete.textPrimaryDark,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
               letterSpacing: 2,
             ),
           ),
           centerTitle: true,
           actions: [
             IconButton(
-              icon: const Icon(Icons.settings, color: AppPallete.textPrimaryDark),
+              icon: Icon(
+                Icons.settings, 
+                color: AppPallete.textPrimaryDark,
+                size: context.responsiveIconSize(24),
+              ),
               onPressed: () => Navigator.of(context).pushNamed('/settings'),
             ),
           ],
@@ -118,7 +123,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     // Profile Card
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                        padding: context.responsivePadding(),
                         child: RepaintBoundary(
                           child: _buildOptimizedProfileCard(user),
                         ),
@@ -128,23 +133,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     // Section Header
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        padding: EdgeInsets.fromLTRB(
+                          context.responsiveSpacing(16), 
+                          context.responsiveSpacing(16), 
+                          context.responsiveSpacing(16), 
+                          context.responsiveSpacing(8)
+                        ),
                         child: RepaintBoundary(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 'Your Wefs',
-                                style: TextStyle(
+                                style: ResponsiveTextStyles.getHeading2(context).copyWith(
                                   color: AppPallete.textPrimaryDark,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Row(
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.add, color: AppPallete.textPrimaryDark),
+                                    icon: Icon(
+                                      Icons.add, 
+                                      color: AppPallete.textPrimaryDark,
+                                      size: context.responsiveIconSize(24),
+                                    ),
                                     tooltip: 'Create Weft',
                                     onPressed: () => Navigator.of(context).push(
                                       MaterialPageRoute(
@@ -153,7 +165,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.refresh, color: AppPallete.textPrimaryDark),
+                                    icon: Icon(
+                                      Icons.refresh, 
+                                      color: AppPallete.textPrimaryDark,
+                                      size: context.responsiveIconSize(24),
+                                    ),
                                     tooltip: 'Refresh',
                                     onPressed: () {
                                       setState(() => _isLoading = true);
@@ -175,14 +191,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     user.posts.isEmpty
                         ? SliverToBoxAdapter(
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 32.0),
+                              padding: EdgeInsets.only(top: context.responsiveSpacing(32)),
                               child: RepaintBoundary(
                                 child: Center(
                                   child: Text(
                                     'No wefts yet.',
-                                    style: TextStyle(
+                                    style: ResponsiveTextStyles.getBodyLarge(context).copyWith(
                                       color: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
-                                      fontSize: 16,
                                     ),
                                   ),
                                 ),
@@ -229,8 +244,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                           ),
                     
                     // Bottom padding
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 80),
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: context.responsiveSpacing(80)),
                     ),
                   ],
                 ),
@@ -266,9 +281,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOutCubic,
-      padding: const EdgeInsets.all(16),
+      padding: context.responsivePadding(),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: context.responsiveBorderRadius(20),
         // Darker glassmorphism effect
         color: const Color(0xFF2A2D5A).withValues(alpha: 0.8),
         border: Border.all(
@@ -291,9 +306,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       child: Column(
         children: [
           _buildProfileHeader(user),
-          const SizedBox(height: 12),
+          SizedBox(height: context.responsiveSpacing(12)),
           _buildAcademicDetails(user),
-          const SizedBox(height: 12),
+          SizedBox(height: context.responsiveSpacing(12)),
           _buildActionButtons(user),
         ],
       ),
@@ -302,6 +317,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
 
   // ENHANCED PROFILE HEADER
   Widget _buildProfileHeader(UserModel user) {
+    final profileImageSize = ResponsiveUtils.getProfileImageSize(context);
+    
     return Row(
       children: [
         Hero(
@@ -317,8 +334,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               );
             },
             child: Container(
-              width: 80,
-              height: 80,
+              width: profileImageSize,
+              height: profileImageSize,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 // Enhanced glassmorphism for profile image
@@ -349,13 +366,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         fit: BoxFit.cover,
                         cacheWidth: 200,
                         cacheHeight: 200,
-                        errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+                        errorBuilder: (_, error, stackTrace) => _buildDefaultAvatar(),
                       ),
               ),
             ),
           ),
         ),
-        const SizedBox(width: 20),
+        SizedBox(width: context.responsiveSpacing(20)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,42 +385,80 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       children: [
                         AnimatedSwitcher(
                           duration: const Duration(milliseconds: 200),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Flexible(
-                                child: Text(
-                                  user.name,
-                                  key: const ValueKey('name_text'),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
+                              ResponsiveProfileName(
+                                key: const ValueKey('profile_name'),
+                                name: user.name,
+                                isVerified: user.isVerified,
+                                color: Colors.white,
+                                maxLength: 20, // Set character limit
+                                onNameTooLong: () {
+                                  // Show error snackbar when name is too long
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Profile name is too long (max 20 characters). Consider updating it.',
+                                        style: ResponsiveTextStyles.getBodyMedium(context),
+                                      ),
+                                      backgroundColor: AppPallete.red.withValues(alpha: 0.9),
+                                      duration: const Duration(seconds: 3),
+                                      behavior: SnackBarBehavior.floating,
+                                      margin: EdgeInsets.all(context.responsiveSpacing(16)),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: context.responsiveBorderRadius(12),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              // Show name length indicator if name is getting long
+                              if (user.name.length > 15)
+                                Padding(
+                                  padding: EdgeInsets.only(top: context.responsiveSpacing(4)),
+                                  child: Text(
+                                    '${user.name.length}/20 characters',
+                                    style: ResponsiveTextStyles.getCaption(context).copyWith(
+                                      color: user.name.length > 20 
+                                        ? AppPallete.red 
+                                        : Colors.white.withValues(alpha: 0.6),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              if (user.isVerified) ...[
-                                const SizedBox(width: 6),
-                                const Icon(
-                                  Icons.verified,
-                                  color: Color(0xFF10B981),
-                                  size: 18,
-                                ),
-                              ],
                             ],
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        SizedBox(height: context.responsiveSpacing(6)),
                         AnimatedSwitcher(
                           duration: const Duration(milliseconds: 200),
-                          child: Text(
-                            '@${user.username}',
-                            key: const ValueKey('username_text'),
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '@${user.username}',
+                                key: const ValueKey('username_text'),
+                                style: ResponsiveTextStyles.getUsername(context).copyWith(
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  fontSize: ResponsiveTextStyles.getUsername(context).fontSize! * 0.9, // Reduce by 10%
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1, // Force single line
+                              ),
+                              // Show username length indicator if username is getting long
+                              if (user.username.length > 12)
+                                Padding(
+                                  padding: EdgeInsets.only(top: context.responsiveSpacing(2)),
+                                  child: Text(
+                                    '${user.username.length}/15 characters',
+                                    style: ResponsiveTextStyles.getCaption(context).copyWith(
+                                      color: user.username.length > 15 
+                                        ? AppPallete.red 
+                                        : Colors.white.withValues(alpha: 0.5),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       ],
@@ -413,10 +468,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                   GestureDetector(
                     onTap: () => _showSkillsDialog(user),
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: EdgeInsets.all(context.responsiveSpacing(8)),
                       decoration: BoxDecoration(
                         color: const Color(0xFF6366F1).withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: context.responsiveBorderRadius(10),
                         border: Border.all(
                           color: const Color(0xFF6366F1).withValues(alpha: 0.5),
                           width: 1,
@@ -425,17 +480,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.stars,
-                            color: Color(0xFF6366F1),
-                            size: 16,
+                            color: const Color(0xFF6366F1),
+                            size: context.responsiveIconSize(16),
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: context.responsiveSpacing(4)),
                           Text(
                             '${user.skills.length}',
-                            style: const TextStyle(
-                              color: Color(0xFF6366F1),
-                              fontSize: 12,
+                            style: ResponsiveTextStyles.getBodySmall(context).copyWith(
+                              color: const Color(0xFF6366F1),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -471,10 +525,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   // ENHANCED ACADEMIC DETAILS
   Widget _buildAcademicDetails(UserModel user) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: context.responsivePadding(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: context.responsiveBorderRadius(12),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.2),
           width: 1,
@@ -492,7 +546,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           Expanded(child: _buildDetailColumn('Year', user.year)),
           Container(
             width: 1,
-            height: 32,
+            height: context.responsiveHeight(32),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -508,7 +562,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           Expanded(child: _buildDetailColumn('Branch', user.branch)),
           Container(
             width: 1,
-            height: 32,
+            height: context.responsiveHeight(32),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -533,19 +587,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: ResponsiveTextStyles.getBodySmall(context).copyWith(
             color: Colors.white.withValues(alpha: 0.7),
-            fontSize: 12,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: context.responsiveSpacing(4)),
         Text(
           value,
-          style: const TextStyle(
+          style: ResponsiveTextStyles.getBodyLarge(context).copyWith(
             color: Colors.white,
-            fontSize: 16,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.3,
           ),
@@ -560,23 +612,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       children: [
         Text(
           'Instagram',
-          style: TextStyle(
+          style: ResponsiveTextStyles.getBodySmall(context).copyWith(
             color: Colors.white.withValues(alpha: 0.7),
-            fontSize: 12,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: context.responsiveSpacing(4)),
         GestureDetector(
           onTap: () => _openInstagram(user.instagramId ?? ''),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.responsiveSpacing(8), 
+              vertical: context.responsiveSpacing(4)
+            ),
             decoration: BoxDecoration(
               color: user.instagramId != null && user.instagramId!.isNotEmpty 
                   ? const Color(0xFFE4405F).withValues(alpha: 0.2)
                   : Colors.transparent,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: context.responsiveBorderRadius(8),
               border: user.instagramId != null && user.instagramId!.isNotEmpty 
                   ? Border.all(
                       color: const Color(0xFFE4405F).withValues(alpha: 0.5),
@@ -589,23 +643,22 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (user.instagramId != null && user.instagramId!.isNotEmpty) ...[
-                  const Icon(
+                  Icon(
                     Icons.camera_alt,
-                    color: Color(0xFFE4405F),
-                    size: 14,
+                    color: const Color(0xFFE4405F),
+                    size: context.responsiveIconSize(14),
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: context.responsiveSpacing(4)),
                 ],
                 Flexible(
                   child: Text(
                     user.instagramId != null && user.instagramId!.isNotEmpty 
                         ? '@${user.instagramId!}'
                         : 'Not set',
-                    style: TextStyle(
+                    style: ResponsiveTextStyles.getBodyMedium(context).copyWith(
                       color: user.instagramId != null && user.instagramId!.isNotEmpty 
                           ? const Color(0xFFE4405F)
                           : Colors.white.withValues(alpha: 0.5),
-                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.3,
                     ),
@@ -634,7 +687,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
             icon: Icons.edit,
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: context.responsiveSpacing(12)),
         Expanded(
           child: _buildActionButton(
             'Share',
@@ -657,10 +710,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     IconData? icon,
   }) {
     return Container(
-      height: 48,
+      height: ResponsiveUtils.getButtonHeight(context),
       decoration: BoxDecoration(
         color: const Color(0xFF1A1D3A).withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: context.responsiveBorderRadius(12),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.15),
           width: 1,
@@ -677,24 +730,22 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: context.responsiveBorderRadius(12),
           splashColor: Colors.white.withValues(alpha: 0.1),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: EdgeInsets.symmetric(horizontal: context.responsiveSpacing(12)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (icon != null) ...[
-                  Icon(icon, color: textColor, size: 18),
-                  const SizedBox(width: 6),
+                  Icon(icon, color: textColor, size: context.responsiveIconSize(18)),
+                  SizedBox(width: context.responsiveSpacing(6)),
                 ],
                 Flexible(
                   child: Text(
                     text,
-                    style: TextStyle(
+                    style: ResponsiveTextStyles.getButton(context).copyWith(
                       color: textColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -758,7 +809,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         await launchUrl(webUri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      ProfileDialogs.showSnackBar(context, 'Could not open Instagram profile');
+      if (mounted) {
+        ProfileDialogs.showSnackBar(context, 'Could not open Instagram profile');
+      }
     }
   }
 

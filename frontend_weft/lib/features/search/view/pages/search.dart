@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/search/view/pages/wefter_results_page.dart';
 import 'package:frontend_weft/features/search/view/pages/skill_based_search_page.dart';
+import 'package:frontend_weft/features/search/view/pages/advanced_search_page.dart';
 import 'package:frontend_weft/core/services/user_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/http_client.dart';
@@ -14,6 +15,7 @@ class SearchPage extends ConsumerStatefulWidget {
 }
 
 class _SearchPageState extends ConsumerState<SearchPage> {
+  final TextEditingController _searchController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _yearController = TextEditingController();
@@ -35,205 +37,185 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           ),
         ),
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(24),
-              child: Container(
-                constraints: BoxConstraints(maxWidth: 400),
-                decoration: BoxDecoration(
-                  color: Color(0xFF3A3E7A).withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    width: 1.5,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Text(
+                  'Search WEFTers',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 25,
-                      offset: Offset(0, 15),
-                    ),
-                    BoxShadow(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: Offset(0, -5),
-                    ),
-                  ],
                 ),
-                child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Who\'s the WEFTer?',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Enter the details below to find your WEFTer.',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
-                          fontSize: 16,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-
-                      SizedBox(height: 32),
-
-                      _buildInputField(
-                        controller: _nameController,
-                        label: 'Name',
-                        placeholder: 'Ex: John Doe',
-                      ),
-
-                      SizedBox(height: 20),
-
-                      _buildInputField(
-                        controller: _usernameController,
-                        label: 'Username',
-                        placeholder: 'Ex: jon_doe ',
-                      ),
-
-                      SizedBox(height: 20),
-
-                      _buildInputField(
-                        controller: _yearController,
-                        label: 'Year',
-                        placeholder: 'Ex: 2023, 2024, 2025',
-                      ),
-
-                      SizedBox(height: 20),
-
-                      _buildInputField(
-                        controller: _branchController,
-                        label: 'Branch',
-                        placeholder: 'Ex: COE, COPC, ENC',
-                      ),
-
-                      SizedBox(height: 32),
-
-                      Container(
-                        width: double.infinity,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: Color(0xFF6366F1),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color(0xFF6366F1).withValues(alpha: 0.25),
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 12,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(14),
-                            splashColor: Colors.white.withValues(alpha: 0.1),
-                            highlightColor: Colors.white.withValues(alpha: 0.05),
-                            onTap: () {
-                              _findWEFTer();
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.15),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.search,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Find the WEFTer',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      
-                      SizedBox(height: 16),
-                      
-                      // Skills Search Button
-                      Container(
-                        width: double.infinity,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Color(0xFF6366F1).withValues(alpha: 0.5),
-                            width: 1,
-                          ),
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const SkillBasedSearchPage(),
-                                ),
-                              );
-                            },
-                            child: Center(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.stars,
-                                    color: Color(0xFF6366F1),
-                                    size: 18,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Search by Skills',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF6366F1),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                SizedBox(height: 6),
+                Text(
+                  'Find anyone by name or username',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 15,
+                  ),
+                ),
+                
+                SizedBox(height: 16),
+                
+                // Search Bar
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
                       ),
                     ],
                   ),
+                  child: TextField(
+                    controller: _searchController,
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    decoration: InputDecoration(
+                      hintText: 'Search by name or username...',
+                      hintStyle: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 16,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: Colors.white.withValues(alpha: 0.7),
+                        size: 22,
+                      ),
+                      suffixIcon: _searchController.text.isNotEmpty 
+                          ? IconButton(
+                              icon: Icon(
+                                Icons.clear,
+                                color: Colors.white.withValues(alpha: 0.7),
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {});
+                              },
+                            )
+                          : Container(
+                              margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6366F1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: IconButton(
+                                icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                                onPressed: () => _performQuickSearch(),
+                              ),
+                            ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    ),
+                    onChanged: (value) => setState(() {}),
+                    onSubmitted: (value) => _performQuickSearch(),
+                  ),
                 ),
-              ),
+                
+                SizedBox(height: 20),
+                
+                // Search Options Grid
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // First Row - Advanced Search & Skills Search
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildSearchOptionBox(
+                                title: 'Advanced Search',
+                                subtitle: 'Search with multiple filters',
+                                icon: Icons.tune,
+                                color: Color(0xFF6366F1),
+                                onTap: () => _navigateToAdvancedSearch(),
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: _buildSearchOptionBox(
+                                title: 'Skills Search',
+                                subtitle: 'Find by technical skills',
+                                icon: Icons.code,
+                                color: Color(0xFF10B981),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SkillBasedSearchPage(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        SizedBox(height: 10),
+                        
+                        // Second Row - Deft & Share Music (Coming Soon)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildComingSoonBox(
+                                title: 'D-Weft',
+                                subtitle: 'Find your perfect match',
+                                icon: Icons.favorite,
+                                color: Color(0xFFEF4444),
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: _buildComingSoonBox(
+                                title: 'Music Share',
+                                subtitle: 'Discover music taste',
+                                icon: Icons.music_note,
+                                color: Color(0xFF8B5CF6),
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        SizedBox(height: 10),
+                        
+                        // Third Row - Connect Through Projects & Random Hangout
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildComingSoonBox(
+                                title: 'Project Connect',
+                                subtitle: 'Collaborate on projects',
+                                icon: Icons.handshake,
+                                color: Color(0xFF06B6D4),
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: _buildComingSoonBox(
+                                title: 'Hangout Hub',
+                                subtitle: 'Random meetups & fun',
+                                icon: Icons.group,
+                                color: Color(0xFFF59E0B),
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        SizedBox(height: 12), // Extra bottom padding
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -241,57 +223,181 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     );
   }
 
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String label,
-    required String placeholder,
+  Widget _buildSearchOptionBox({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 165,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.3),
+            width: 2,
           ),
-        ),
-        SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: TextField(
-            controller: controller,
-            style: TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: placeholder,
-              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 20,
+              offset: Offset(0, 8),
             ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 28,
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 
-  void _findWEFTer() async {
-    String name = _nameController.text.trim();
-    String username = _usernameController.text.trim();
-    String year = _yearController.text.trim();
-    String branch = _branchController.text.trim();
+  Widget _buildComingSoonBox({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      height: 165,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.2),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: color.withValues(alpha: 0.6),
+                    size: 28,
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.4),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 20,
+            right: 20,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Colors.orange.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                'Coming Soon',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-    // Validate that at least one field is filled
-    if (name.isEmpty && username.isEmpty && year.isEmpty && branch.isEmpty) {
+  void _performQuickSearch() async {
+    String query = _searchController.text.trim();
+    if (query.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please enter at least one search criteria'),
+          content: Text('Please enter a search term'),
           backgroundColor: Colors.red,
         ),
       );
@@ -320,7 +426,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Searching for WEFTer...',
+                    'Searching...',
                     style: TextStyle(color: Colors.white),
                   ),
                 ],
@@ -333,11 +439,26 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
     try {
       final appHttpClient = ref.read(httpClientProvider);
+      
+      // Check if it looks like a username (starts with @, contains underscore, or no spaces)
+      bool isUsername = query.startsWith('@') || query.contains('_') || !query.contains(' ');
+      
+      String? searchName;
+      String? searchUsername;
+      
+      if (isUsername) {
+        // Remove @ if present and search by username
+        searchUsername = query.startsWith('@') ? query.substring(1) : query;
+      } else {
+        // Search by name
+        searchName = query;
+      }
+
       final result = await UserService.searchUsers(
-        name: name.isNotEmpty ? name : null,
-        username: username.isNotEmpty ? username : null,
-        year: year.isNotEmpty ? year : null,
-        branch: branch.isNotEmpty ? branch : null,
+        name: searchName,
+        username: searchUsername,
+        year: null,
+        branch: null,
         client: appHttpClient,
       );
 
@@ -346,7 +467,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
       if (result['success']) {
         final users = result['data'] as List<dynamic>? ?? [];
-        // Navigate to the new results page
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -361,6 +481,15 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       Navigator.of(context, rootNavigator: true).pop();
       _showErrorDialog('Network error: $e');
     }
+  }
+
+  void _navigateToAdvancedSearch() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AdvancedSearchPage(),
+      ),
+    );
   }
 
   void _showErrorDialog(String message) {
@@ -394,6 +523,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     _nameController.dispose();
     _usernameController.dispose();
     _yearController.dispose();

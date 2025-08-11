@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/core/utils/responsive_utils.dart';
 import 'package:frontend_weft/features/home/view/pages/home_page.dart';
 import 'package:frontend_weft/features/messages/view/pages/messages_list_page.dart';
 
@@ -49,11 +50,19 @@ class _BottomNavBarState extends State<BottomNavBar>
   }
 
   Widget _buildNavbar() {
+    // Get responsive dimensions
+    final navBarHeight = context.responsiveHeight(_sliderHeight);
+    final horizontalMargin = context.responsiveSpacing(20);
+    final verticalMargin = context.responsiveSpacing(8);
+    
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), // Add horizontal margin
-      height: _sliderHeight,
+      margin: EdgeInsets.symmetric(
+        horizontal: horizontalMargin, 
+        vertical: verticalMargin
+      ),
+      height: navBarHeight,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(_sliderHeight / 2),
+        borderRadius: BorderRadius.circular(navBarHeight / 2),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -76,12 +85,12 @@ class _BottomNavBarState extends State<BottomNavBar>
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(_sliderHeight / 2),
+        borderRadius: BorderRadius.circular(navBarHeight / 2),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(_sliderHeight / 2),
+              borderRadius: BorderRadius.circular(navBarHeight / 2),
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -106,12 +115,16 @@ class _BottomNavBarState extends State<BottomNavBar>
   Widget _buildNavItem(int index, _NavItemData item) {
     final isSelected = _selectedIndex == index;
     
+    // Get responsive dimensions
+    final itemSize = context.responsiveWidth(40);
+    final iconSize = context.responsiveIconSize(20);
+    
     return GestureDetector(
       onTap: () => _selectPage(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 40, // Reduced from 50
-        height: 40, // Reduced from 50
+        width: itemSize,
+        height: itemSize,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: isSelected
@@ -148,7 +161,7 @@ class _BottomNavBarState extends State<BottomNavBar>
         ),
         child: Icon(
           isSelected ? item.activeIcon : item.icon,
-          size: 20, // Reduced from 24
+          size: iconSize,
           color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.7),
         ),
       ),
@@ -184,7 +197,7 @@ class _BottomNavBarState extends State<BottomNavBar>
           Positioned(
             left: 0,
             right: 0,
-            bottom: _circlePadding,
+            bottom: context.responsiveSpacing(_circlePadding),
             child: _buildNavbar(),
           ),
         ],

@@ -200,7 +200,7 @@ class WEFTerResultsPage extends StatelessWidget {
 
   Widget _buildResultsList() {
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       itemCount: users.length,
       itemBuilder: (context, index) {
         final user = users[index];
@@ -211,35 +211,23 @@ class WEFTerResultsPage extends StatelessWidget {
 
   Widget _buildWEFTerCard(Map<String, dynamic> user, BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Color(0xFF3A3E7A).withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(20),
+        color: Color(0xFF3A3E7A).withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.3),
-          width: 1.5,
+          color: Colors.white.withValues(alpha: 0.2),
+          width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: Colors.white.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: Offset(0, -2),
-          ),
-        ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
             // Profile Avatar
             _buildProfileAvatar(user),
             
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             
             // User Details
             Expanded(
@@ -258,8 +246,8 @@ class WEFTerResultsPage extends StatelessWidget {
     final String initials = _getInitials(user['name'] ?? 'U');
     
     return Container(
-      width: 60,
-      height: 60,
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
         shape: BoxShape.circle,
@@ -273,7 +261,7 @@ class WEFTerResultsPage extends StatelessWidget {
           initials,
           style: TextStyle(
             color: Colors.white,
-            fontSize: 20,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -293,109 +281,70 @@ class WEFTerResultsPage extends StatelessWidget {
                 user['name'] ?? 'Unknown',
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             if (_isVerifiedUser(user)) ...[
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
               const Icon(
                 Icons.verified,
                 color: Color(0xFF10B981),
-                size: 16,
+                size: 14,
               ),
             ],
           ],
         ),
         
-        const SizedBox(height: 4),
-        
         // Username (if available)
-        if (user['username'] != null)
+        if (user['username'] != null) ...[
+          const SizedBox(height: 2),
           Text(
             '@${user['username']}',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
             ),
           ),
-        
-        const SizedBox(height: 8),
+        ],
         
         // Branch and Batch Row
-        Row(
-          children: [
-            if (user['branch'] != null) ...[
-              _buildInfoChip(
-                user['branch'],
-                Icons.school_rounded,
-              ),
-              const SizedBox(width: 8),
+        if (user['branch'] != null || user['year'] != null) ...[
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              if (user['branch'] != null) ...[
+                _buildColoredInfoChip(
+                  user['branch'],
+                  Icons.school_rounded,
+                  const Color(0xFF10B981), // Green color for branch
+                ),
+                const SizedBox(width: 6),
+              ],
+              
+              if (user['year'] != null)
+                _buildColoredInfoChip(
+                  user['year'].toString(),
+                  Icons.calendar_today_rounded,
+                  const Color(0xFFF59E0B), // Orange color for year
+                ),
             ],
-            
-            if (user['year'] != null)
-              _buildInfoChip(
-                user['year'].toString(),
-                Icons.calendar_today_rounded,
-              ),
-          ],
-        ),
-        
-        // Skills Row (if available)
-        if (user['skills'] != null && (user['skills'] as List).isNotEmpty) ...[
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            runSpacing: 4,
-            children: (user['skills'] as List)
-                .take(3) // Show max 3 skills
-                .map((skill) => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6366F1).withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFF6366F1).withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.stars,
-                        color: Color(0xFF6366F1),
-                        size: 10,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        skill.toString(),
-                        style: const TextStyle(
-                          color: Color(0xFF6366F1),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ))
-                .toList(),
           ),
         ],
       ],
     );
   }
 
-  Widget _buildInfoChip(String text, IconData icon) {
+  Widget _buildColoredInfoChip(String text, IconData icon, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.2),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -404,16 +353,16 @@ class WEFTerResultsPage extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: Colors.white.withValues(alpha: 0.8),
-            size: 12,
+            color: color,
+            size: 10,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 3),
           Text(
             text,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -425,20 +374,20 @@ class WEFTerResultsPage extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showUserProfile(context, user),
       child: Container(
-        width: 44,
-        height: 44,
+        width: 32,
+        height: 32,
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: Colors.white.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
         child: Icon(
-          Icons.person_rounded, // Changed from visibility to person icon
+          Icons.arrow_forward_ios,
           color: Colors.white,
-          size: 20,
+          size: 14,
         ),
       ),
     );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/core/mixins/keyboard_dismissal_mixin.dart';
 import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,7 +16,7 @@ class CreatePostPage extends ConsumerStatefulWidget {
 }
 
 class _CreatePostPageState extends ConsumerState<CreatePostPage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, KeyboardDismissalMixin {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final List<TextEditingController> _pollControllers = [
@@ -181,19 +182,20 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppPallete.scaffoldBackgroundColorDark,
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  _buildPostTypeSelector(),
-                  const SizedBox(height: 24),
-                  _buildTitleField(),
+    return addKeyboardDismissal(
+      child: Scaffold(
+        backgroundColor: AppPallete.scaffoldBackgroundColorDark,
+        body: CustomScrollView(
+          slivers: [
+            _buildSliverAppBar(),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    _buildPostTypeSelector(),
+                    const SizedBox(height: 24),
+                    _buildTitleField(),
                   const SizedBox(height: 16),
                   _buildContentField(),
                   const SizedBox(height: 16),
@@ -209,6 +211,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
           ),
         ],
       ),
+    ), // addKeyboardDismissal closing
     );
   }
 

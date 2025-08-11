@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/core/mixins/keyboard_dismissal_mixin.dart';
 import 'package:frontend_weft/features/home/view/Drawer/drawer.dart';
 import 'package:frontend_weft/features/home/view/widgets/animated_app_bar.dart';
 import 'package:frontend_weft/features/home/view/widgets/search_bar_widget.dart';
@@ -18,7 +19,7 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, KeyboardDismissalMixin {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   bool _isSearchFocused = false;
@@ -58,24 +59,26 @@ class _HomePageState extends ConsumerState<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppPallete.gradient1,
-            AppPallete.gradient2,
-            AppPallete.gradient3,
-          ],
+    return addKeyboardDismissal(
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppPallete.gradient1,
+              AppPallete.gradient2,
+              AppPallete.gradient3,
+            ],
+          ),
         ),
-      ),
-      child: Scaffold(
+        child: Scaffold(
         backgroundColor: AppPallete.transperantColor,
         appBar: AnimatedAppBar(animation: _animation),
         drawer: const DrawerWidget(),
         body: _buildOptimizedBody(),
       ),
+    ), // addKeyboardDismissal closing
     );
   }
 

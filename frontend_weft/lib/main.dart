@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/theme.dart';
+import 'package:frontend_weft/core/widgets/keyboard_dismisser.dart';
 import 'package:frontend_weft/features/auth/view/welcome_page.dart';
 import 'package:frontend_weft/features/auth/view/login_page.dart';
 import 'package:frontend_weft/features/auth/view/signup_page.dart';
@@ -40,15 +41,15 @@ class MyApp extends ConsumerWidget {
       theme: DarkAppTheme.darkThemeMode,
       initialRoute: currentUser == null ? '/welcome' : '/home',
       routes: {
-        '/welcome': (context) => const WelcomePage(),
-        '/login': (context) => const LoginPage(),
-        '/signup': (context) => const SignupPage(),
-        '/signup-initial': (context) => const SignupInitialPage(),
-        '/signup-username': (context) => const SignupUsernamePage(),
-        '/signup-profile': (context) => const SignupProfilePage(),
-        '/forgot-password': (context) => const ForgotPasswordPage(),
-        '/home': (context) => const BottomNavBar(),
-        '/settings': (context) => const SettingsPage(),
+        '/welcome': (context) => const WelcomePage().dismissKeyboard(),
+        '/login': (context) => const LoginPage().dismissKeyboard(),
+        '/signup': (context) => const SignupPage().dismissKeyboard(),
+        '/signup-initial': (context) => const SignupInitialPage().dismissKeyboard(),
+        '/signup-username': (context) => const SignupUsernamePage().dismissKeyboard(),
+        '/signup-profile': (context) => const SignupProfilePage().dismissKeyboard(),
+        '/forgot-password': (context) => const ForgotPasswordPage().dismissKeyboard(),
+        '/home': (context) => const BottomNavBar().dismissKeyboard(),
+        '/settings': (context) => const SettingsPage().dismissKeyboard(),
       },
     );
   }

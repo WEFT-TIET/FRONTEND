@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend_weft/core/mixins/keyboard_dismissal_mixin.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,7 +32,7 @@ class AttendancePage extends StatefulWidget {
   State<AttendancePage> createState() => _AttendancePageState();
 }
 
-class _AttendancePageState extends State<AttendancePage> with TickerProviderStateMixin {
+class _AttendancePageState extends State<AttendancePage> with TickerProviderStateMixin, KeyboardDismissalMixin {
   DateTime selectedDate = DateTime.now();
   String selectedSubgroup = '1A11';
   bool loading = true;
@@ -333,12 +334,13 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
   Widget build(BuildContext context) {
     final dayName = DateFormat('EEEE').format(selectedDate);
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return addKeyboardDismissal(
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             colors: [
               Color(0xFF2A2D5A),
               Color(0xFF4A4E8A),
@@ -443,6 +445,7 @@ class _AttendancePageState extends State<AttendancePage> with TickerProviderStat
                 ),
         ),
       ),
+    ), // addKeyboardDismissal closing
     );
   }
 
