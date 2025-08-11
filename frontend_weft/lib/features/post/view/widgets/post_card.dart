@@ -314,7 +314,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                       child: Text(
                         _isExpanded ? 'Show less' : 'Read more',
                         style: TextStyle(
-                          color: AppPallete.gradient2,
+                          color: Color(0xFFF59E0B),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),

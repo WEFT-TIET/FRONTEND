@@ -4,6 +4,9 @@ import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/search/view/pages/wefter_results_page.dart';
 import 'package:frontend_weft/core/services/user_service.dart';
 import 'package:frontend_weft/core/http_client.dart';
+import 'package:frontend_weft/core/utils/responsive_utils.dart';
+import 'package:frontend_weft/core/utils/responsive_text_styles.dart';
+import 'package:frontend_weft/core/config/responsive_config.dart';
 
 class SkillBasedSearchPage extends ConsumerStatefulWidget {
   const SkillBasedSearchPage({super.key});
@@ -56,23 +59,23 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
               // Content
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
+                  padding: ResponsiveConfig.getContentPadding(context, ContentType.page),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Header
                       _buildHeader(),
-                      const SizedBox(height: 32),
+                      SizedBox(height: context.responsiveSpacing(32)),
                       
                       // Search Field
                       _buildSearchField(),
-                      const SizedBox(height: 16),
+                      SizedBox(height: context.responsiveSpacing(16)),
                       
                       // Selected Skills (if any)
                       if (_selectedSkills.isNotEmpty) _buildSelectedSkills(),
-                      if (_selectedSkills.isNotEmpty) const SizedBox(height: 16),
+                      if (_selectedSkills.isNotEmpty) SizedBox(height: context.responsiveSpacing(16)),
                       
-                      const SizedBox(height: 16),
+                      SizedBox(height: context.responsiveSpacing(16)),
                       
                       // Popular Skills
                       _buildPopularSkills(),
@@ -88,45 +91,46 @@ class _SkillBasedSearchPageState extends ConsumerState<SkillBasedSearchPage> {
   }
 
   Widget _buildAppBar() {
+    final buttonSize = context.responsiveWidth(40);
+    
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: context.responsivePadding(horizontal: 20, vertical: 16),
       child: Row(
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Container(
-              width: 40,
-              height: 40,
+              width: buttonSize,
+              height: buttonSize,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: context.responsiveBorderRadius(12),
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.arrow_back_ios_rounded,
                 color: Colors.white,
-                size: 20,
+                size: context.responsiveIconSize(20),
               ),
             ),
           ),
           
-          const Expanded(
+          Expanded(
             child: Center(
               child: Text(
                 'Skills Search',
-                style: TextStyle(
+                style: ResponsiveTextStyles.getHeading2(context).copyWith(
                   color: Colors.white,
-                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
           
-          const SizedBox(width: 40), // Balance for centered title
+          SizedBox(width: buttonSize), // Balance for centered title
         ],
       ),
     );

@@ -4,6 +4,9 @@ import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/search/view/pages/wefter_results_page.dart';
 import 'package:frontend_weft/core/services/user_service.dart';
 import 'package:frontend_weft/core/http_client.dart';
+import 'package:frontend_weft/core/utils/responsive_utils.dart';
+import 'package:frontend_weft/core/utils/responsive_text_styles.dart';
+import 'package:frontend_weft/core/config/responsive_config.dart';
 
 class AdvancedSearchPage extends ConsumerStatefulWidget {
   const AdvancedSearchPage({super.key});
@@ -42,14 +45,14 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
               // Content
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
+                  padding: ResponsiveConfig.getContentPadding(context, ContentType.page),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Header
                       _buildHeader(),
                       
-                      SizedBox(height: 24),
+                      SizedBox(height: context.responsiveSpacing(24)),
                       
                       // Search Fields
                       _buildInputField(
@@ -59,7 +62,7 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
                         icon: Icons.person,
                       ),
                       
-                      SizedBox(height: 16),
+                      SizedBox(height: context.responsiveSpacing(16)),
                       
                       _buildInputField(
                         controller: _usernameController,
@@ -68,7 +71,7 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
                         icon: Icons.alternate_email,
                       ),
                       
-                      SizedBox(height: 16),
+                      SizedBox(height: context.responsiveSpacing(16)),
                       
                       _buildInputField(
                         controller: _yearController,
@@ -77,7 +80,7 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
                         icon: Icons.calendar_today,
                       ),
                       
-                      SizedBox(height: 16),
+                      SizedBox(height: context.responsiveSpacing(16)),
                       
                       _buildInputField(
                         controller: _branchController,
@@ -86,12 +89,12 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
                         icon: Icons.school,
                       ),
                       
-                      SizedBox(height: 32),
+                      SizedBox(height: context.responsiveSpacing(32)),
                       
                       // Search Button
                       _buildSearchButton(),
                       
-                      SizedBox(height: 20), // Bottom padding for safe area
+                      SizedBox(height: context.responsiveSpacing(20)), // Bottom padding for safe area
                     ],
                   ),
                 ),
@@ -104,91 +107,84 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
   }
 
   Widget _buildAppBar() {
+    final buttonSize = context.responsiveWidth(44);
+    
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: context.responsivePadding(horizontal: 20, vertical: 12),
       child: Row(
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Container(
-              width: 44,
-              height: 44,
+              width: buttonSize,
+              height: buttonSize,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: context.responsiveBorderRadius(14),
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.arrow_back_ios_rounded,
                 color: Colors.white,
-                size: 20,
+                size: context.responsiveIconSize(20),
               ),
             ),
           ),
           
-          const Expanded(
+          Expanded(
             child: Center(
               child: Text(
                 'Advanced Search',
-                style: TextStyle(
+                style: ResponsiveTextStyles.getHeading2(context).copyWith(
                   color: Colors.white,
-                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
           
-          const SizedBox(width: 44), // Balance for centered title
+          SizedBox(width: buttonSize), // Balance for centered title
         ],
       ),
     );
   }
 
   Widget _buildHeader() {
+    final iconSize = context.responsiveIconSize(24);
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: context.responsivePadding(horizontal: 12, vertical: 12),
               decoration: BoxDecoration(
                 color: const Color(0xFF6366F1).withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: context.responsiveBorderRadius(16),
                 border: Border.all(
                   color: const Color(0xFF6366F1).withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.tune,
                 color: Color(0xFF6366F1),
-                size: 24,
+                size: iconSize,
               ),
             ),
-            const SizedBox(width: 16),
-            const Expanded(
+            SizedBox(width: context.responsiveSpacing(16)),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Advanced Search',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
                     'Use multiple filters to find specific WEFTers',
-                    style: TextStyle(
+                    style: ResponsiveTextStyles.getBodyMedium(context).copyWith(
                       color: Colors.white70,
-                      fontSize: 14,
                     ),
                   ),
                 ],
@@ -197,13 +193,13 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
           ],
         ),
         
-        const SizedBox(height: 16),
+        SizedBox(height: context.responsiveSpacing(16)),
         
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: context.responsivePadding(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
             color: Colors.blue.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: context.responsiveBorderRadius(16),
             border: Border.all(
               color: Colors.blue.withValues(alpha: 0.3),
               width: 1,
@@ -214,15 +210,14 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
               Icon(
                 Icons.info_outline,
                 color: Colors.blue[300],
-                size: 20,
+                size: context.responsiveIconSize(20),
               ),
-              const SizedBox(width: 12),
-              const Expanded(
+              SizedBox(width: context.responsiveSpacing(12)),
+              Expanded(
                 child: Text(
-                  'Fill at least one field to search. Leave fields empty to search all users.',
-                  style: TextStyle(
+                  'Fill at least one field to search.',
+                  style: ResponsiveTextStyles.getBodyMedium(context).copyWith(
                     color: Colors.white70,
-                    fontSize: 14,
                   ),
                 ),
               ),
@@ -244,17 +239,16 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: ResponsiveTextStyles.getBodyLarge(context).copyWith(
             color: Colors.white,
-            fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: 8),
+        SizedBox(height: context.responsiveSpacing(8)),
         Container(
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: context.responsiveBorderRadius(14),
             border: Border.all(
               color: Colors.white.withValues(alpha: 0.2),
               width: 1,
@@ -262,20 +256,21 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
           ),
           child: TextField(
             controller: controller,
-            style: TextStyle(color: Colors.white, fontSize: 16),
+            style: ResponsiveTextStyles.getBodyLarge(context).copyWith(
+              color: Colors.white,
+            ),
             decoration: InputDecoration(
               hintText: placeholder,
-              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+              hintStyle: ResponsiveTextStyles.getBodyLarge(context).copyWith(
+                color: Colors.white.withValues(alpha: 0.6),
+              ),
               prefixIcon: Icon(
                 icon,
                 color: Colors.white.withValues(alpha: 0.6),
-                size: 20,
+                size: context.responsiveIconSize(20),
               ),
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
-              ),
+              contentPadding: context.responsivePadding(horizontal: 16, vertical: 16),
             ),
           ),
         ),
@@ -284,12 +279,14 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
   }
 
   Widget _buildSearchButton() {
+    final buttonHeight = context.responsiveHeight(56);
+    
     return Container(
       width: double.infinity,
-      height: 56,
+      height: buttonHeight,
       decoration: BoxDecoration(
         color: Color(0xFF6366F1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: context.responsiveBorderRadius(16),
         boxShadow: [
           BoxShadow(
             color: Color(0xFF6366F1).withValues(alpha: 0.3),
@@ -301,7 +298,7 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: context.responsiveBorderRadius(16),
           onTap: _findWEFTer,
           child: Center(
             child: Row(
@@ -310,15 +307,15 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
                 Icon(
                   Icons.search,
                   color: Colors.white,
-                  size: 24,
+                  size: context.responsiveIconSize(24),
                 ),
-                SizedBox(width: 12),
+                SizedBox(width: context.responsiveSpacing(12)),
                 Text(
                   'Search WEFTers',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                  style: ResponsiveTextStyles.getButton(context).copyWith(
                     color: Colors.white,
+                    fontSize: context.responsiveFontSize(18),
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -357,23 +354,26 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
           backgroundColor: Colors.transparent,
           child: Center(
             child: Container(
-              padding: EdgeInsets.all(24),
+              padding: context.responsivePadding(horizontal: 24, vertical: 24),
               decoration: BoxDecoration(
                 color: Color(0xFF2d2d4a),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: context.responsiveBorderRadius(20),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6366f1)),
+                  SizedBox(
+                    width: context.responsiveWidth(24),
+                    height: context.responsiveHeight(24),
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6366f1)),
+                    ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: context.responsiveSpacing(20)),
                   Text(
                     'Searching for WEFTers...',
-                    style: TextStyle(
+                    style: ResponsiveTextStyles.getBodyLarge(context).copyWith(
                       color: Colors.white,
-                      fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -422,21 +422,30 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Color(0xFF2d2d4a),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: context.responsiveBorderRadius(20),
+          ),
           title: Text(
             'Search Error',
-            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            style: ResponsiveTextStyles.getHeading3(context).copyWith(
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: Text(
             message,
-            style: TextStyle(color: Colors.grey[300]),
+            style: ResponsiveTextStyles.getBodyLarge(context).copyWith(
+              color: Colors.grey[300],
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
                 'OK',
-                style: TextStyle(color: Color(0xFF6366f1)),
+                style: ResponsiveTextStyles.getButton(context).copyWith(
+                  color: Color(0xFF6366f1),
+                ),
               ),
             ),
           ],
