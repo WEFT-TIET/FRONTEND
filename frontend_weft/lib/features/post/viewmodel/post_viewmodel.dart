@@ -150,11 +150,11 @@ class PostViewModel extends StateNotifier<PostState> {
   }
 
   // Delete a post
-  Future<bool> deletePost(String postId) async {
+  Future<Map<String, dynamic>> deletePost(String postId) async {
     try {
-      final success = await _postService.deletePost(postId);
+      final result = await _postService.deletePost(postId);
 
-      if (success) {
+      if (result['success'] == true) {
         // Remove the post from local state
         final updatedPosts = state.posts
             .where((post) => post.id != postId)
@@ -162,10 +162,10 @@ class PostViewModel extends StateNotifier<PostState> {
         state = state.copyWith(posts: updatedPosts);
       }
 
-      return success;
+      return result;
     } catch (e) {
       state = state.copyWith(error: e.toString());
-      return false;
+      return {'success': false, 'message': 'An unexpected error occurred'};
     }
   }
 

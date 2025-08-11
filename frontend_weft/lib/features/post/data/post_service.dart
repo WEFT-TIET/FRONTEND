@@ -186,18 +186,34 @@ class PostService {
     }
   }
 
-  Future<bool> deletePost(String postId) async {
+  Future<Map<String, dynamic>> deletePost(String postId) async {
     try {
-      final url = Uri.parse('$baseUrl/posts/$postId');
-      final response = await _httpClient.delete(url);
+      final url = Uri.parse('$baseUrl/post/delete?id=$postId');
+      final response = await _httpClient.post(url);
 
-      print("🔵 DELETE Post URL: $url");
+      print("🔵 POST Delete Post URL: $url");
       print("📬 Response (${response.statusCode}): ${response.body}");
 
-      return response.statusCode == 200 || response.statusCode == 204;
+      // Handle different response codes
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': 'Post deleted successfully'};
+      } else if (response.statusCode == 404) {
+        // Check if it's endpoint not found or post not found
+        final responseBody = response.body.toLowerCase();
+        if (responseBody.contains('post not found')) {
+          return {'success': false, 'message': 'Post not found or already deleted'};
+        } else {
+          print("❌ Delete post endpoint not available on server yet");
+          return {'success': false, 'message': 'Delete feature temporarily unavailable'};
+        }
+      } else if (response.statusCode == 403) {
+        return {'success': false, 'message': 'You do not have permission to delete this post'};
+      } else {
+        return {'success': false, 'message': 'Failed to delete post. Please try again.'};
+      }
     } catch (e) {
       print("❌ Error deleting post: $e");
-      return false;
+      return {'success': false, 'message': 'Network error. Please check your connection and try again.'};
     }
   }
 

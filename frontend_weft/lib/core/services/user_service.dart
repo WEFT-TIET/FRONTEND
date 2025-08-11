@@ -56,6 +56,65 @@ class UserService {
     }
   }
 
+  // Combined search for both name and username
+  static Future<Map<String, dynamic>> searchUsersByNameOrUsername({
+    required String query,
+    AppHttpClient? client,
+  }) async {
+    try {
+      if (client == null) {
+        throw ArgumentError('AppHttpClient must be provided');
+      }
+
+      // Make two parallel searches - one by name, one by username
+      final futures = await Future.wait([
+        searchUsers(name: query, client: client),
+        searchUsers(username: query, client: client),
+      ]);
+
+      final nameResults = futures[0];
+      final usernameResults = futures[1];
+
+      // Combine results and remove duplicates
+      Set<String> seenIds = <String>{};
+      List<dynamic> combinedUsers = [];
+
+      // Add users from name search
+      if (nameResults['success'] && nameResults['data'] != null) {
+        final nameUsers = nameResults['data'] as List<dynamic>;
+        for (var user in nameUsers) {
+          final userId = user['id'].toString();
+          if (!seenIds.contains(userId)) {
+            seenIds.add(userId);
+            combinedUsers.add(user);
+          }
+        }
+      }
+
+      // Add users from username search (avoid duplicates)
+      if (usernameResults['success'] && usernameResults['data'] != null) {
+        final usernameUsers = usernameResults['data'] as List<dynamic>;
+        for (var user in usernameUsers) {
+          final userId = user['id'].toString();
+          if (!seenIds.contains(userId)) {
+            seenIds.add(userId);
+            combinedUsers.add(user);
+          }
+        }
+      }
+
+      return {
+        'success': true,
+        'data': combinedUsers,
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'error': 'Network error: $e',
+      };
+    }
+  }
+
   static Future<Map<String, dynamic>> getUserProfile(String userId) async {
     try {
       Uri uri = Uri.parse('${ApiConfig.getUserProfileUrl}/$userId');

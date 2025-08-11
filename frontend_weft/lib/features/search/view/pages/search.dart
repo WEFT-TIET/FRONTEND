@@ -53,7 +53,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 ),
                 SizedBox(height: 6),
                 Text(
-                  'Find anyone by name or username',
+                  'Find anyone by name, username, or @handle',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.7),
                     fontSize: 15,
@@ -83,7 +83,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     controller: _searchController,
                     style: TextStyle(color: Colors.white, fontSize: 16),
                     decoration: InputDecoration(
-                      hintText: 'Search by name or username...',
+                      hintText: 'Search by name, username, or @handle...',
                       hintStyle: TextStyle(
                         color: Colors.white.withValues(alpha: 0.6),
                         fontSize: 16,
@@ -440,25 +440,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     try {
       final appHttpClient = ref.read(httpClientProvider);
       
-      // Check if it looks like a username (starts with @, contains underscore, or no spaces)
-      bool isUsername = query.startsWith('@') || query.contains('_') || !query.contains(' ');
+      // Remove @ if present for cleaner search
+      String cleanQuery = query.startsWith('@') ? query.substring(1) : query;
       
-      String? searchName;
-      String? searchUsername;
-      
-      if (isUsername) {
-        // Remove @ if present and search by username
-        searchUsername = query.startsWith('@') ? query.substring(1) : query;
-      } else {
-        // Search by name
-        searchName = query;
-      }
-
-      final result = await UserService.searchUsers(
-        name: searchName,
-        username: searchUsername,
-        year: null,
-        branch: null,
+      // Search both name and username simultaneously for broader results
+      final result = await UserService.searchUsersByNameOrUsername(
+        query: cleanQuery,
         client: appHttpClient,
       );
 

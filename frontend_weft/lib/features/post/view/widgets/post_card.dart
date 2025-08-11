@@ -44,6 +44,7 @@ class PostCard extends ConsumerStatefulWidget {
 
 class _PostCardState extends ConsumerState<PostCard> {
   bool _isExpanded = false;
+  bool _isDeleting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -464,28 +465,75 @@ class _PostCardState extends ConsumerState<PostCard> {
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.warning_amber_rounded,
-                  color: AppPallete.red.withValues(alpha: 0.8),
-                  size: 32,
+                Row(
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: AppPallete.red.withValues(alpha: 0.8),
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Delete this post?',
+                        style: TextStyle(
+                          color: AppPallete.textPrimaryDark,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  'Are you sure you want to delete this post?',
-                  style: TextStyle(
-                    color: AppPallete.textPrimaryDark,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                const SizedBox(height: 16),
+                
+                // Post preview
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppPallete.cardColorDark.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppPallete.textPrimaryDark.withValues(alpha: 0.2),
+                      width: 0.5,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.tag,
+                        style: TextStyle(
+                          color: AppPallete.textPrimaryDark,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.content,
+                        style: TextStyle(
+                          color: AppPallete.textPrimaryDark.withValues(alpha: 0.8),
+                          fontSize: 13,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
+                
+                const SizedBox(height: 16),
                 Text(
                   'This action cannot be undone. The post will be permanently removed from WEFT.',
                   style: TextStyle(
                     color: AppPallete.textPrimaryDark.withValues(alpha: 0.7),
-                    fontSize: 14,
+                    fontSize: 12,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -514,12 +562,12 @@ class _PostCardState extends ConsumerState<PostCard> {
             ),
             const SizedBox(width: 8),
             ElevatedButton(
-              onPressed: () {
+              onPressed: _isDeleting ? null : () {
                 Navigator.of(context).pop();
                 _deletePost(context, widget.postId, ref);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppPallete.red,
+                backgroundColor: _isDeleting ? AppPallete.red.withValues(alpha: 0.6) : AppPallete.red,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -529,16 +577,35 @@ class _PostCardState extends ConsumerState<PostCard> {
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.delete, size: 16),
-                  SizedBox(width: 6),
-                  Text(
-                    'Delete',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                children: [
+                  if (_isDeleting) ...[
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Deleting...',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ] else ...[
+                    const Icon(Icons.delete, size: 16),
+                    const SizedBox(width: 6),
+                    const Text(
+                      'Delete',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -548,45 +615,117 @@ class _PostCardState extends ConsumerState<PostCard> {
     );
   }
 
-  void _deletePost(BuildContext context, String postId, WidgetRef ref) {
-    ref.read(postViewModelProvider.notifier).deletePost(postId).then((success) {
-      if (success) {
-        // Call the callback if provided (for profile page refresh)
-        widget.onPostDeleted?.call();
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
-                const Text('Post deleted successfully'),
-              ],
+  void _deletePost(BuildContext context, String postId, WidgetRef ref) async {
+    if (_isDeleting) return; // Prevent multiple simultaneous deletions
+
+    setState(() {
+      _isDeleting = true;
+    });
+
+    // Show loading snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
             ),
-            backgroundColor: AppPallete.gradient2,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            margin: const EdgeInsets.all(16),
-          ),
-        );
-      } else {
+            const SizedBox(width: 12),
+            const Text('Deleting post...'),
+          ],
+        ),
+        backgroundColor: AppPallete.gradient1,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 30), // Long duration, will be dismissed manually
+      ),
+    );
+
+    try {
+      final result = await ref.read(postViewModelProvider.notifier).deletePost(postId);
+      
+      if (mounted) {
+        // Dismiss loading snackbar
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        
+        setState(() {
+          _isDeleting = false;
+        });
+
+        if (result['success'] == true) {
+          // Call the callback if provided (for profile page refresh)
+          widget.onPostDeleted?.call();
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Text(result['message'] ?? 'Post deleted successfully'),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(result['message'] ?? 'Failed to delete post'),
+                  ),
+                ],
+              ),
+              backgroundColor: AppPallete.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        // Dismiss loading snackbar
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        
+        setState(() {
+          _isDeleting = false;
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
                 const Icon(Icons.error_outline, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
-                const Text('Failed to delete post'),
+                const Text('An unexpected error occurred'),
               ],
             ),
             backgroundColor: AppPallete.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 4),
           ),
         );
       }
-    });
+    }
   }
 
   void _showReportDialog(BuildContext context, WidgetRef ref) {
