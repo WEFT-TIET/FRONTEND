@@ -39,6 +39,12 @@ class Post {
       print("🔧 Fixed: Setting liked to false since likes_count is 0");
     }
     
+    // Parse verification status from backend
+    final verified = json['verified'] ?? false;
+    if (verified) {
+      print("✅ Verified user post: ${json['username']}");
+    }
+    
     return Post(
       id: json['id']?.toString() ?? '',
       userId: json['user_id']?.toString() ?? json['userId']?.toString() ?? '',
@@ -51,7 +57,7 @@ class Post {
       likesCount: likesCount,
       commentsCount: json['commentsCount'] ?? json['comments_count'] ?? 0,
       liked: liked,
-      verified: json['verified'] ?? false,
+      verified: verified,
     );
   }
 

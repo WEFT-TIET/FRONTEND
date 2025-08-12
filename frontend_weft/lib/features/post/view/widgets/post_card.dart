@@ -53,6 +53,13 @@ class _PostCardState extends ConsumerState<PostCard> {
     final currentUser = ref.watch(authViewModelProvider);
     final isCurrentUserPost = currentUser?.id == widget.userId;
 
+    // Debug logging for verification
+    if (widget.verified) {
+      print("🎯 PostCard: Rendering verification badge for ${widget.username}");
+    } else {
+      print("❌ PostCard: No verification badge for ${widget.username} (verified: ${widget.verified})");
+    }
+
     // Additional validation to fix backend inconsistency
     // If likes count is 0, the post should not be marked as liked
     final actuallyLiked = widget.stars > 0 ? widget.liked : false;
@@ -137,11 +144,11 @@ class _PostCardState extends ConsumerState<PostCard> {
                             ),
                           ),
                           if (widget.verified) ...[
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 6), // Increased spacing
                             const Icon(
                               Icons.verified,
                               color: Color(0xFF10B981),
-                              size: 14,
+                              size: 16, // Increased from 14 to 16
                             ),
                           ],
                           Text(

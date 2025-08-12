@@ -50,7 +50,7 @@ class _SignupInitialPageState extends State<SignupInitialPage> {
                 
                 // Subtitle
                 const Text(
-                  'Enter your college email and create a password',
+                  'Enter your email and create a password',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey,
@@ -60,10 +60,10 @@ class _SignupInitialPageState extends State<SignupInitialPage> {
                 const SizedBox(height: 40),
                 
                 // Email field
-                _buildLabel("College Email"),
+                _buildLabel(" Email"),
                 _buildInput(
                   emailController,
-                  "your.name@college.edu",
+                  "Use your college email to get verfied...",
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Email is required';

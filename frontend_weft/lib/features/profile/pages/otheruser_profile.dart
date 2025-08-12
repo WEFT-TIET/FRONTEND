@@ -9,6 +9,7 @@ import 'package:frontend_weft/features/messages/viewmodel/chat_viewmodel.dart';
 import 'package:frontend_weft/features/messages/repository/message_repository.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 import 'package:frontend_weft/features/profile/models/other_user_model.dart';
+import 'package:frontend_weft/features/profile/pages/skills_view_page.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_dialogs.dart';
 import 'package:frontend_weft/features/profile/widgets/profile_image_viewer.dart';
@@ -484,15 +485,7 @@ Widget _buildProfileHeader(OtherUserModel user) {
                   ),
                   // Skills Icon (view only)
                   GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${user.name} has ${user.skills.length} skills'),
-                          backgroundColor: const Color(0xFF6366F1),
-                        ),
-                      );
-                    },
+                    onTap: () => _showSkillsView(user),
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -701,7 +694,6 @@ Widget _buildAcademicDetails(OtherUserModel user) {
     );
   }
 
-  // SKILLS SECTION
   Widget _buildActionButtons(OtherUserModel user) {
     return Consumer(
       builder: (context, ref, child) {
@@ -1093,6 +1085,16 @@ Widget _buildActionButton(
   void _blockUser() {
     HapticFeedback.mediumImpact();
     ProfileDialogs.showSnackBar(context, 'Block feature coming soon!');
+  }
+
+  void _showSkillsView(OtherUserModel user) async {
+    HapticFeedback.selectionClick();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SkillsViewPage(user: user),
+      ),
+    );
   }
 
   Future<void> _openInstagram(String instagramId) async {

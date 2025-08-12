@@ -172,6 +172,7 @@ class _BottomNavBarState extends State<BottomNavBar>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppPallete.transperantColor,
+      resizeToAvoidBottomInset: false, // Prevent keyboard from moving navbar
       body: Stack(
         children: [
           // Main content

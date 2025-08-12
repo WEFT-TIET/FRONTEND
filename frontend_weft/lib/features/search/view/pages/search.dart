@@ -55,7 +55,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 ),
                 SizedBox(height: context.responsiveSpacing(6)),
                 Text(
-                  'Find anyone by name, username, or @handle',
+                  'Find anyone by name, username...',
                   style: ResponsiveTextStyles.getBodyMedium(context).copyWith(
                     color: Colors.white.withValues(alpha: 0.7),
                   ),

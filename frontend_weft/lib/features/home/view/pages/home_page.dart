@@ -241,8 +241,8 @@ class _HomePageState extends ConsumerState<HomePage>
         itemBuilder: (context, index) {
           final post = filteredPosts[index];
           
-          // Simple verification check: known verified usernames
-          final isVerified = _isUserVerified(post.username);
+          // Use verification data from backend
+          final isVerified = post.verified ?? false;
 
           return RepaintBoundary(
             child: PostCard(
@@ -256,22 +256,12 @@ class _HomePageState extends ConsumerState<HomePage>
               stars: post.likesCount,
               comments: post.commentsCount,
               liked: post.liked,
-              verified: isVerified,
+              verified: isVerified, // Using test verification
             ),
           );
         },
       ),
     );
-  }
-
-  // Simple verification check based on known patterns
-  bool _isUserVerified(String username) {
-    // Known verified usernames (users with @thapar.edu emails)
-    const verifiedUsers = {
-      'rudiee', // Current user with @thapar.edu email
-    };
-    
-    return verifiedUsers.contains(username.toLowerCase());
   }
 
   List<dynamic> _getFilteredPosts(List<dynamic> posts) {

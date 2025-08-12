@@ -286,7 +286,7 @@ class WEFTerResultsPage extends StatelessWidget {
                 ),
               ),
             ),
-            if (_isVerifiedUser(user)) ...[
+            if (user['is_college_email'] == true || user['isVerified'] == true) ...[
               const SizedBox(width: 4),
               const Icon(
                 Icons.verified,
@@ -412,12 +412,5 @@ class WEFTerResultsPage extends StatelessWidget {
         builder: (BuildContext context) => OtherUserProfilePage(Id: Id),
       ),
     );
-  }
-
-  bool _isVerifiedUser(Map<String, dynamic> user) {
-    final String? email = user['email']?.toString();
-    if (email == null) return false;
-    return email.toLowerCase().endsWith('@thapar.edu') || 
-           email.toLowerCase().contains('thapar.edu');
   }
 }
