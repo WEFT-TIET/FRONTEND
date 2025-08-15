@@ -1,5 +1,6 @@
 // lib/models/user_model.dart
 import 'package:frontend_weft/features/post/model/post_model.dart';
+import 'package:frontend_weft/features/profile/models/skill_model.dart';
 
 class UserModel {
   final String name;
@@ -10,7 +11,7 @@ class UserModel {
   final String? email;
   final String? instagramId;
   final List<Post> posts;
-  final List<String> skills;
+  final List<SkillModel> skills;
 
   UserModel({
     required this.name,
@@ -40,7 +41,7 @@ class UserModel {
     String? email,
     String? instagramId,
     List<Post>? posts,
-    List<String>? skills,
+    List<SkillModel>? skills,
   }) {
     return UserModel(
       name: name ?? this.name,
@@ -82,10 +83,8 @@ class UserModel {
           .map((e) => Post.fromJson(e as Map<String, dynamic>))
           .toList(),
       skills: (json['skills'] as List<dynamic>? ?? [])
-          .map((e) => e is Map<String, dynamic> 
-              ? e['skill_name']?.toString() ?? e.toString()
-              : e.toString())
+          .map((skillJson) => SkillModel.fromJson(skillJson as Map<String, dynamic>))
           .toList(),
-    );
+          );
   }
 }
