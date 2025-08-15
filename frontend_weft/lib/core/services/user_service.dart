@@ -13,7 +13,6 @@ class UserService {
     AppHttpClient? client, 
   }) async {
     try {
-      
       if (client == null) {
         throw ArgumentError('AppHttpClient must be provided');
       }
@@ -24,8 +23,9 @@ class UserService {
       if (year != null && year.isNotEmpty) queryParams['year'] = year;
       if (username != null && username.isNotEmpty) queryParams['username'] = username;
       if (branch != null && branch.isNotEmpty) queryParams['branch'] = branch;
-      if (skill != null && skill.isNotEmpty) queryParams['skill'] = skill;
-      if (skill != null && skill.isNotEmpty) queryParams['skill'] = skill;
+      
+      // The key has been corrected from 'skill' to 'skills' to match your backend.
+      if (skill != null && skill.isNotEmpty) queryParams['skills'] = skill;
 
       Uri uri = Uri.parse(ApiConfig.searchUsersUrl).replace(
         queryParameters: queryParams,
@@ -45,7 +45,7 @@ class UserService {
       } else {
         return {
           'success': false,
-          'error': 'Server error:  {response.statusCode}',
+          'error': 'Server error: ${response.statusCode}',
         };
       }
     } catch (e) {
@@ -171,4 +171,4 @@ class UserService {
       };
     }
   }
-} 
+}
