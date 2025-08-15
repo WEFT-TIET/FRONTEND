@@ -151,19 +151,60 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                               ),
                               Row(
                                 children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.add, 
-                                      color: AppPallete.textPrimaryDark,
-                                      size: context.responsiveIconSize(24),
+                                  // Enhanced Create Weft Button
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
                                     ),
-                                    tooltip: 'Create Weft',
-                                    onPressed: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => const CreatePostPage(),
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => const CreatePostPage(),
+                                          ),
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: context.responsiveSpacing(12),
+                                            vertical: context.responsiveSpacing(8),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.edit_note,
+                                                color: Colors.white,
+                                                size: context.responsiveIconSize(20),
+                                              ),
+                                              SizedBox(width: context.responsiveSpacing(6)),
+                                              Text(
+                                                'Post Weft',
+                                                style: ResponsiveTextStyles.getBodyMedium(context).copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
+                                  SizedBox(width: context.responsiveSpacing(8)),
                                   IconButton(
                                     icon: Icon(
                                       Icons.refresh, 
