@@ -1,3 +1,4 @@
+import 'dart:convert'; 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/server_constants.dart';
 import 'package:frontend_weft/core/http_client.dart';
@@ -34,27 +35,25 @@ class SkillsApiService {
   
   
   Future<bool> removeSkill(int skillId) async {
-    try {
-      
-      
-      final url = Uri.parse('$baseUrl/skills/delete?id=$skillId');
-      
-      
-      final response = await _httpClient.delete(url);
+  try {
+    
+    final url = Uri.parse('$baseUrl/skills/delete?id=$skillId');
+    
+    
+    final response = await _httpClient.post(url);
 
-      print("🔵 DELETE Remove Skill URL: $url");
-      print(" Response (${response.statusCode}): ${response.body}");
+    print("🔵 POST (Query Param) Remove Skill URL: $url");
+    print(" Response (${response.statusCode}): ${response.body}");
 
-      
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        print("❌ Failed to remove skill: ${response.statusCode} - ${response.body}");
-        return false;
-      }
-    } catch (e) {
-      print("❌ Error removing skill: $e");
+    if (response.statusCode == 200) {
+      return true; 
+    } else {
+      print("❌ Failed to remove skill: ${response.statusCode} - ${response.body}");
       return false;
     }
+  } catch (e) {
+    print("❌ Error removing skill: $e");
+    return false;
+  }
   }
 }
