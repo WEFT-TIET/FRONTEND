@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/core/widgets/pull_to_refresh_wrapper.dart';
 import 'package:frontend_weft/features/search/view/pages/wefter_results_page.dart';
 import 'package:frontend_weft/features/search/view/pages/skill_based_search_page.dart';
 import 'package:frontend_weft/features/search/view/pages/advanced_search_page.dart';
@@ -24,6 +25,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   final TextEditingController _yearController = TextEditingController();
   final TextEditingController _branchController = TextEditingController();
 
+  Future<void> _handleRefresh() async {
+    // Clear search and reset state
+    _searchController.clear();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,9 +47,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           ),
         ),
         child: SafeArea(
-          child: Padding(
-            padding: ResponsiveConfig.getContentPadding(context, ContentType.page),
-            child: Column(
+          child: PullToRefreshAlwaysScrollable(
+            onRefresh: _handleRefresh,
+            child: Padding(
+              padding: ResponsiveConfig.getContentPadding(context, ContentType.page),
+              child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header
@@ -133,7 +143,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 SizedBox(height: context.responsiveSpacing(20)),
                 
                 // Search Options Grid
-                Expanded(
+                Flexible(
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -165,13 +175,13 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         // Second Row - Deft & Share Music (Coming Soon)
                         _buildResponsiveRow([
                           _buildComingSoonBox(
-                            title: 'D-Weft',
-                            subtitle: 'Find your perfect match',
-                            icon: Icons.favorite,
-                            color: Color(0xFFEF4444),
+                            title: 'CrewCraft',
+                            subtitle: 'Build your winning hack team',
+                            icon: Icons.bolt,
+                            color: Color(0xFF3B82F6),
                           ),
                           _buildComingSoonBox(
-                            title: 'Music Share',
+                              title: 'Soundly',
                             subtitle: 'Discover music taste',
                             icon: Icons.music_note,
                             color: Color(0xFF8B5CF6),
@@ -183,13 +193,13 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         // Third Row - Connect Through Projects & Random Hangout
                         _buildResponsiveRow([
                           _buildComingSoonBox(
-                            title: 'Project Connect',
+                            title: 'Mergeon',
                             subtitle: 'Collaborate on projects',
                             icon: Icons.handshake,
                             color: Color(0xFF06B6D4),
                           ),
                           _buildComingSoonBox(
-                            title: 'Hangout Hub',
+                              title: 'VibeSpace',
                             subtitle: 'Random meetups & fun',
                             icon: Icons.group,
                             color: Color(0xFFF59E0B),
@@ -202,6 +212,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   ),
                 ),
               ],
+            ),
             ),
           ),
         ),

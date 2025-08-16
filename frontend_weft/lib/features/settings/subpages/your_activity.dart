@@ -1,12 +1,207 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/core/http_client.dart';
+import 'package:frontend_weft/core/server_constants.dart';
 import 'package:frontend_weft/features/post/model/post_model.dart';
 import 'package:frontend_weft/features/post/model/comment_model.dart';
 import 'package:frontend_weft/features/post/view/widgets/post_card.dart';
 import 'package:frontend_weft/features/post/view/widgets/comment_card.dart';
+import 'package:frontend_weft/features/post/view/pages/comment_page.dart';
+import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
+import 'dart:convert';
 
 enum ActivityTab { liked, commented }
+
+// Activity data model - directly in this file
+class ActivityRecord {
+  final String? type;
+  final int? postId;
+  final String? postTitle;
+  final int? commentId;
+  final String? commentContent;
+  final DateTime createdAt;
+
+  ActivityRecord({
+    this.type,
+    this.postId,
+    this.postTitle,
+    this.commentId,
+    this.commentContent,
+    required this.createdAt,
+  });
+
+  factory ActivityRecord.fromJson(Map<String, dynamic> json) {
+    return ActivityRecord(
+      type: json['Type'],
+      postId: json['PostID'],
+      postTitle: json['PostTitle'],
+      commentId: json['CommentID'],
+      commentContent: json['CommentContent'],
+      createdAt: _parseDateTime(json['CreatedAt']),
+    );
+  }
+
+  static DateTime _parseDateTime(dynamic dateStr) {
+    if (dateStr == null) return DateTime.now();
+    if (dateStr is String) {
+      if (dateStr == '0001-01-01T00:00:00Z') {
+        return DateTime.now();
+      }
+      try {
+        return DateTime.parse(dateStr);
+      } catch (e) {
+        return DateTime.now();
+      }
+    }
+    return DateTime.now();
+  }
+
+  bool get isLike => type?.toLowerCase() == 'like';
+  bool get isComment => type?.toLowerCase() == 'comment';
+}
+
+// Activity state management - directly in this file
+class ActivityState {
+  final List<ActivityRecord> activities;
+  final bool isLoading;
+  final String? error;
+  final Map<String, Post> postsCache;
+
+  ActivityState({
+    this.activities = const [],
+    this.isLoading = false,
+    this.error,
+    this.postsCache = const {},
+  });
+
+  List<ActivityRecord> get likedPosts =>
+      activities.where((a) => a.isLike).toList();
+
+  List<ActivityRecord> get commentedPosts =>
+      activities.where((a) => a.isComment).toList();
+
+  ActivityState copyWith({
+    List<ActivityRecord>? activities,
+    bool? isLoading,
+    String? error,
+    Map<String, Post>? postsCache,
+  }) {
+    return ActivityState(
+      activities: activities ?? this.activities,
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
+      postsCache: postsCache ?? this.postsCache,
+    );
+  }
+}
+
+// Activity provider - directly in this file
+class ActivityNotifier extends StateNotifier<ActivityState> {
+  final AppHttpClient _httpClient;
+
+  ActivityNotifier(this._httpClient) : super(ActivityState());
+
+  Future<void> fetchActivity() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      // Fetch activity data
+      final activityUri = Uri.parse('${ServerConstants.baseUrl}/activity');
+      final activityResponse = await _httpClient.get(activityUri);
+
+      if (activityResponse.statusCode == 200) {
+        final List<dynamic> activityJson = json.decode(activityResponse.body);
+        final activities = activityJson
+            .map((json) => ActivityRecord.fromJson(json))
+            .toList();
+
+        state = state.copyWith(
+          activities: activities,
+          isLoading: false,
+        );
+
+        // Fetch post details for activities in the background
+        _enrichPostsInBackground();
+      } else {
+        state = state.copyWith(
+          error: 'Failed to load activity: ${activityResponse.statusCode}',
+          isLoading: false,
+        );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        error: 'Network error: $e',
+        isLoading: false,
+      );
+    }
+  }
+
+  Future<void> _enrichPostsInBackground() async {
+    final postIds = state.activities
+        .where((a) => a.postId != null)
+        .map((a) => a.postId!)
+        .toSet();
+
+    Map<String, Post> newPostsCache = Map.from(state.postsCache);
+
+    for (final postId in postIds) {
+      if (!newPostsCache.containsKey(postId.toString())) {
+        try {
+          final post = await _fetchPostById(postId);
+          if (post != null) {
+            newPostsCache[postId.toString()] = post;
+          }
+        } catch (e) {
+          // Ignore individual post fetch errors
+        }
+      }
+    }
+
+    if (newPostsCache.length != state.postsCache.length) {
+      state = state.copyWith(postsCache: newPostsCache);
+    }
+  }
+
+  Future<Post?> _fetchPostById(int postId) async {
+    try {
+      final uri = Uri.parse('${ServerConstants.baseUrl}/posts/$postId');
+      final response = await _httpClient.get(uri);
+
+      if (response.statusCode == 200) {
+        final postJson = json.decode(response.body);
+        return Post.fromJson(postJson);
+      }
+    } catch (e) {
+      // Return null on error
+    }
+    return null;
+  }
+
+  Post? getPostForActivity(ActivityRecord activity) {
+    if (activity.postId != null) {
+      return state.postsCache[activity.postId.toString()];
+    }
+    return null;
+  }
+
+  void updatePostLikeStatus(String postId, bool liked) {
+    final activities = state.activities.where((a) {
+      return a.postId?.toString() != postId || a.isLike != true;
+    }).toList();
+
+    state = state.copyWith(activities: activities);
+  }
+
+  Future<void> refresh() async {
+    await fetchActivity();
+  }
+}
+
+final activityProvider = StateNotifierProvider<ActivityNotifier, ActivityState>((ref) {
+  final httpClient = ref.watch(httpClientProvider);
+  return ActivityNotifier(httpClient);
+});
 
 class YourActivityPage extends ConsumerStatefulWidget {
   const YourActivityPage({super.key});
@@ -20,11 +215,6 @@ class _YourActivityPageState extends ConsumerState<YourActivityPage>
   late TabController _tabController;
   ActivityTab selectedTab = ActivityTab.liked;
 
-  // Mock data - replace with actual data from your service
-  List<Post> likedPosts = [];
-  List<Comment> commentedPosts = [];
-  bool isLoading = false;
-
   @override
   void initState() {
     super.initState();
@@ -34,7 +224,11 @@ class _YourActivityPageState extends ConsumerState<YourActivityPage>
         selectedTab = _tabController.index == 0 ? ActivityTab.liked : ActivityTab.commented;
       });
     });
-    _loadData();
+    
+    // Load data from backend when the page initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(activityProvider.notifier).fetchActivity();
+    });
   }
 
   @override
@@ -43,66 +237,44 @@ class _YourActivityPageState extends ConsumerState<YourActivityPage>
     super.dispose();
   }
 
-  Future<void> _loadData() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    // Mock data - replace with actual API calls
-    await Future.delayed(const Duration(milliseconds: 500));
+  // Convert ActivityRecord to Post for liked posts
+  Post _activityToPost(ActivityRecord activity) {
+    // Try to get the enriched post data first
+    final enrichedPost = ref.read(activityProvider.notifier).getPostForActivity(activity);
+    if (enrichedPost != null) {
+      return enrichedPost;
+    }
     
-    // Mock liked posts
-    likedPosts = [
-      Post(
-        id: '1',
-        userId: 'user1',
-        username: 'JohnDoe',
-        title: 'Tech Discussion',
-        content: 'Just discovered this amazing new Flutter package that makes animations so much smoother! 🚀',
-        createdAt: DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
-        likesCount: 15,
-        commentsCount: 8,
-        liked: true,
-        verified: true,
-      ),
-      Post(
-        id: '2',
-        userId: 'user2',
-        username: 'SarahTech',
-        title: 'Study Tips',
-        content: 'Best productivity tips for college students: 1. Use Pomodoro technique 2. Take regular breaks 3. Stay hydrated',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
-        likesCount: 23,
-        commentsCount: 12,
-        liked: true,
-      ),
-    ];
+    // Fallback to basic data from activity record
+    return Post(
+      id: activity.postId?.toString() ?? '0',
+      userId: '0', // Not available in activity record
+      username: 'Loading...', // Will be updated when post details are fetched
+      title: activity.postTitle ?? 'Untitled Post',
+      content: 'Loading post content...', // Will be updated when post details are fetched
+      createdAt: activity.createdAt.toIso8601String(),
+      likesCount: 1, // Assume at least 1 like since user liked it
+      commentsCount: 0, // Will be updated when post details are fetched
+      liked: true,
+      verified: false,
+    );
+  }
 
-    // Mock commented posts
-    commentedPosts = [
-      Comment(
-        id: 'c1',
-        userId: 'currentUser',
-        userName: 'You',
-        content: 'Great point! I completely agree with your perspective on this topic.',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(),
-      ),
-      Comment(
-        id: 'c2',
-        userId: 'currentUser',
-        userName: 'You',
-        content: 'Thanks for sharing this! Really helpful information.',
-        createdAt: DateTime.now().subtract(const Duration(hours: 3)).toIso8601String(),
-      ),
-    ];
-
-    setState(() {
-      isLoading = false;
-    });
+  // Convert ActivityRecord to Comment for commented posts
+  Comment _activityToComment(ActivityRecord activity) {
+    return Comment(
+      id: activity.commentId?.toString() ?? '0',
+      userId: '0', // User's own comment
+      userName: 'You',
+      content: activity.commentContent ?? 'Comment content not available',
+      createdAt: activity.createdAt.toIso8601String(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final activityState = ref.watch(activityProvider);
+    
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -150,7 +322,7 @@ class _YourActivityPageState extends ConsumerState<YourActivityPage>
               ),
               child: IconButton(
                 icon: const Icon(Icons.refresh, color: AppPallete.textPrimaryDark, size: 20),
-                onPressed: _loadData,
+                onPressed: () => ref.read(activityProvider.notifier).refresh(),
               ),
             ),
           ],
@@ -209,13 +381,49 @@ class _YourActivityPageState extends ConsumerState<YourActivityPage>
             ),
           ),
         ),
-        body: isLoading
+        body: activityState.isLoading
             ? const Center(
                 child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(AppPallete.textPrimaryDark),
                 ),
               )
-            : TabBarView(
+            : activityState.error != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: AppPallete.textPrimaryDark.withOpacity(0.7),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Failed to load activity',
+                          style: TextStyle(
+                            color: AppPallete.textPrimaryDark,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          activityState.error!,
+                          style: TextStyle(
+                            color: AppPallete.whiteColor,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => ref.read(activityProvider.notifier).refresh(),
+                          child: Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  )
+                : TabBarView(
                 controller: _tabController,
                 children: [
                   _buildLikedWeftsTab(),
@@ -227,7 +435,10 @@ class _YourActivityPageState extends ConsumerState<YourActivityPage>
   }
 
   Widget _buildLikedWeftsTab() {
-    if (likedPosts.isEmpty) {
+    final activityState = ref.watch(activityProvider);
+    final likedActivities = activityState.likedPosts;
+    
+    if (likedActivities.isEmpty) {
       return _buildEmptyState(
         icon: Icons.star_border,
         title: 'No Liked Wefts',
@@ -236,28 +447,23 @@ class _YourActivityPageState extends ConsumerState<YourActivityPage>
     }
 
     return RefreshIndicator(
-      onRefresh: _loadData,
+      onRefresh: () => ref.read(activityProvider.notifier).refresh(),
       color: AppPallete.profileAccent,
       backgroundColor: AppPallete.glassWhite20,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: likedPosts.length,
+        itemCount: likedActivities.length,
         itemBuilder: (context, index) {
-          final post = likedPosts[index];
+          final activity = likedActivities[index];
+          final post = _activityToPost(activity);
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
-            child: PostCard(
-              postId: post.id,
-              userId: post.userId,
-              username: post.username,
-              tag: post.title,
-              timeAgo: _formatTimeAgo(post.createdAt),
-              content: post.content,
-              stars: post.likesCount,
-              comments: post.commentsCount,
-              liked: post.liked,
-              verified: post.verified,
-              showActions: true,
+            child: _ActivityPostCard(
+              post: post,
+              activity: activity,
+              onLikeChanged: (postId, liked) {
+                ref.read(activityProvider.notifier).updatePostLikeStatus(postId, liked);
+              },
             ),
           );
         },
@@ -266,7 +472,10 @@ class _YourActivityPageState extends ConsumerState<YourActivityPage>
   }
 
   Widget _buildCommentedWeftsTab() {
-    if (commentedPosts.isEmpty) {
+    final activityState = ref.watch(activityProvider);
+    final commentedActivities = activityState.commentedPosts;
+    
+    if (commentedActivities.isEmpty) {
       return _buildEmptyState(
         icon: Icons.chat_bubble_outline,
         title: 'No Comments',
@@ -275,64 +484,92 @@ class _YourActivityPageState extends ConsumerState<YourActivityPage>
     }
 
     return RefreshIndicator(
-      onRefresh: _loadData,
+      onRefresh: () => ref.read(activityProvider.notifier).refresh(),
       color: AppPallete.profileAccent,
       backgroundColor: AppPallete.glassWhite20,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: commentedPosts.length,
+        itemCount: commentedActivities.length,
         itemBuilder: (context, index) {
-          final comment = commentedPosts[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: AppPallete.glassWhite05,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppPallete.glassWhite20, width: 0.5),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppPallete.glassWhite10,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
+          final activity = commentedActivities[index];
+          final comment = _activityToComment(activity);
+          return GestureDetector(
+            onTap: () async {
+              // Navigate to the comment section of the post
+              if (activity.postId != null) {
+                // Try to get the post from cache or create a basic post object
+                final post = ref.read(activityProvider.notifier).getPostForActivity(activity) ?? 
+                  Post(
+                    id: activity.postId.toString(),
+                    userId: '0',
+                    username: 'Author',
+                    title: activity.postTitle ?? 'Post',
+                    content: '',
+                    createdAt: DateTime.now().toIso8601String(),
+                    likesCount: 0,
+                    commentsCount: 0,
+                    liked: false,
+                  );
+                
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => CommentPage(post: post),
+                  ),
+                );
+              }
+            },
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppPallete.glassWhite05,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppPallete.glassWhite20, width: 0.5),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppPallete.glassWhite10,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.chat_bubble,
+                          color: AppPallete.profileAccent,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Your Comment on: ${activity.postTitle ?? 'Post'}',
+                            style: TextStyle(
+                              color: AppPallete.textPrimaryDark,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          _formatTimeAgo(comment.createdAt),
+                          style: TextStyle(
+                            color: AppPallete.whiteColor,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.chat_bubble,
-                        color: AppPallete.profileAccent,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Your Comment',
-                        style: TextStyle(
-                          color: AppPallete.textPrimaryDark,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        _formatTimeAgo(comment.createdAt),
-                        style: TextStyle(
-                          color: AppPallete.whiteColor,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: CommentCard(comment: comment),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: CommentCard(comment: comment),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
@@ -385,6 +622,87 @@ class _YourActivityPageState extends ConsumerState<YourActivityPage>
           ],
         ),
       ),
+    );
+  }
+
+  String _formatTimeAgo(String createdAt) {
+    try {
+      final date = DateTime.parse(createdAt);
+      final now = DateTime.now();
+      final difference = now.difference(date);
+
+      if (difference.inDays > 0) {
+        return '${difference.inDays}d ago';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours}h ago';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes}m ago';
+      } else {
+        return 'Just now';
+      }
+    } catch (e) {
+      return 'Recently';
+    }
+  }
+}
+
+// Custom wrapper for PostCard that listens to like changes
+class _ActivityPostCard extends ConsumerStatefulWidget {
+  final Post post;
+  final ActivityRecord activity;
+  final Function(String postId, bool liked) onLikeChanged;
+
+  const _ActivityPostCard({
+    required this.post,
+    required this.activity,
+    required this.onLikeChanged,
+  });
+
+  @override
+  ConsumerState<_ActivityPostCard> createState() => _ActivityPostCardState();
+}
+
+class _ActivityPostCardState extends ConsumerState<_ActivityPostCard> {
+  late Post _currentPost;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPost = widget.post;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Listen to post viewmodel changes
+    final postState = ref.watch(postViewModelProvider);
+    
+    // Check if our post has been updated in the global post state
+    final updatedPost = postState.posts.firstWhere(
+      (p) => p.id == widget.post.id,
+      orElse: () => _currentPost,
+    );
+    
+    // If the post's liked status changed, notify the parent
+    if (updatedPost.liked != _currentPost.liked) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onLikeChanged(updatedPost.id, updatedPost.liked);
+      });
+    }
+    
+    _currentPost = updatedPost;
+
+    return PostCard(
+      postId: _currentPost.id,
+      userId: _currentPost.userId,
+      username: _currentPost.username,
+      tag: _currentPost.title,
+      timeAgo: _formatTimeAgo(_currentPost.createdAt),
+      content: _currentPost.content,
+      stars: _currentPost.likesCount,
+      comments: _currentPost.commentsCount,
+      liked: _currentPost.liked,
+      verified: _currentPost.verified,
+      showActions: true,
     );
   }
 

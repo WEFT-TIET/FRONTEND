@@ -48,6 +48,18 @@ class CommentViewModel extends StateNotifier<CommentState> {
 
     try {
       final comments = await _commentService.getComments(state.postId);
+      
+      // Sort comments by creation date (newest first)
+      comments.sort((a, b) {
+        try {
+          final aDate = DateTime.parse(a.createdAt);
+          final bDate = DateTime.parse(b.createdAt);
+          return bDate.compareTo(aDate); // Newest first
+        } catch (e) {
+          return 0; // If parsing fails, maintain original order
+        }
+      });
+      
       state = state.copyWith(
         comments: comments,
         isLoading: false,

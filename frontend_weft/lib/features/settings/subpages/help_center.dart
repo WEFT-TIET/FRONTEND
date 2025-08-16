@@ -122,12 +122,6 @@ class HelpCenterPage extends StatelessWidget {
                   subtitle: 'Coming Soon',
                   info: 'Available 9AM-5PM (IST)',
                 ),
-                _buildContactInfo(
-                  icon: Icons.phone,
-                  title: 'Call Support',
-                  subtitle: '+91 7023458736',
-                  info: 'Mon-Fri, 9AM-5PM (IST)',
-                ),
                 const SizedBox(height: 20),
               ],
             ),

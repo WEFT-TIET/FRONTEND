@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/core/widgets/pull_to_refresh_wrapper.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:frontend_weft/features/messages/view/pages/chat_page.dart';
 import 'package:frontend_weft/features/messages/viewmodel/conversations_viewmodel.dart';
@@ -105,6 +106,10 @@ class _OtherUserProfilePageState extends ConsumerState<OtherUserProfilePage>
     }
   }
 
+  Future<void> _handleRefresh() async {
+    await _fetchUserData();
+  }
+
   void _calculateProfileCardHeight() {
     final RenderBox? renderBox =
         _profileCardKey.currentContext?.findRenderObject() as RenderBox?;
@@ -145,11 +150,9 @@ return Container(
         body: Stack(
           children: [
             // --- FIXED: Removed problematic NotificationListener ---
-            CustomScrollView(
+            PullToRefreshCustomScrollView(
+              onRefresh: _handleRefresh,
               controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
               slivers: [
                 SliverAppBar(
                   floating: true,
@@ -564,7 +567,7 @@ Widget _buildAcademicDetails(OtherUserModel user) {
       ),
       child: Row(
         children: [
-          Expanded(child: _buildDetailColumn('Joined', user.year)),
+          Expanded(child: _buildDetailColumn('Year', user.year)),
           Container(
             width: 1,
             height: 32,

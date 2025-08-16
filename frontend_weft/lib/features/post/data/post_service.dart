@@ -19,55 +19,106 @@ class PostService {
     return await getPostsByPage(1);
   }
 
+  // Cache for all posts to handle pagination properly
+  static List<Post> _allPostsCache = [];
+  static int _lastFetchedPage = 0;
+  static bool _hasMorePages = true;
+
+  // Clear cache (useful for refresh)
+  void clearCache() {
+    _allPostsCache.clear();
+    _lastFetchedPage = 0;
+    _hasMorePages = true;
+  }
+
   Future<List<Post>> getPostsByPage(int page) async {
     try {
-      final url = Uri.parse('$baseUrl/posts?page=$page');
-      final response = await _httpClient.get(url);
+      // For first page, clear cache and start fresh
+      if (page == 1) {
+        _allPostsCache.clear();
+        _lastFetchedPage = 0;
+        _hasMorePages = true;
+      }
 
-      print("🔵 GET Posts URL: $url");
-      print("📬 Response (${response.statusCode}): ${response.body}");
+      // If we already have enough posts for this page, return from cache
+      const int postsPerPage = 10;
+      final startIndex = (page - 1) * postsPerPage;
+      final endIndex = startIndex + postsPerPage;
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print("🔍 Raw response data: $data");
+      // Keep fetching backend pages until we have enough filtered posts
+      while (_allPostsCache.length < endIndex && _hasMorePages) {
+        await _fetchAndCacheMorePosts();
+      }
 
-        List<dynamic> postsJson;
-        if (data is List) {
-          postsJson = data;
-          print("🔍 Response is a List with ${postsJson.length} items");
-        } else if (data is Map && data['results'] != null) {
-          postsJson = data['results'];
-          print("🔍 Response has 'results' field with ${postsJson.length} items");
-        } else if (data is Map && data['posts'] != null) {
-          postsJson = data['posts'];
-          print("🔍 Response has 'posts' field with ${postsJson.length} items");
-        } else if (data is Map && data['data'] != null) {
-          postsJson = data['data'];
-          print("🔍 Response has 'data' field with ${postsJson.length} items");
-        } else {
-          postsJson = [];
-          print("⚠️ Unknown response format: $data");
+      // Return the requested page from cache
+      if (startIndex < _allPostsCache.length) {
+        final result = _allPostsCache.skip(startIndex).take(postsPerPage).toList();
+        print("📋 Returning page $page with ${result.length} posts (${startIndex} to ${startIndex + result.length - 1} from cache of ${_allPostsCache.length})");
+        return result;
+      }
+
+      print("📋 No more posts available for page $page");
+      return [];
+    } catch (e) {
+      print("❌ Error fetching posts: $e");
+      return [];
+    }
+  }
+
+  Future<void> _fetchAndCacheMorePosts() async {
+    if (!_hasMorePages) return;
+
+    _lastFetchedPage++;
+    final url = Uri.parse('$baseUrl/posts?page=$_lastFetchedPage');
+    final response = await _httpClient.get(url);
+
+    print("🔵 GET Posts URL: $url");
+    print("📬 Response (${response.statusCode}): ${response.body}");
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print("🔍 Raw response data: $data");
+
+      List<dynamic> postsJson;
+      if (data is List) {
+        postsJson = data;
+        print("🔍 Response is a List with ${postsJson.length} items");
+      } else if (data is Map && data['results'] != null) {
+        postsJson = data['results'];
+        print("🔍 Response has 'results' field with ${postsJson.length} items");
+      } else if (data is Map && data['posts'] != null) {
+        postsJson = data['posts'];
+        print("🔍 Response has 'posts' field with ${postsJson.length} items");
+      } else if (data is Map && data['data'] != null) {
+        postsJson = data['data'];
+        print("🔍 Response has 'data' field with ${postsJson.length} items");
+      } else {
+        postsJson = [];
+        print("⚠️ Unknown response format: $data");
+      }
+
+      // If we get no posts or fewer than expected, we've reached the end
+      if (postsJson.isEmpty || postsJson.length < 10) {
+        _hasMorePages = false;
+        print("📋 No more pages available from backend");
+      }
+
+      if (postsJson.isNotEmpty) {
+        print("🔍 First post structure: ${postsJson.first}");
+        // Check if user information is included
+        final firstPost = postsJson.first;
+        if (firstPost['user'] != null) {
+          print("🔍 User object in post: ${firstPost['user']}");
+        }
+        if (firstPost['email'] != null) {
+          print("🔍 Email in post: ${firstPost['email']}");
         }
 
-        if (postsJson.isNotEmpty) {
-          print("🔍 First post structure: ${postsJson.first}");
-          // Check if user information is included
-          final firstPost = postsJson.first;
-          if (firstPost['user'] != null) {
-            print("🔍 User object in post: ${firstPost['user']}");
-          }
-          if (firstPost['email'] != null) {
-            print("🔍 Email in post: ${firstPost['email']}");
-          }
-        }
-
-        print("📋 Found ${postsJson.length} posts for page $page");
+        print("📋 Found ${postsJson.length} posts for backend page $_lastFetchedPage");
         
-        // Get blocked users to filter out their posts
+        // Get blocked users and current user ID
         final blockedUsers = await _getBlockedUsers();
         final blockedUserIds = blockedUsers.map((user) => user['id'].toString()).toSet();
-        
-        // Get current user ID to filter out their own posts from main feed
         final currentUserId = await _getCurrentUserId();
         
         // Filter out posts from blocked users and current user's own posts
@@ -76,16 +127,17 @@ class PostService {
           return !blockedUserIds.contains(postUserId) && postUserId != currentUserId;
         }).toList();
         
-        print("📋 Filtered to ${filteredPostsJson.length} posts (removed ${postsJson.length - filteredPostsJson.length} from blocked users and current user's own posts)");
+        print("📋 Filtered to ${filteredPostsJson.length} posts from backend page $_lastFetchedPage (removed ${postsJson.length - filteredPostsJson.length} from blocked users and current user's own posts)");
         
-        return filteredPostsJson.map((json) => Post.fromJson(json)).toList();
-      } else {
-        print("❌ Failed to fetch posts: ${response.statusCode} - ${response.body}");
-        return [];
+        // Convert to Post objects and add to cache
+        final pagePosts = filteredPostsJson.map((json) => Post.fromJson(json)).toList();
+        _allPostsCache.addAll(pagePosts);
+        
+        print("📋 Total posts in cache: ${_allPostsCache.length}");
       }
-    } catch (e) {
-      print("❌ Error fetching posts: $e");
-      return [];
+    } else {
+      print("❌ Failed to fetch posts: ${response.statusCode} - ${response.body}");
+      _hasMorePages = false;
     }
   }
 

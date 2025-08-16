@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/core/widgets/pull_to_refresh_wrapper.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/models/skill_model.dart';
 import 'package:frontend_weft/features/profile/services/skills_api_service.dart';
@@ -33,6 +34,29 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
     _skills = List.from(widget.user.skills);
   }
 
+  Future<void> _handleRefresh() async {
+    try {
+      // Refresh the user profile to get updated skills
+      ref.invalidate(userProfileProvider);
+      
+      // Wait a moment for the provider to refresh
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      // Update local skills list with the refreshed data
+      final refreshedUser = ref.read(userProfileProvider).value;
+      if (refreshedUser != null) {
+        setState(() {
+          _skills = List.from(refreshedUser.skills);
+        });
+      }
+      
+      HapticFeedback.lightImpact();
+    } catch (e) {
+      // Handle refresh error silently or show a subtle message
+      print('Refresh error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,25 +73,28 @@ class _SkillsManagementPageState extends ConsumerState<SkillsManagementPage> {
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              _buildAppBar(),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(),
-                      const SizedBox(height: 24),
-                      _buildAddSkillField(),
-                      const SizedBox(height: 24),
-                      _buildSkillsList(),
-                    ],
+          child: PullToRefreshWrapper(
+            onRefresh: _handleRefresh,
+            child: Column(
+              children: [
+                _buildAppBar(),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(),
+                        const SizedBox(height: 24),
+                        _buildAddSkillField(),
+                        const SizedBox(height: 24),
+                        _buildSkillsList(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

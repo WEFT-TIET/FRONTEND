@@ -54,7 +54,7 @@ class PostViewModel extends StateNotifier<PostState> {
       state = state.copyWith(
         posts: posts, 
         isLoading: false, 
-        hasMorePosts: posts.length == 10, // Assuming 10 posts per page
+        hasMorePosts: posts.length >= 10, // If we get 10 or more posts, there might be more
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -77,7 +77,7 @@ class PostViewModel extends StateNotifier<PostState> {
           posts: updatedPosts,
           currentPage: nextPage,
           isLoadingMore: false,
-          hasMorePosts: newPosts.length == 10, // Assuming 10 posts per page
+          hasMorePosts: newPosts.length >= 10, // If we get 10 or more posts, there might be more
         );
       } else {
         state = state.copyWith(
@@ -104,7 +104,8 @@ class PostViewModel extends StateNotifier<PostState> {
       );
 
       if (success) {
-        // Refresh posts after creation
+        // Clear cache and refresh posts after creation
+        _postService.clearCache();
         await fetchPosts();
       }
 
@@ -136,8 +137,11 @@ class PostViewModel extends StateNotifier<PostState> {
         state = state.copyWith(posts: updatedPosts);
         
         // Refresh posts to get accurate counts from server
-        // This ensures we have the correct like counts
-        Future.microtask(() => fetchPosts());
+        // Clear cache to ensure fresh data
+        Future.microtask(() {
+          _postService.clearCache();
+          fetchPosts();
+        });
         
         return true;
       }
@@ -171,6 +175,8 @@ class PostViewModel extends StateNotifier<PostState> {
 
   // Refresh posts
   Future<void> refreshPosts() async {
+    // Clear cache to ensure fresh data
+    _postService.clearCache();
     await fetchPosts();
   }
 
@@ -180,11 +186,9 @@ class PostViewModel extends StateNotifier<PostState> {
       final success = await _postService.blockUser(userId);
       
       if (success) {
-        // Remove posts from blocked user from the feed
-        final updatedPosts = state.posts
-            .where((post) => post.userId != userId)
-            .toList();
-        state = state.copyWith(posts: updatedPosts);
+        // Clear cache and refresh to get updated filtered posts
+        _postService.clearCache();
+        await fetchPosts();
       }
       
       return success;
@@ -200,7 +204,8 @@ class PostViewModel extends StateNotifier<PostState> {
       final success = await _postService.unblockUser(userId);
       
       if (success) {
-        // Refresh posts to show posts from unblocked user
+        // Clear cache and refresh to show posts from unblocked user
+        _postService.clearCache();
         await fetchPosts();
       }
       

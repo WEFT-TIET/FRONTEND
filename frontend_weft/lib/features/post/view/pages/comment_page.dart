@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/core/widgets/pull_to_refresh_wrapper.dart';
 import 'package:frontend_weft/features/post/model/post_model.dart';
 import 'package:frontend_weft/features/post/viewmodel/comment_viewmodel.dart';
 import 'package:frontend_weft/features/post/view/widgets/comment_card.dart';
@@ -14,6 +15,11 @@ class CommentPage extends ConsumerWidget {
     super.key,
     required this.post,
   });
+
+  Future<void> _handleRefresh(WidgetRef ref) async {
+    // Refresh comments for this specific post
+    await ref.read(commentViewModelProvider(post.id).notifier).refreshComments();
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,7 +73,8 @@ class CommentPage extends ConsumerWidget {
               
               // Post and comments section
               Expanded(
-                child: SingleChildScrollView(
+                child: PullToRefreshAlwaysScrollable(
+                  onRefresh: () => _handleRefresh(ref),
                   child: Column(
                     children: [
                       const SizedBox(height: 8),
@@ -271,15 +278,10 @@ class CommentPage extends ConsumerWidget {
                         )
                       else
                         // Comments list
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: commentState.comments.length,
-                          itemBuilder: (context, index) {
-                            return CommentCard(
-                              comment: commentState.comments[index],
-                            );
-                          },
+                        Column(
+                          children: commentState.comments.map((comment) {
+                            return CommentCard(comment: comment);
+                          }).toList(),
                         ),
                     ],
                   ),

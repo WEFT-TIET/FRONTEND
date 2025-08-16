@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
-import 'package:frontend_weft/features/post/viewmodel/post_viewmodel.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
-import 'package:frontend_weft/features/notifications/viewmodel/notification_viewmodel.dart';
 import 'package:frontend_weft/features/notifications/pages/notifications_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -38,7 +36,6 @@ class AnimatedAppBar extends ConsumerWidget implements PreferredSizeWidget {
         title: _buildAnimatedTitle(ref),
         iconTheme: const IconThemeData(color: AppPallete.textPrimaryDark),
         actions: [
-          _buildRefreshButton(context, ref),
           _buildNotificationButton(context),
         ],
       ),
@@ -117,16 +114,6 @@ class AnimatedAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return nameParts.isNotEmpty ? nameParts.first : 'there';
   }
 
-  Widget _buildRefreshButton(BuildContext context, WidgetRef ref) {
-    return RepaintBoundary(
-      child: IconButton(
-        icon: const Icon(Icons.refresh),
-        onPressed: () => _handleRefresh(context, ref),
-        tooltip: 'Refresh posts',
-      ),
-    );
-  }
-
   Widget _buildNotificationButton(BuildContext context) {
     return RepaintBoundary(
       child: Stack(
@@ -146,54 +133,10 @@ class AnimatedAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return const SizedBox.shrink();
   }
 
-  void _handleRefresh(BuildContext context, WidgetRef ref) {
-    try {
-      ref.read(postViewModelProvider.notifier).refreshPosts();
-      _showSnackBar(
-        context, 
-        'Refreshing posts...', 
-        const Color.fromRGBO(74, 78, 138, 1),
-        duration: const Duration(seconds: 1),
-      );
-    } catch (e) {
-      _showSnackBar(
-        context, 
-        'Failed to refresh posts', 
-        AppPallete.red,
-        duration: const Duration(seconds: 2),
-      );
-    }
-  }
-
   void _handleNotificationTap(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const NotificationsPage(),
-      ),
-    );
-  }
-
-  void _showSnackBar(
-    BuildContext context, 
-    String message, 
-    Color color, {
-    Duration duration = const Duration(seconds: 2),
-  }) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        backgroundColor: color,
-        behavior: SnackBarBehavior.floating,
-        duration: duration,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        margin: const EdgeInsets.all(16),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/core/utils/responsive_utils.dart';
 import 'package:frontend_weft/core/utils/responsive_text_styles.dart';
 import 'package:frontend_weft/core/widgets/responsive_profile_name.dart';
+import 'package:frontend_weft/core/widgets/pull_to_refresh_wrapper.dart';
 import 'package:frontend_weft/features/post/view/pages/create_post_page.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
@@ -69,6 +70,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     return null; // No back button if we can't pop
   }
 
+  Future<void> _handleRefresh() async {
+    setState(() => _isLoading = true);
+    ref.invalidate(userProfileProvider);
+    // Add a small delay to show the refresh animation
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (mounted) setState(() => _isLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -114,11 +123,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         body: userProfileAsync.when(
           data: (user) {
             if (user == null) {
-              return const Center(child: Text('No profile data found'));
+              return PullToRefreshAlwaysScrollable(
+                onRefresh: _handleRefresh,
+                child: const Center(child: Text('No profile data found')),
+              );
             }
             return Stack(
               children: [
-                CustomScrollView(
+                PullToRefreshCustomScrollView(
+                  onRefresh: _handleRefresh,
                   slivers: [
                     // Profile Card
                     SliverToBoxAdapter(
@@ -203,22 +216,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(width: context.responsiveSpacing(8)),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.refresh, 
-                                      color: AppPallete.textPrimaryDark,
-                                      size: context.responsiveIconSize(24),
-                                    ),
-                                    tooltip: 'Refresh',
-                                    onPressed: () {
-                                      setState(() => _isLoading = true);
-                                      ref.invalidate(userProfileProvider);
-                                      Future.delayed(const Duration(milliseconds: 800), () {
-                                        if (mounted) setState(() => _isLoading = false);
-                                      });
-                                    },
                                   ),
                                 ],
                               ),
@@ -310,8 +307,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               ],
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, st) => Center(child: Text('Error: $e')),
+          loading: () => PullToRefreshAlwaysScrollable(
+            onRefresh: _handleRefresh,
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+          error: (e, st) => PullToRefreshAlwaysScrollable(
+            onRefresh: _handleRefresh,
+            child: Center(child: Text('Error: $e')),
+          ),
         ),
       ),
     );

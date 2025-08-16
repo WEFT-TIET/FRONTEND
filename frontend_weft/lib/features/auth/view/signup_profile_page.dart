@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../viewmodel/auth_viewmodel.dart';
 
@@ -21,7 +21,7 @@ class _SignupProfilePageState extends ConsumerState<SignupProfilePage> {
     'COE', 'COPC', 'ENC', 'EIC', 'ECE', 'ME', 'CE', 'CHE', 'BT', 'FT', 'TT'
   ];
   
-  final List<String> years = ['2023', '2024', '2025', '2026', '2027', '2028', '2029'];
+  final List<String> years = ['1', '2', '3', '4'];
 
   @override
   void didChangeDependencies() {
@@ -120,10 +120,10 @@ class _SignupProfilePageState extends ConsumerState<SignupProfilePage> {
                 const SizedBox(height: 20),
                 
                 // Year dropdown
-                _buildLabel("Joining Year"),
+                _buildLabel("Year"),
                 _buildDropdown(
                   value: yearController.text.isEmpty ? null : yearController.text,
-                  hint: "Select your joining year",
+                  hint: "Select your year",
                   items: years,
                   onChanged: (value) {
                     setState(() {
@@ -132,7 +132,7 @@ class _SignupProfilePageState extends ConsumerState<SignupProfilePage> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please select your joining year';
+                      return 'Please select your year';
                     }
                     return null;
                   },

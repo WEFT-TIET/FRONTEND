@@ -78,7 +78,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                           const SizedBox(height: 16),
           
                           _buildLabel("Year"),
-                          _buildInput(yearController, "e.g. 2023, 2024, 2025", obscure: false),
+                          _buildInput(yearController, "e.g. 1, 2, 3, 4", obscure: false),
                           const SizedBox(height: 16),
           
                           SizedBox(

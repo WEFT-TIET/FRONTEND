@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/core/mixins/keyboard_dismissal_mixin.dart';
+import 'package:frontend_weft/core/widgets/pull_to_refresh_wrapper.dart';
 import 'package:frontend_weft/features/home/view/Drawer/drawer.dart';
 import 'package:frontend_weft/features/home/view/widgets/animated_app_bar.dart';
 import 'package:frontend_weft/features/home/view/widgets/search_bar_widget.dart';
@@ -27,6 +28,7 @@ class _HomePageState extends ConsumerState<HomePage>
   late AnimationController _animationController;
   late Animation<double> _animation;
   Timer? _debounceTimer;
+  final ScrollController _scrollController = ScrollController();
 
   final List<String> _filters = ['All', 'Recent', 'Popular'];
 
@@ -34,6 +36,7 @@ class _HomePageState extends ConsumerState<HomePage>
   void initState() {
     super.initState();
     _initializeAnimation();
+    _setupScrollListener();
   }
 
   void _initializeAnimation() {
@@ -49,12 +52,34 @@ class _HomePageState extends ConsumerState<HomePage>
     _animationController.forward();
   }
 
+  void _setupScrollListener() {
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >= 
+          _scrollController.position.maxScrollExtent - 200) {
+        // Load more posts when near the bottom
+        _loadMorePosts();
+      }
+    });
+  }
+
+  void _loadMorePosts() {
+    final postState = ref.read(postViewModelProvider);
+    if (!postState.isLoadingMore && postState.hasMorePosts) {
+      ref.read(postViewModelProvider.notifier).loadMorePosts();
+    }
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
     _animationController.dispose();
+    _scrollController.dispose();
     _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _handleRefresh() async {
+    await ref.read(postViewModelProvider.notifier).refreshPosts();
   }
 
   @override
@@ -83,7 +108,9 @@ class _HomePageState extends ConsumerState<HomePage>
   }
 
   Widget _buildOptimizedBody() {
-    return CustomScrollView(
+    return PullToRefreshCustomScrollView(
+      controller: _scrollController,
+      onRefresh: _handleRefresh,
       slivers: [
         // Welcome Card Section
         // SliverToBoxAdapter(
@@ -226,41 +253,76 @@ class _HomePageState extends ConsumerState<HomePage>
 
     final filteredPosts = _getFilteredPosts(postState.posts);
     
-    if (filteredPosts.isEmpty) {
+    if (filteredPosts.isEmpty && !postState.isLoading) {
       return _buildEmptyState();
     }
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        await ref.read(postViewModelProvider.notifier).refreshPosts();
-      },
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: filteredPosts.length,
-        itemBuilder: (context, index) {
-          final post = filteredPosts[index];
-          
-          // Use verification data from backend
-          final isVerified = post.verified ?? false;
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: filteredPosts.length,
+          itemBuilder: (context, index) {
+            final post = filteredPosts[index];
+            
+            // Use verification data from backend
+            final isVerified = post.verified ?? false;
 
-          return RepaintBoundary(
-            child: PostCard(
-              key: ValueKey('post_${post.id}'),
-              postId: post.id,
-              userId: post.userId,
-              username: post.username,
-              tag: post.title,
-              timeAgo: _formatTimeAgo(post.createdAt),
-              content: post.content,
-              stars: post.likesCount,
-              comments: post.commentsCount,
-              liked: post.liked,
-              verified: isVerified, // Using test verification
+            return RepaintBoundary(
+              child: PostCard(
+                key: ValueKey('post_${post.id}'),
+                postId: post.id,
+                userId: post.userId,
+                username: post.username,
+                tag: post.title,
+                timeAgo: _formatTimeAgo(post.createdAt),
+                content: post.content,
+                stars: post.likesCount,
+                comments: post.commentsCount,
+                liked: post.liked,
+                verified: isVerified, // Using test verification
+              ),
+            );
+          },
+        ),
+        // Show loading indicator for pagination
+        if (postState.isLoadingMore)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppPallete.gradient2,
+                ),
+              ),
             ),
-          );
-        },
-      ),
+          ),
+        // Show "Load More" button if there are more posts and not currently loading
+        if (postState.hasMorePosts && !postState.isLoadingMore && filteredPosts.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: _loadMorePosts,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppPallete.gradient2,
+                foregroundColor: AppPallete.whiteColor,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Load More Posts',
+                style: GoogleFonts.getFont(
+                  'Oswald',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -359,25 +421,13 @@ class _HomePageState extends ConsumerState<HomePage>
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: () {
-              ref.read(postViewModelProvider.notifier).refreshPosts();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppPallete.gradient2,
-              foregroundColor: AppPallete.whiteColor,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
-              ),
-            ),
-            icon: const Icon(Icons.refresh),
-            label: Text(
-              'Try Again',
-              style: GoogleFonts.getFont(
-                'Oswald',
-                fontWeight: FontWeight.w600,
-              ),
+          Text(
+            'Pull down to refresh',
+            style: GoogleFonts.getFont(
+              'Oswald',
+              color: AppPallete.textPrimaryDark.withValues(alpha: 0.5),
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
             ),
           ),
         ],

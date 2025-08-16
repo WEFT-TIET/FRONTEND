@@ -101,7 +101,7 @@ class OtherUserModel {
       id: userMap['id']?.toString() ?? '',
       name: userMap['name'] ?? 'Unknown User',
       username: userMap['username'] ?? 'unknown',
-      year: userMap['year']?.toString() ?? '2024',
+      year: userMap['year']?.toString() ?? '1',
       branch: userMap['branch'] ?? 'COE',
       imageUrl: userMap['image_url'],
       email: userMap['email'],
