@@ -20,8 +20,12 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     super.initState();
     // Fetch notifications when page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(notificationViewModelProvider.notifier).fetchNotifications();
+      _loadNotifications();
     });
+  }
+
+  Future<void> _loadNotifications() async {
+    await ref.read(notificationViewModelProvider.notifier).fetchNotifications();
   }
 
   @override
@@ -87,9 +91,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     }
 
     return RefreshIndicator(
-      onRefresh: () async {
-        await ref.read(notificationViewModelProvider.notifier).fetchNotifications();
-      },
+      onRefresh: _loadNotifications,
       color: AppPallete.gradient1,
       child: ListView.builder(
         padding: const EdgeInsets.only(bottom: 20),
@@ -162,9 +164,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           ),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () {
-              ref.read(notificationViewModelProvider.notifier).fetchNotifications();
-            },
+            onPressed: _loadNotifications,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppPallete.gradient1,
               shape: RoundedRectangleBorder(

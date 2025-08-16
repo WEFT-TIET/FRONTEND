@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../viewmodel/auth_viewmodel.dart';
+import '../viewmodel/auth_local_repository.dart';
+import 'package:frontend_weft/core/utils/auth_debug.dart';
 
 class SignupPage extends ConsumerStatefulWidget {
   const SignupPage({super.key});
@@ -158,7 +160,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       );
 
-  void _handleSignup() async {
+  Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isLoading = true);
@@ -176,6 +178,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     setState(() => isLoading = false);
 
     if (success) {
+      // Debug: Check complete auth state after signup
+      await AuthDebugUtils.debugAuthState(ref);
+      
       Navigator.pushReplacementNamed(context, '/home');
     }
   }

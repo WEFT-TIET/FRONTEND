@@ -106,29 +106,8 @@ class NotificationTile extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Username and action
-        RichText(
-          text: TextSpan(
-            style: GoogleFonts.getFont(
-              'Inter',
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppPallete.textPrimaryDark,
-            ),
-            children: [
-              TextSpan(text: notification.user?.name ?? 'Unknown User'),
-              TextSpan(
-                text: ' ${notification.displayMessage}',
-                style: GoogleFonts.getFont(
-                  'Inter',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: AppPallete.textSecondaryDark,
-                ),
-              ),
-            ],
-          ),
-        ),
+        // Notification message
+        _buildNotificationMessage(),
         
         const SizedBox(height: 4),
         
@@ -220,6 +199,47 @@ class NotificationTile extends ConsumerWidget {
         notification.actionIcon,
         color: notification.actionColor,
         size: 20,
+      ),
+    );
+  }
+
+  Widget _buildNotificationMessage() {
+    // For tagging notifications, show the full message
+    if (notification.type == NotificationType.mention && 
+        (notification.message.contains('tagged in a post') || 
+         notification.message.contains('tagged in a comment'))) {
+      return Text(
+        notification.message,
+        style: GoogleFonts.getFont(
+          'Inter',
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: AppPallete.textPrimaryDark,
+        ),
+      );
+    }
+    
+    // For other notifications, show username + action
+    return RichText(
+      text: TextSpan(
+        style: GoogleFonts.getFont(
+          'Inter',
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AppPallete.textPrimaryDark,
+        ),
+        children: [
+          TextSpan(text: notification.user?.name ?? 'Unknown User'),
+          TextSpan(
+            text: ' ${notification.displayMessage}',
+            style: GoogleFonts.getFont(
+              'Inter',
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: AppPallete.textSecondaryDark,
+            ),
+          ),
+        ],
       ),
     );
   }

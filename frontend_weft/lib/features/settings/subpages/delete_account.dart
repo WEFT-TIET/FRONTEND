@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
+import 'package:frontend_weft/features/settings/viewmodels/delete_account_viewmodel.dart';
+import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 
 class DeleteAccountPage extends ConsumerStatefulWidget {
   const DeleteAccountPage({super.key});
@@ -12,21 +14,45 @@ class DeleteAccountPage extends ConsumerStatefulWidget {
 
 class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
   final TextEditingController _confirmationController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isLoading = false;
   bool _showPassword = false;
   bool _confirmationMatches = false;
   final String _requiredText = 'DELETE';
+  bool _isNavigating = false;
 
   @override
   void initState() {
     super.initState();
     _confirmationController.addListener(_checkConfirmation);
+    
+    // Pre-fill email field with current user's email
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final currentUser = ref.read(authViewModelProvider);
+      if (currentUser != null && currentUser.email.isNotEmpty) {
+        _emailController.text = currentUser.email;
+        print("📧 Pre-filled email: ${currentUser.email}");
+      }
+    });
+    
+    // Listen to viewmodel state changes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.listen<DeleteAccountState>(deleteAccountViewModelProvider, (previous, next) {
+        if (next.errorMessage != null) {
+          _showSnackBar(next.errorMessage!, isError: true);
+        } else if (next.isSuccess && !_isNavigating) {
+          _isNavigating = true;
+          _showSnackBar('Account deleted successfully. You will be logged out shortly.');
+          _handleSuccessfulDeletion();
+        }
+      });
+    });
   }
 
   @override
   void dispose() {
     _confirmationController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -38,7 +64,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
   }
 
   Future<void> _deleteAccount() async {
-    if (!_confirmationMatches || _passwordController.text.isEmpty) {
+    if (!_confirmationMatches || _emailController.text.isEmpty || _passwordController.text.isEmpty) {
       _showSnackBar('Please complete all fields correctly', isError: true);
       return;
     }
@@ -47,31 +73,61 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
     final confirmed = await _showFinalConfirmationDialog();
     if (!confirmed) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+    // Call the viewmodel to delete account
+    await ref.read(deleteAccountViewModelProvider.notifier)
+        .deleteAccount(_emailController.text.trim(), _passwordController.text.trim());
+  }
 
+  Future<void> _handleSuccessfulDeletion() async {
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      print("🔄 Starting post-deletion cleanup and navigation");
       
-      // Show success message
-      _showSnackBar('Account deletion initiated. You will be logged out shortly.');
+      // Wait a moment for the success message to be visible
+      await Future.delayed(const Duration(seconds: 1));
       
-      // Navigate back to login/onboarding after a delay
-      Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      
+      print("🔄 Clearing user state after successful account deletion");
+      // Clear the user state from auth viewmodel
+      await ref.read(authViewModelProvider.notifier).logoutUser();
+      
+      // Wait for state to update
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      if (!mounted) return;
+      
+      // Debug: Check if user state is actually cleared
+      final userAfterLogout = ref.read(authViewModelProvider);
+      print("👤 User state after logout: ${userAfterLogout == null ? 'null (logged out)' : 'still logged in'}");
+      
+      print("🔄 Attempting navigation to login page");
+      print("🔄 Current route: ${ModalRoute.of(context)?.settings.name}");
+      
+      // Use post-frame callback to ensure navigation happens after all state updates
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          // Navigate to login screen - adjust route as needed
-          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+          try {
+            Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+            print("✅ Navigation completed successfully");
+          } catch (e) {
+            print("❌ Navigation error: $e");
+            // Try alternative navigation
+            try {
+              Navigator.of(context).pushNamedAndRemoveUntil('/welcome', (route) => false);
+              print("✅ Alternative navigation to welcome completed");
+            } catch (e2) {
+              print("❌ Alternative navigation failed: $e2");
+            }
+          }
         }
       });
+      
     } catch (e) {
-      _showSnackBar('Failed to delete account. Please try again.', isError: true);
-    } finally {
+      print("❌ Error during post-deletion process: $e");
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        _showSnackBar('Account deleted successfully. Tap here to go to login.', isError: false);
+        // Show a dialog with manual navigation option
+        _showManualNavigationDialog();
       }
     }
   }
@@ -155,8 +211,62 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
     );
   }
 
+  void _showManualNavigationDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppPallete.glassWhite20,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            'Account Deleted Successfully',
+            style: TextStyle(
+              color: AppPallete.textPrimaryDark,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: const Text(
+            'Your account has been deleted successfully. Please tap the button below to go to the login page.',
+            style: TextStyle(
+              color: AppPallete.textPrimaryDark,
+              height: 1.5,
+            ),
+          ),
+          actions: [
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppPallete.gradient1, AppPallete.gradient2],
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
+                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                },
+                child: const Text(
+                  'Go to Login',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final deleteAccountState = ref.watch(deleteAccountViewModelProvider);
+    final isLoading = deleteAccountState.isLoading;
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -321,6 +431,37 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
 
               const SizedBox(height: 24),
 
+              // Email Confirmation
+              const Text(
+                'Confirm your email address:',
+                style: TextStyle(
+                  color: AppPallete.textPrimaryDark,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppPallete.glassWhite05,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppPallete.glassWhite20, width: 1),
+                ),
+                child: TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(color: AppPallete.textPrimaryDark),
+                  decoration: InputDecoration(
+                    hintText: 'Your email address',
+                    hintStyle: TextStyle(color: AppPallete.whiteColor),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(16),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
               // Password Confirmation
               const Text(
                 'Enter your password to proceed:',
@@ -369,18 +510,18 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
                 height: 54,
                 child: Container(
                   decoration: BoxDecoration(
-                    gradient: _confirmationMatches && _passwordController.text.isNotEmpty
+                    gradient: _confirmationMatches && _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty
                         ? const LinearGradient(
                             colors: [AppPallete.red, Color(0xFFD32F2F)],
                           )
                         : null,
-                    color: _confirmationMatches && _passwordController.text.isNotEmpty
+                    color: _confirmationMatches && _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty
                         ? null
                         : AppPallete.greyColor.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(27),
                   ),
                   child: ElevatedButton(
-                    onPressed: (_confirmationMatches && _passwordController.text.isNotEmpty && !_isLoading)
+                    onPressed: (_confirmationMatches && _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty && !isLoading)
                         ? _deleteAccount
                         : null,
                     style: ElevatedButton.styleFrom(
@@ -390,7 +531,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
                         borderRadius: BorderRadius.circular(27),
                       ),
                     ),
-                    child: _isLoading
+                    child: isLoading
                         ? const SizedBox(
                             width: 20,
                             height: 20,
@@ -418,7 +559,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
                 width: double.infinity,
                 height: 54,
                 child: TextButton(
-                  onPressed: _isLoading ? null : () => Navigator.pop(context),
+                  onPressed: isLoading ? null : () => Navigator.pop(context),
                   style: TextButton.styleFrom(
                     backgroundColor: AppPallete.glassWhite10,
                     shape: RoundedRectangleBorder(

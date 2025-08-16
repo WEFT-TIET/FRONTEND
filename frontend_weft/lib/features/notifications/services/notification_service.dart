@@ -17,14 +17,14 @@ class NotificationService {
 
   NotificationService(this._httpClient);
 
-  /// Get all notifications for the current user
-  Future<List<NotificationModel>> getNotifications() async {
+  /// Get all notifications for the current user with pagination support
+  Future<List<NotificationModel>> getNotifications({int page = 1}) async {
     try {
-      final url = Uri.parse('$baseUrl/notifications');
+      final url = Uri.parse('$baseUrl/notifications?page=$page');
       final response = await _httpClient.get(url);
 
-      Logger.debug("GET Notifications URL: $url");
-      Logger.debug("Response (${response.statusCode}): ${response.body}");
+      Logger.debug("🔵 GET Notifications URL: $url");
+      Logger.debug("📬 Response (${response.statusCode}): ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -41,17 +41,27 @@ class NotificationService {
           notificationsJson = [];
         }
         
+        Logger.debug("📋 Found ${notificationsJson.length} notifications");
+        
         return notificationsJson
-            .map((json) => NotificationModel.fromJson(json))
+            .map((json) {
+              try {
+                return NotificationModel.fromJson(json);
+              } catch (e) {
+                Logger.error("Error parsing notification: $e");
+                Logger.debug("Problematic JSON: $json");
+                return null;
+              }
+            })
+            .where((notification) => notification != null)
+            .cast<NotificationModel>()
             .toList();
       } else {
-        Logger.error("Failed to fetch notifications: ${response.statusCode} - ${response.body}");
-        // Return empty list if backend fails
+        Logger.error("❌ Failed to fetch notifications: ${response.statusCode} - ${response.body}");
         return [];
       }
     } catch (e) {
-      Logger.error("Error fetching notifications", e);
-      // Return empty list if error occurs
+      Logger.error("❌ Error fetching notifications", e);
       return [];
     }
   }

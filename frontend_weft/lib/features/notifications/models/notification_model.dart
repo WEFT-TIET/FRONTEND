@@ -58,6 +58,11 @@ class NotificationModel {
   }
 
   String get displayMessage {
+    // Use the message from backend if available, otherwise fall back to default messages
+    if (message.isNotEmpty && message != 'interacted with your content') {
+      return message;
+    }
+    
     switch (type) {
       case NotificationType.like:
         return 'liked your post';
@@ -66,7 +71,7 @@ class NotificationModel {
       case NotificationType.follow:
         return 'started following you';
       case NotificationType.mention:
-        return 'mentioned you in a comment';
+        return 'mentioned you';
       case NotificationType.post:
         return 'posted something new';
       case NotificationType.system:
@@ -159,47 +164,74 @@ class NotificationModel {
   }
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
-    // Generate a default message based on the notification type
-    String getDefaultMessage(String type) {
+    // Get the notification type from backend response
+    final notificationType = json['type'] ?? json['Type'] ?? 'system';
+    final taggerUsername = json['tagger_username'] ?? json['TaggerUsername'] ?? 'Unknown User';
+    
+    // Generate message based on notification type and tagger username
+    String getMessage(String type, String username) {
       switch (type.toLowerCase()) {
-        case 'like':
-          return 'liked your post';
-        case 'comment':
-          return 'commented on your post';
-        case 'follow':
-          return 'started following you';
-        case 'mention':
-          return 'mentioned you in a comment';
         case 'post':
-          return 'posted something new';
+          return 'You were tagged in a post by $username';
+        case 'comment':
+          return 'You were tagged in a comment by $username';
+        case 'like':
+          return '$username liked your post';
+        case 'follow':
+          return '$username started following you';
+        case 'mention':
+          return '$username mentioned you';
         default:
-          return 'interacted with your content';
+          return '$username interacted with your content';
       }
     }
 
-    final notificationType = json['type'] ?? json['Type'] ?? 'system';
-    final defaultMessage = getDefaultMessage(notificationType);
+    final message = getMessage(notificationType, taggerUsername);
 
-    // Safely handle user data
+    // Create a simple user model from the tagger information
     UserModel? userData;
     try {
-      if (json['user'] != null) {
-        userData = UserModel.fromJson(json['user']);
+      if (json['tagger_username'] != null || json['TaggerUsername'] != null) {
+        userData = UserModel(
+          name: taggerUsername,
+          username: taggerUsername,
+          year: '',
+          branch: '',
+          imageUrl: null, // Backend doesn't provide tagger image in this response
+        );
       }
     } catch (e) {
-      print('Error parsing user data: $e');
+      print('Error creating user data: $e');
       userData = null;
     }
 
+    // Map notification type to enum
+    NotificationType getNotificationType(String type) {
+      switch (type.toLowerCase()) {
+        case 'post':
+          return NotificationType.mention; // Tagged in post
+        case 'comment':
+          return NotificationType.mention; // Tagged in comment
+        case 'like':
+          return NotificationType.like;
+        case 'follow':
+          return NotificationType.follow;
+        default:
+          return NotificationType.system;
+      }
+    }
+
     return NotificationModel(
-      id: json['id']?.toString() ?? json['CommentID']?.toString() ?? '',
+      id: json['id']?.toString() ?? 
+           json['comment_id']?.toString() ?? 
+           json['CommentID']?.toString() ?? 
+           json['post_id']?.toString() ?? 
+           json['PostID']?.toString() ?? 
+           DateTime.now().millisecondsSinceEpoch.toString(),
       userId: json['user_id']?.toString() ?? json['UserID']?.toString() ?? '',
       postId: json['post_id']?.toString() ?? json['PostID']?.toString(),
-      type: NotificationType.values.firstWhere(
-        (e) => e.name == notificationType,
-        orElse: () => NotificationType.system,
-      ),
-      message: json['message'] ?? defaultMessage,
+      type: getNotificationType(notificationType),
+      message: message,
       actionText: json['action_text'],
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       isRead: json['is_read'] ?? false,

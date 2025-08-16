@@ -65,21 +65,49 @@ class AuthService {
 
     print("📡 Signup response status: ${response.statusCode}");
     print("📡 Signup response body: ${response.body}");
+    print("📡 Signup response headers: ${response.headers}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      // Just return success - tokens are automatically saved as cookies
-      // Create a basic user object for state management
+      // Parse the JSON response to get tokens
+      final data = jsonDecode(response.body);
+      print("🔍 Parsed response data: $data");
+      print("🔍 Available keys: ${data.keys.toList()}");
+      
+      final accessToken = data['AccessToken'] ?? '';
+      final refreshToken = data['RefreshToken'] ?? '';
+      
+      print("🔑 Access Token received: ${accessToken.isNotEmpty ? 'Yes' : 'No'}");
+      print("🔑 Access Token length: ${accessToken.length}");
+      print("🔑 Refresh Token received: ${refreshToken.isNotEmpty ? 'Yes' : 'No'}");
+      print("🔑 Refresh Token length: ${refreshToken.length}");
+      
+      // Extract user ID from JWT token if available
+      String userId = '';
+      if (accessToken.isNotEmpty) {
+        try {
+          final payload = Jwt.parseJwt(accessToken);
+          userId = payload['sub']?.toString() ?? '';
+          print("👤 User ID from token: $userId");
+          print("🔍 JWT payload: $payload");
+        } catch (e) {
+          print("⚠️ Could not parse JWT token: $e");
+          print("🔍 Token that failed to parse: '$accessToken'");
+        }
+      } else {
+        print("⚠️ Access token is empty in response");
+      }
+      
       final user = User(
-        id: '',
+        id: userId,
         name: userData['name'] ?? '',
         email: userData['email'] ?? '',
         year: userData['year'] ?? '',
         branch: userData['branch'] ?? '',
-        accessToken: '',
-        refreshToken: '',
+        accessToken: accessToken,
+        refreshToken: refreshToken,
       );
       
-      print("✅ Signup successful");
+      print("✅ Signup successful with tokens");
       return user;
     } else {
       print("❌ Signup failed: ${response.statusCode} ${response.body}");

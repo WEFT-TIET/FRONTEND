@@ -21,7 +21,7 @@ class _SignupProfilePageState extends ConsumerState<SignupProfilePage> {
     'COE', 'COPC', 'ENC', 'EIC', 'ECE', 'ME', 'CE', 'CHE', 'BT', 'FT', 'TT'
   ];
   
-  final List<String> years = ['1', '2', '3', '4'];
+  final List<String> years = ['2024', '2', '3', '4'];
 
   @override
   void didChangeDependencies() {

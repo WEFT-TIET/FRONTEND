@@ -6,6 +6,7 @@ import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/profile/services/profile_api_service.dart';
 import 'package:frontend_weft/features/profile/models/user_model.dart';
 import 'package:frontend_weft/features/notifications/pages/notifications_page.dart';
+import 'package:frontend_weft/features/notifications/viewmodel/notification_viewmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Provider to get user profile data
@@ -130,7 +131,43 @@ class AnimatedAppBar extends ConsumerWidget implements PreferredSizeWidget {
   }
 
   Widget _buildNotificationBadge() {
-    return const SizedBox.shrink();
+    return Consumer(
+      builder: (context, ref, child) {
+        final notificationState = ref.watch(notificationViewModelProvider);
+        final unreadCount = notificationState.notifications
+            .where((notification) => !notification.isRead)
+            .length;
+        
+        if (unreadCount == 0) {
+          return const SizedBox.shrink();
+        }
+        
+        return Positioned(
+          right: 8,
+          top: 8,
+          child: Container(
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: AppPallete.red,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            constraints: const BoxConstraints(
+              minWidth: 16,
+              minHeight: 16,
+            ),
+            child: Text(
+              unreadCount > 99 ? '99+' : unreadCount.toString(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _handleNotificationTap(BuildContext context) {

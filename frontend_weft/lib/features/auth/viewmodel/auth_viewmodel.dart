@@ -38,19 +38,32 @@ class AuthViewModel extends StateNotifier<User?> {
       });
 
       print("💾 Saving user state and tokens...");
+      print("🔑 Access token to save: '${user.accessToken}'");
+      print("🔑 Refresh token to save: '${user.refreshToken}'");
+      
       state = user;
       
       // Save user and tokens locally (same as login)
       await ref.read(authLocalRepositoryProvider).saveUser(user);
-      await ref
-          .read(authLocalRepositoryProvider)
-          .saveAccessToken(user.accessToken);
+      
+      // Only save tokens if they're not empty
+      if (user.accessToken.isNotEmpty) {
+        await ref
+            .read(authLocalRepositoryProvider)
+            .saveAccessToken(user.accessToken);
+        print("✅ Access token saved successfully");
+      } else {
+        print("⚠️ Access token is empty, not saving");
+      }
 
       // Save refresh token if available
-      if (user.refreshToken != null) {
+      if (user.refreshToken != null && user.refreshToken!.isNotEmpty) {
         await ref
             .read(authLocalRepositoryProvider)
             .saveRefreshToken(user.refreshToken!);
+        print("✅ Refresh token saved successfully");
+      } else {
+        print("⚠️ Refresh token is empty or null, not saving");
       }
       
       print("✅ Signup completed successfully!");
@@ -99,6 +112,37 @@ class AuthViewModel extends StateNotifier<User?> {
   /// Initialize user state from local storage
   void initializeUser(User user) {
     state = user;
+  }
+
+  /// Load user and tokens from local storage on app startup
+  Future<void> loadUserFromStorage() async {
+    try {
+      final user = await ref.read(authLocalRepositoryProvider).getUser();
+      final accessToken = await ref.read(authLocalRepositoryProvider).getAccessToken();
+      final refreshToken = await ref.read(authLocalRepositoryProvider).getRefreshToken();
+      
+      print("📱 Loading user from storage...");
+      print("👤 User found: ${user != null ? 'Yes' : 'No'}");
+      print("🔑 Access token found: ${accessToken != null && accessToken.isNotEmpty ? 'Yes' : 'No'}");
+      print("🔑 Refresh token found: ${refreshToken != null && refreshToken.isNotEmpty ? 'Yes' : 'No'}");
+      
+      if (user != null) {
+        // Update user with current tokens from storage
+        final updatedUser = User(
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          year: user.year,
+          branch: user.branch,
+          accessToken: accessToken ?? '',
+          refreshToken: refreshToken ?? '',
+        );
+        state = updatedUser;
+        print("✅ User loaded successfully with tokens");
+      }
+    } catch (e) {
+      print("❌ Error loading user from storage: $e");
+    }
   }
 
   void _showError(BuildContext context, String error) {

@@ -26,11 +26,12 @@ class AppHttpClient {
     };
 
     // Add AccessToken as Cookie if available
-    if (token != null) {
+    if (token != null && token.isNotEmpty) {
       headers['Cookie'] = 'AccessToken=$token';
     }
 
-    Logger.debug("Token included in Cookie: ${token != null ? 'Yes' : 'No'}");
+    Logger.debug("Token retrieved from storage: '${token ?? 'null'}'");
+    Logger.debug("Token included in Cookie: ${token != null && token.isNotEmpty ? 'Yes' : 'No'}");
     Logger.debug("Headers being sent: $headers");
     
     return headers;

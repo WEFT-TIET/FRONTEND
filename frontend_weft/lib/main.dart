@@ -19,11 +19,8 @@ void main() async {
 
   final container = ProviderContainer();
 
-  // Load user from local storage on startup
-  final user = await container.read(authLocalRepositoryProvider).getUser();
-  if (user != null) {
-    container.read(authViewModelProvider.notifier).initializeUser(user);
-  }
+  // Load user and tokens from local storage on startup
+  await container.read(authViewModelProvider.notifier).loadUserFromStorage();
 
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
