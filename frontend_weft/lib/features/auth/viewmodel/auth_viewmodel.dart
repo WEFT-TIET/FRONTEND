@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/features/auth/data/auth_service.dart';
 import 'package:frontend_weft/features/auth/model/user_model.dart';
+import 'package:frontend_weft/features/auth/data/registration_storage.dart';
 import 'auth_local_repository.dart';
 
 final authViewModelProvider = StateNotifierProvider<AuthViewModel, User?>((
@@ -15,8 +16,8 @@ class AuthViewModel extends StateNotifier<User?> {
 
   AuthViewModel(this.ref) : super(null);
 
-  /// Sign up returns a user and saves it
-  Future<bool> signup({
+  /// Initiate registration and send OTP
+  Future<bool> initiateRegistration({
     required String username,
     required String name,
     required String email,
@@ -26,16 +27,41 @@ class AuthViewModel extends StateNotifier<User?> {
     required BuildContext context,
   }) async {
     try {
-      print("🔐 Starting signup process for: $email");
+      print("🔐 Starting registration process for: $email");
       
-      final user = await ref.read(authServiceProvider).signup({
+      final registrationData = {
         "username": username,
         "name": name,
         "email": email,
         "password": password,
         "year": year,
         "branch": branch,
-      });
+      };
+
+      // Save registration data for potential resend
+      await RegistrationStorage.saveRegistrationData(registrationData);
+      
+      final message = await ref.read(authServiceProvider).initiateRegistration(registrationData);
+
+      print("✅ Registration initiated: $message");
+      return true;
+    } catch (e) {
+      print("❌ Registration initiation error: $e");
+      _showError(context, e.toString());
+      return false;
+    }
+  }
+
+  /// Verify OTP and complete registration
+  Future<bool> verifyOtp({
+    required String email,
+    required String otp,
+    required BuildContext context,
+  }) async {
+    try {
+      print("🔐 Verifying OTP for: $email");
+      
+      final user = await ref.read(authServiceProvider).completeRegistration(email, otp);
 
       print("💾 Saving user state and tokens...");
       print("🔑 Access token to save: '${user.accessToken}'");
@@ -43,33 +69,49 @@ class AuthViewModel extends StateNotifier<User?> {
       
       state = user;
       
-      // Save user and tokens locally (same as login)
+      // Save user and tokens locally
       await ref.read(authLocalRepositoryProvider).saveUser(user);
       
-      // Only save tokens if they're not empty
+      // Save tokens if they're not empty
       if (user.accessToken.isNotEmpty) {
         await ref
             .read(authLocalRepositoryProvider)
             .saveAccessToken(user.accessToken);
         print("✅ Access token saved successfully");
-      } else {
-        print("⚠️ Access token is empty, not saving");
       }
 
-      // Save refresh token if available
       if (user.refreshToken != null && user.refreshToken!.isNotEmpty) {
         await ref
             .read(authLocalRepositoryProvider)
             .saveRefreshToken(user.refreshToken!);
         print("✅ Refresh token saved successfully");
-      } else {
-        print("⚠️ Refresh token is empty or null, not saving");
       }
       
-      print("✅ Signup completed successfully!");
+      // Clear temporary registration data
+      await RegistrationStorage.clearRegistrationData();
+      
+      print("✅ Registration completed successfully!");
       return true;
     } catch (e) {
-      print("❌ Signup error: $e");
+      print("❌ OTP verification error: $e");
+      _showError(context, e.toString());
+      return false;
+    }
+  }
+
+  /// Resend OTP
+  Future<bool> resendOtp({
+    required String email,
+    required BuildContext context,
+  }) async {
+    try {
+      print("🔄 Resending OTP for: $email");
+      
+      final message = await ref.read(authServiceProvider).resendOtp(email);
+      print("✅ OTP resent: $message");
+      return true;
+    } catch (e) {
+      print("❌ Resend OTP error: $e");
       _showError(context, e.toString());
       return false;
     }

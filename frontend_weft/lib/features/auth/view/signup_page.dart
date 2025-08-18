@@ -165,23 +165,37 @@ class _SignupPageState extends ConsumerState<SignupPage> {
 
     setState(() => isLoading = true);
 
-    final success = await ref.read(authViewModelProvider.notifier).signup(
-          username: usernameController.text.trim(),
-          name: nameController.text.trim(),
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-          year: yearController.text.trim(),
-          branch: branchController.text.trim(),
+    // Prepare registration data
+    final registrationData = {
+      "username": usernameController.text.trim(),
+      "name": nameController.text.trim(),
+      "email": emailController.text.trim(),
+      "password": passwordController.text.trim(),
+      "year": yearController.text.trim(),
+      "branch": branchController.text.trim(),
+    };
+
+    final success = await ref.read(authViewModelProvider.notifier).initiateRegistration(
+          username: registrationData["username"]!,
+          name: registrationData["name"]!,
+          email: registrationData["email"]!,
+          password: registrationData["password"]!,
+          year: registrationData["year"]!,
+          branch: registrationData["branch"]!,
           context: context,
         );
 
     setState(() => isLoading = false);
 
     if (success) {
-      // Debug: Check complete auth state after signup
-      await AuthDebugUtils.debugAuthState(ref);
-      
-      Navigator.pushReplacementNamed(context, '/home');
+      // Navigate to OTP verification page
+      Navigator.pushNamed(
+        context,
+        '/otp-verification',
+        arguments: {
+          'email': registrationData["email"]!,
+        },
+      );
     }
   }
 

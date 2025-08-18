@@ -9,6 +9,7 @@ import 'package:frontend_weft/features/auth/view/signup_initial_page.dart';
 import 'package:frontend_weft/features/auth/view/signup_username_page.dart';
 import 'package:frontend_weft/features/auth/view/signup_profile_page.dart';
 import 'package:frontend_weft/features/auth/view/forgot_password_page.dart';
+import 'package:frontend_weft/features/auth/view/otp_verification_page.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_local_repository.dart';
 import 'package:frontend_weft/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:frontend_weft/features/navbar/navigation.dart';
@@ -45,6 +46,10 @@ class MyApp extends ConsumerWidget {
         '/signup-username': (context) => const SignupUsernamePage().dismissKeyboard(),
         '/signup-profile': (context) => const SignupProfilePage().dismissKeyboard(),
         '/forgot-password': (context) => const ForgotPasswordPage().dismissKeyboard(),
+        '/otp-verification': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return OtpVerificationPage(email: args['email']).dismissKeyboard();
+        },
         '/home': (context) => const BottomNavBar().dismissKeyboard(),
         '/settings': (context) => const SettingsPage().dismissKeyboard(),
       },

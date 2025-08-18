@@ -5,6 +5,7 @@ import 'package:frontend_weft/core/http_client.dart';
 import 'package:frontend_weft/features/auth/model/user_model.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'registration_storage.dart';
 
 final authServiceProvider = Provider<AuthService>((ref) {
   final httpClient = ref.watch(httpClientProvider);
@@ -54,64 +55,111 @@ class AuthService {
     }
   }
 
-  /// Sign up and return a User model
-  Future<User> signup(Map<String, dynamic> userData) async {
-    print("🚀 Signup request: $userData");
+  /// Send registration request and trigger OTP email
+  Future<String> initiateRegistration(Map<String, dynamic> userData) async {
+    print("🚀 Registration initiation request: $userData");
     
     final response = await _httpClient.post(
       Uri.parse('$baseUrl/register'),
       body: jsonEncode(userData),
     );
 
-    print("📡 Signup response status: ${response.statusCode}");
-    print("📡 Signup response body: ${response.body}");
-    print("📡 Signup response headers: ${response.headers}");
+    print("📡 Registration response status: ${response.statusCode}");
+    print("📡 Registration response body: ${response.body}");
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      // Parse the JSON response to get tokens
+    if (response.statusCode == 200) {
+      // Backend returns "Verification mail sent"
+      return response.body;
+    } else {
+      print("❌ Registration failed: ${response.statusCode} ${response.body}");
+      throw Exception("Registration failed: ${response.body}");
+    }
+  }
+
+  /// Complete registration with OTP verification
+  Future<User> completeRegistration(String email, String otp) async {
+    print("🔐 Completing registration for: $email with OTP: $otp");
+    
+    final response = await _httpClient.post(
+      Uri.parse('$baseUrl/complete/registration'),
+      body: jsonEncode({
+        'email': email,
+        'otp': otp,
+      }),
+    );
+
+    print("📡 Complete registration response status: ${response.statusCode}");
+    print("📡 Complete registration response body: ${response.body}");
+
+    if (response.statusCode == 201) {
       final data = jsonDecode(response.body);
-      print("🔍 Parsed response data: $data");
-      print("🔍 Available keys: ${data.keys.toList()}");
-      
       final accessToken = data['AccessToken'] ?? '';
       final refreshToken = data['RefreshToken'] ?? '';
       
       print("🔑 Access Token received: ${accessToken.isNotEmpty ? 'Yes' : 'No'}");
-      print("🔑 Access Token length: ${accessToken.length}");
       print("🔑 Refresh Token received: ${refreshToken.isNotEmpty ? 'Yes' : 'No'}");
-      print("🔑 Refresh Token length: ${refreshToken.length}");
       
-      // Extract user ID from JWT token if available
+      // Extract user info from JWT token
       String userId = '';
+      String userEmail = '';
       if (accessToken.isNotEmpty) {
         try {
           final payload = Jwt.parseJwt(accessToken);
           userId = payload['sub']?.toString() ?? '';
+          userEmail = payload['email'] ?? '';
           print("👤 User ID from token: $userId");
-          print("🔍 JWT payload: $payload");
+          print("📧 Email from token: $userEmail");
         } catch (e) {
           print("⚠️ Could not parse JWT token: $e");
-          print("🔍 Token that failed to parse: '$accessToken'");
         }
-      } else {
-        print("⚠️ Access token is empty in response");
       }
       
       final user = User(
         id: userId,
-        name: userData['name'] ?? '',
-        email: userData['email'] ?? '',
-        year: userData['year'] ?? '',
-        branch: userData['branch'] ?? '',
+        name: '', // Will be populated from profile if needed
+        email: userEmail,
+        year: '',
+        branch: '',
         accessToken: accessToken,
         refreshToken: refreshToken,
       );
       
-      print("✅ Signup successful with tokens");
+      print("✅ Registration completed successfully");
       return user;
     } else {
-      print("❌ Signup failed: ${response.statusCode} ${response.body}");
-      throw Exception("Signup failed: ${response.statusCode} ${response.body}");
+      print("❌ Registration completion failed: ${response.statusCode} ${response.body}");
+      throw Exception("OTP verification failed: ${response.body}");
+    }
+  }
+
+  /// Resend OTP (triggers the registration endpoint again)
+  Future<String> resendOtp(String email) async {
+    print("🔄 Resending OTP for: $email");
+    
+    // Get stored registration data
+    final registrationData = await RegistrationStorage.getRegistrationData();
+    if (registrationData == null) {
+      throw Exception("No registration data found. Please start registration again.");
+    }
+    
+    // Verify the email matches
+    if (registrationData['email'] != email) {
+      throw Exception("Email mismatch. Please start registration again.");
+    }
+    
+    // Trigger registration again to resend OTP
+    final response = await _httpClient.post(
+      Uri.parse('$baseUrl/register'),
+      body: jsonEncode(registrationData),
+    );
+
+    print("📡 Resend OTP response status: ${response.statusCode}");
+    print("📡 Resend OTP response body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception("Failed to resend OTP: ${response.body}");
     }
   }
 

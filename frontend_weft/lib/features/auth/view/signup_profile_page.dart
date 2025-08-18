@@ -302,7 +302,7 @@ class _SignupProfilePageState extends ConsumerState<SignupProfilePage> {
     setState(() => isLoading = true);
 
     if (signupData != null) {
-      final success = await ref.read(authViewModelProvider.notifier).signup(
+      final success = await ref.read(authViewModelProvider.notifier).initiateRegistration(
         username: signupData!['username']!,
         name: nameController.text.trim(),
         email: signupData!['email']!,
@@ -315,11 +315,13 @@ class _SignupProfilePageState extends ConsumerState<SignupProfilePage> {
       setState(() => isLoading = false);
 
       if (success && mounted) {
-        // Navigate to home and clear the stack
-        Navigator.pushNamedAndRemoveUntil(
+        // Navigate to OTP verification page
+        Navigator.pushNamed(
           context,
-          '/home',
-          (route) => false,
+          '/otp-verification',
+          arguments: {
+            'email': signupData!['email']!,
+          },
         );
       }
     } else {
