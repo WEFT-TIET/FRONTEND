@@ -85,7 +85,7 @@ class _AdvancedSearchPageState extends ConsumerState<AdvancedSearchPage> {
                       _buildInputField(
                         controller: _branchController,
                         label: 'Branch',
-                        placeholder: 'Ex: COE, COPC, ENC',
+                        placeholder: 'Ex: COPC, COE, ECE, ENC',
                         icon: Icons.school,
                       ),
                       

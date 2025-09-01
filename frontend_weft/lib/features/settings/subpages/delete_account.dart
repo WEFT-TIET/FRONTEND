@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/theme/app_pallete.dart';
 import 'package:frontend_weft/features/settings/viewmodels/delete_account_viewmodel.dart';
@@ -19,12 +18,13 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
   bool _showPassword = false;
   bool _confirmationMatches = false;
   final String _requiredText = 'DELETE';
-  bool _isNavigating = false;
+  bool _hasHandledSuccess = false;
 
   @override
   void initState() {
     super.initState();
     _confirmationController.addListener(_checkConfirmation);
+    _passwordController.addListener(_checkPasswordLength);
     
     // Pre-fill email field with current user's email
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -34,23 +34,12 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
         print("📧 Pre-filled email: ${currentUser.email}");
       }
     });
-    
-    // Listen to viewmodel state changes
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.listen<DeleteAccountState>(deleteAccountViewModelProvider, (previous, next) {
-        if (next.errorMessage != null) {
-          _showSnackBar(next.errorMessage!, isError: true);
-        } else if (next.isSuccess && !_isNavigating) {
-          _isNavigating = true;
-          _showSnackBar('Account deleted successfully. You will be logged out shortly.');
-          _handleSuccessfulDeletion();
-        }
-      });
-    });
   }
 
   @override
   void dispose() {
+    _confirmationController.removeListener(_checkConfirmation);
+    _passwordController.removeListener(_checkPasswordLength);
     _confirmationController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -63,6 +52,13 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
     });
   }
 
+  void _checkPasswordLength() {
+    setState(() {
+      // This will trigger a rebuild to update the button state
+      // The actual check is done in the button condition
+    });
+  }
+
   Future<void> _deleteAccount() async {
     if (!_confirmationMatches || _emailController.text.isEmpty || _passwordController.text.isEmpty) {
       _showSnackBar('Please complete all fields correctly', isError: true);
@@ -72,6 +68,9 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
     // Show final confirmation dialog
     final confirmed = await _showFinalConfirmationDialog();
     if (!confirmed) return;
+
+    // Reset success handling flag for new deletion attempt
+    _hasHandledSuccess = false;
 
     // Call the viewmodel to delete account
     await ref.read(deleteAccountViewModelProvider.notifier)
@@ -267,6 +266,18 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
   Widget build(BuildContext context) {
     final deleteAccountState = ref.watch(deleteAccountViewModelProvider);
     final isLoading = deleteAccountState.isLoading;
+    
+    // Listen to state changes for handling success/error
+    ref.listen<DeleteAccountState>(deleteAccountViewModelProvider, (previous, next) {
+      if (next.errorMessage != null) {
+        _showSnackBar(next.errorMessage!, isError: true);
+      } else if (next.isSuccess && !_hasHandledSuccess) {
+        _hasHandledSuccess = true;
+        _showSnackBar('Account deleted successfully. You will be logged out shortly.');
+        _handleSuccessfulDeletion();
+      }
+    });
+    
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -510,18 +521,18 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
                 height: 54,
                 child: Container(
                   decoration: BoxDecoration(
-                    gradient: _confirmationMatches && _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty
+                    gradient: _confirmationMatches && _emailController.text.isNotEmpty && _passwordController.text.length >= 3
                         ? const LinearGradient(
                             colors: [AppPallete.red, Color(0xFFD32F2F)],
                           )
                         : null,
-                    color: _confirmationMatches && _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty
+                    color: _confirmationMatches && _emailController.text.isNotEmpty && _passwordController.text.length >= 3
                         ? null
                         : AppPallete.greyColor.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(27),
                   ),
                   child: ElevatedButton(
-                    onPressed: (_confirmationMatches && _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty && !isLoading)
+                    onPressed: (_confirmationMatches && _emailController.text.isNotEmpty && _passwordController.text.length >= 3 && !isLoading)
                         ? _deleteAccount
                         : null,
                     style: ElevatedButton.styleFrom(

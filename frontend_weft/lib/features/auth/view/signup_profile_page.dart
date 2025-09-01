@@ -18,10 +18,10 @@ class _SignupProfilePageState extends ConsumerState<SignupProfilePage> {
   Map<String, String>? signupData;
 
   final List<String> branches = [
-    'COE', 'COPC', 'ENC', 'EIC', 'ECE', 'ME', 'CE', 'CHE', 'BT', 'FT', 'TT'
+    'COPC', 'COE', 'ECE', 'ENC', 'IDFK'
   ];
   
-  final List<String> years = ['2024', '2', '3', '4'];
+  final List<String> years = ['1', '2', '3', '4'];
 
   @override
   void didChangeDependencies() {
@@ -296,18 +296,37 @@ class _SignupProfilePageState extends ConsumerState<SignupProfilePage> {
     );
   }
 
+  /// Convert single digit year (1,2,3,4) to full year (2024,2025,2026,2027)
+  String _convertYearToFullYear(String singleDigitYear) {
+    switch (singleDigitYear) {
+      case '1':
+        return '2024'; // 1st year students (current batch)
+      case '2':
+        return '2023'; // 2nd year students
+      case '3':
+        return '2022'; // 3rd year students
+      case '4':
+        return '2021'; // 4th year students
+      default:
+        return '2024'; // Default to 1st year
+    }
+  }
+
   void _handleCompleteRegistration() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isLoading = true);
 
     if (signupData != null) {
+      // Convert single digit year to 4-digit year
+      String convertedYear = _convertYearToFullYear(yearController.text.trim());
+      
       final success = await ref.read(authViewModelProvider.notifier).initiateRegistration(
         username: signupData!['username']!,
         name: nameController.text.trim(),
         email: signupData!['email']!,
         password: signupData!['password']!,
-        year: yearController.text.trim(),
+        year: convertedYear,
         branch: branchController.text.trim(),
         context: context,
       );

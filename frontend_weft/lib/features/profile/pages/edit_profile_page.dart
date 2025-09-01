@@ -44,9 +44,41 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> with Keyboard
   void _initializeControllers() {
     _nameController = TextEditingController(text: widget.user.name);
     _usernameController = TextEditingController(text: widget.user.username);
-    _yearController = TextEditingController(text: widget.user.year);
+    _yearController = TextEditingController(text: _convertFullYearToSingleDigit(widget.user.year));
     _branchController = TextEditingController(text: widget.user.branch);
     _instagramController = TextEditingController(text: widget.user.instagramId ?? '');
+  }
+
+  /// Convert full year (2024,2023,2022,2021) to single digit (1,2,3,4)
+  String _convertFullYearToSingleDigit(String fullYear) {
+    switch (fullYear) {
+      case '2024':
+        return '1'; // 1st year students
+      case '2023':
+        return '2'; // 2nd year students
+      case '2022':
+        return '3'; // 3rd year students
+      case '2021':
+        return '4'; // 4th year students
+      default:
+        return '1'; // Default to 1st year
+    }
+  }
+
+  /// Convert single digit year (1,2,3,4) to full year (2024,2023,2022,2021)
+  String _convertSingleDigitToFullYear(String singleDigitYear) {
+    switch (singleDigitYear) {
+      case '1':
+        return '2024'; // 1st year students
+      case '2':
+        return '2023'; // 2nd year students
+      case '3':
+        return '2022'; // 3rd year students
+      case '4':
+        return '2021'; // 4th year students
+      default:
+        return '2024'; // Default to 1st year
+    }
   }
 
   @override
@@ -353,7 +385,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> with Keyboard
       final updatedUser = widget.user.copyWith(
         name: _nameController.text,
         username: _usernameController.text,
-        year: _yearController.text,
+        year: _convertSingleDigitToFullYear(_yearController.text),
         branch: _branchController.text,
         instagramId: _instagramController.text.isEmpty ? null : _instagramController.text,
         imageUrl: _updatedImageUrl ?? widget.user.imageUrl,
