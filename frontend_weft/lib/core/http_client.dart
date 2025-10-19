@@ -85,4 +85,43 @@ class AppHttpClient {
     final finalHeaders = await _getHeaders(additionalHeaders: headers);
     return await http.patch(url, headers: finalHeaders, body: body);
   }
+
+  /// Multipart request with automatic token inclusion (for file uploads and form data)
+  Future<http.Response> postMultipart(
+    Uri url, {
+    Map<String, String>? fields,
+    Map<String, String>? headers,
+    List<http.MultipartFile>? files,
+  }) async {
+    final token = await _authLocalRepository.getAccessToken();
+    
+    final request = http.MultipartRequest('POST', url);
+    
+    // Add fields
+    if (fields != null) {
+      request.fields.addAll(fields);
+    }
+    
+    // Add files
+    if (files != null) {
+      request.files.addAll(files);
+    }
+    
+    // Add headers including token as Cookie
+    if (headers != null) {
+      request.headers.addAll(headers);
+    }
+    
+    if (token != null && token.isNotEmpty) {
+      request.headers['Cookie'] = 'AccessToken=$token';
+    }
+
+    Logger.debug("Multipart Token retrieved from storage: '${token ?? 'null'}'");
+    Logger.debug("Multipart Token included in Cookie: ${token != null && token.isNotEmpty ? 'Yes' : 'No'}");
+    Logger.debug("Multipart Headers being sent: ${request.headers}");
+    Logger.debug("Multipart Fields being sent: ${request.fields}");
+    
+    final streamedResponse = await request.send();
+    return await http.Response.fromStream(streamedResponse);
+  }
 } 

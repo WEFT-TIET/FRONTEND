@@ -289,7 +289,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 ),
                 if (_isLoading)
                   Container(
-                    color: Colors.black26,
+                    color: Colors.black26, 
                     child: const Center(
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(AppPallete.textPrimaryDark),

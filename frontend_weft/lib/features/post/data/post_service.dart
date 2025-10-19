@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:http/http.dart' as http; // For MultipartFile
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_weft/core/server_constants.dart';
 import 'package:frontend_weft/core/http_client.dart';
@@ -180,15 +181,39 @@ class PostService {
   Future<bool> createPost({
     required String title,
     required String content,
+    String? imagePath, // Local file path for single image
   }) async {
     try {
       final url = Uri.parse('$baseUrl/post/create');
-      final body = jsonEncode({'title': title, 'content': content});
+      
+      // Create fields for multipart form data
+      final fields = {
+        'title': title,
+        'content': content,
+      };
+      // Prepare files list (backend expects field name 'image')
+      List<http.MultipartFile>? files;
+      if (imagePath != null && imagePath.isNotEmpty) {
+        try {
+          final file = await http.MultipartFile.fromPath('image', imagePath);
+          files = [file];
+        } catch (e) {
+          print('⚠️ Failed to attach image: $e');
+        }
+      }
 
-      final response = await _httpClient.post(url, body: body);
+      final response = await _httpClient.postMultipart(
+        url,
+        fields: fields,
+        files: files,
+        headers: {
+          // Override content-type letting MultipartRequest set boundaries
+          'Accept': 'application/json',
+        },
+      );
 
       print("🔵 POST Create URL: $url");
-      print("📦 Request Body: $body");
+      print("📦 Request Fields: $fields");
       print("📬 Response (${response.statusCode}): ${response.body}");
 
       return response.statusCode == 200 || response.statusCode == 201;

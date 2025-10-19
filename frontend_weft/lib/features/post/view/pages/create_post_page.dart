@@ -164,6 +164,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage>
           .createPost(
             title: _titleController.text.trim(),
             content: _contentController.text.trim(),
+            imagePath: _selectedImages.isNotEmpty ? _selectedImages.first.path : null,
           );
 
       if (success) {

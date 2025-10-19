@@ -94,6 +94,7 @@ class CommentPage extends ConsumerWidget {
                           showMenu: false, // Hide menu in comment page
                           showActions: false, // Hide like and comment buttons
                           verified: post.verified,
+                          imageUrl: post.imageUrl,
                         ),
                       ),
                       

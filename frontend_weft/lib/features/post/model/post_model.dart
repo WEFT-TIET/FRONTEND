@@ -9,6 +9,7 @@ class Post {
   final int commentsCount;
   final bool liked;
   final bool verified;
+  final String imageUrl; // Cloudflare image URL (optional)
 
   const Post({
     required this.id,
@@ -21,6 +22,7 @@ class Post {
     required this.commentsCount,
     required this.liked,
     this.verified = false,
+  this.imageUrl = '',
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -58,6 +60,7 @@ class Post {
       commentsCount: json['commentsCount'] ?? json['comments_count'] ?? 0,
       liked: liked,
       verified: verified,
+  imageUrl: json['image_url'] ?? json['imageURL'] ?? '',
     );
   }
 
@@ -73,6 +76,7 @@ class Post {
       'commentsCount': commentsCount,
       'liked': liked,
       'verified': verified,
+  'image_url': imageUrl,
     };
   }
 
@@ -87,6 +91,7 @@ class Post {
     int? commentsCount,
     bool? liked,
     bool? verified,
+    String? imageUrl,
   }) {
     return Post(
       id: id ?? this.id,
@@ -99,6 +104,7 @@ class Post {
       commentsCount: commentsCount ?? this.commentsCount,
       liked: liked ?? this.liked,
       verified: verified ?? this.verified,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 }

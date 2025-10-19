@@ -94,6 +94,7 @@ class PostViewModel extends StateNotifier<PostState> {
   Future<bool> createPost({
     required String title,
     required String content,
+  String? imagePath,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -101,6 +102,7 @@ class PostViewModel extends StateNotifier<PostState> {
       final success = await _postService.createPost(
         title: title,
         content: content,
+    imagePath: imagePath,
       );
 
       if (success) {

@@ -282,6 +282,7 @@ class _HomePageState extends ConsumerState<HomePage>
                 comments: post.commentsCount,
                 liked: post.liked,
                 verified: isVerified, // Using test verification
+                imageUrl: post.imageUrl,
               ),
             );
           },

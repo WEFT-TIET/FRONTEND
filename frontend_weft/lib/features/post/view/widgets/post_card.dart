@@ -19,6 +19,7 @@ class PostCard extends ConsumerStatefulWidget {
   final bool showMenu;
   final bool showActions; // New parameter to control like/comment buttons
   final bool verified;
+  final String? imageUrl; // Optional image
   final VoidCallback? onPostDeleted; // Callback for post deletion
 
   const PostCard({
@@ -35,6 +36,7 @@ class PostCard extends ConsumerStatefulWidget {
     this.showMenu = true,
     this.showActions = true, // Default to true to show actions
     this.verified = false,
+  this.imageUrl,
     this.onPostDeleted, // Optional callback
   });
 
@@ -299,6 +301,37 @@ class _PostCardState extends ConsumerState<PostCard> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if ((widget.imageUrl ?? '').isNotEmpty) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: AspectRatio(
+                      aspectRatio: 16/9,
+                      child: Image.network(
+                        widget.imageUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stack) => Container(
+                          color: Colors.black12,
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.broken_image, color: Colors.white54),
+                        ),
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return Container(
+                            color: Colors.black12,
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator(
+                              value: progress.expectedTotalBytes != null
+                                  ? progress.cumulativeBytesLoaded / (progress.expectedTotalBytes ?? 1)
+                                  : null,
+                              valueColor: const AlwaysStoppedAnimation<Color>(AppPallete.gradient2),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 Text(
                   displayContent,
                   style: theme.textTheme.bodyMedium?.copyWith(
